@@ -1,0 +1,14 @@
+<svg width="64" height="65" viewBox="0 0 64 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+<ellipse cx="31.9387" cy="32.1033" rx="31.7549" ry="32.0144" fill="#EAF7FC" style="fill:#EAF7FC;fill:color(display-p3 0.9176 0.9686 0.9882);fill-opacity:1;"/>
+<g clip-path="url(#clip0_1976_1393)">
+<path d="M39.5 40.2495H24.5C24.3011 40.2495 24.1103 40.1705 23.9697 40.0298C23.829 39.8892 23.75 39.6984 23.75 39.4995V26.7495L25.25 23.7495H38.75L40.25 26.7495V39.4995C40.25 39.6984 40.171 39.8892 40.0303 40.0298C39.8897 40.1705 39.6989 40.2495 39.5 40.2495Z" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M23.75 26.7495H40.25" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M32 37.2495V29.7495" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 32.7495L32 29.7495L35 32.7495" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_1976_1393">
+<rect width="24" height="24" fill="white" style="fill:white;fill-opacity:1;" transform="translate(20 19.9995)"/>
+</clipPath>
+</defs>
+</svg>

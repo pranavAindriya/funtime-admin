@@ -1,0 +1,13 @@
+<svg width="65" height="65" viewBox="0 0 65 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+<ellipse cx="32.4846" cy="32.1033" rx="31.7549" ry="32.0144" fill="#EAF7FC" style="fill:#EAF7FC;fill:color(display-p3 0.9176 0.9686 0.9882);fill-opacity:1;"/>
+<g clip-path="url(#clip0_1976_1330)">
+<path d="M27.75 27.4995H39.75" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M27.75 23.7495H39.75" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M31.125 23.7495C32.4179 23.7495 33.6579 24.2631 34.5721 25.1774C35.4864 26.0916 36 27.3316 36 28.6245C36 29.9174 35.4864 31.1574 34.5721 32.0717C33.6579 32.9859 32.4179 33.4995 31.125 33.4995H27.75L36 40.9995" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_1976_1330">
+<rect width="24" height="24" fill="white" style="fill:white;fill-opacity:1;" transform="translate(21 19.9995)"/>
+</clipPath>
+</defs>
+</svg>
