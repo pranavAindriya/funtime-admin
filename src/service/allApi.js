@@ -12,6 +12,24 @@ export const getAllUsers = async () => {
   return commonRequest("GET", "api/users/getUsers");
 };
 
+// Admin
+
+export const getAllRoles = async (id) => {
+  return commonRequest("GET", "api/users/getRoles");
+};
+
+export const createNewUserRole = async (body) => {
+  return commonRequest("POST", "api/users/createRole", body);
+};
+
+export const getRoleById = async (id) => {
+  return commonRequest("GET", `api/users/getRoleDetails/${id}`);
+};
+
+export const updateUserRole = async (id, body) => {
+  return commonRequest("PUT", `api/users/updateRole/${id}`, body);
+};
+
 // Language
 
 export const createNewLanguage = async (body) => {

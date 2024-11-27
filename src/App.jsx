@@ -23,6 +23,8 @@ import Conversion from "./pages/Conversion/Conversion";
 import UserRoles from "./pages/Admin/UserRoles/UserRoles";
 import Notifications from "./pages/notifications/Notifications";
 import AddNewNotification from "./pages/notifications/AddNewNotification";
+import AddNewAdmin from "./pages/Admin/UserRoles/AddNewAdmin";
+import AddNewRole from "./pages/Admin/UserRoles/AddNewRole";
 
 const App = () => {
   const mediaQuery800px = useMediaQuery("(min-width:800px)");
@@ -84,6 +86,11 @@ const App = () => {
             {/* Users */}
             <Route path="/users/add" element={<AddNewUser />} />
             <Route path="/users/:type/:id" element={<AddNewUser />} />
+
+            {/* Admin */}
+            <Route path="/admin/addnewadmin" element={<AddNewAdmin />} />
+            <Route path="/admin/addnewrole" element={<AddNewRole />} />
+            <Route path="/admin/role/:type/:id" element={<AddNewRole />} />
 
             {/* Coins */}
             <Route path="/coins/add" element={<AddNewCoin />} />
