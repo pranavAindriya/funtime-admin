@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import DataTable from "../../../Components/DataTable";
+import DataTable from "../../../components/DataTable";
 
 const initialRows = [
   {

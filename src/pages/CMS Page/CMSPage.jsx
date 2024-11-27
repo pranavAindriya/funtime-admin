@@ -1,7 +1,7 @@
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DataTable from "../../components/DataTable";
-import ConfirmationPopover from "../../Components/ConfirmationPopover";
+import ConfirmationPopover from "../../components/ConfirmationPopover";
 import { Pencil, Trash } from "@phosphor-icons/react";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import { useNavigate } from "react-router-dom";

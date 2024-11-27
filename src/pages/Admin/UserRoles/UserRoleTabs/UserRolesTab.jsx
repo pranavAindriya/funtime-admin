@@ -1,7 +1,7 @@
 import { Box, Chip, IconButton, Switch } from "@mui/material";
 import { Pencil, Trash } from "@phosphor-icons/react";
 import React from "react";
-import DataTable from "../../../../Components/DataTable";
+import DataTable from "../../../../components/DataTable";
 
 const UserRolesTab = () => {
   const columns = [

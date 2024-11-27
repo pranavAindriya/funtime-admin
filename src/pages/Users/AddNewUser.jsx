@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
-import CreateNewTopBar from "../../Components/CreateNewTopBar";
-import InputField from "../../Components/InputField";
-import SelectField from "../../Components/SelectField";
-import LabeldInputField from "../../Components/LabeldInputField";
+import CreateNewTopBar from "../../components/CreateNewTopBar";
+import InputField from "../../components/InputField";
+import SelectField from "../../components/SelectField";
+import LabeldInputField from "../../components/LabeldInputField";
 import ProfileImagePlaceholder from "../../assets/ProfileImagePlaceholder.png";
 import { useNavigate } from "react-router-dom";
 

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
-import CreateNewTopBar from "../../Components/CreateNewTopBar";
+import CreateNewTopBar from "../../components/CreateNewTopBar";
 import InputField from "../../components/InputField";
-import LabeldInputField from "../../Components/LabeldInputField";
+import LabeldInputField from "../../components/LabeldInputField";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
 import languagePlaceholder from "../../assets/LanguagePlaceholder.png";
 import { createNewLanguage } from "../../service/allApi";

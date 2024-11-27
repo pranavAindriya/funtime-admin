@@ -1,6 +1,6 @@
 import { Box, IconButton, Switch } from "@mui/material";
 import React from "react";
-import DataTable from "../../../../Components/DataTable";
+import DataTable from "../../../../components/DataTable";
 
 const UserListTab = () => {
   const columns = [

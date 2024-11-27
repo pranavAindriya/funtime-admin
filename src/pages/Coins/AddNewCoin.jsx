@@ -6,8 +6,8 @@ import TableToggleSwitch from "../../components/TableToggleSwitch";
 import coin from "../../assets/CoinImage.png";
 import { createCoinPackage } from "../../service/allApi";
 import { Slide, toast } from "react-toastify";
-import LabeldInputField from "../../Components/LabeldInputField";
-import CreateNewTopBar from "../../Components/CreateNewTopBar";
+import LabeldInputField from "../../components/LabeldInputField";
+import CreateNewTopBar from "../../components/CreateNewTopBar";
 
 const AddNewCoin = () => {
   const [coinData, setCoinData] = useState({

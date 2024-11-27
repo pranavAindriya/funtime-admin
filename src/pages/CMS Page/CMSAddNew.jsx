@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import LabeldInputField from "../../Components/LabeldInputField";
+import LabeldInputField from "../../components/LabeldInputField";
 import { Box, Input, TextField, Typography } from "@mui/material";
 import TopAddNewBar from "../../components/TopAddNewBar";
-import CreateNewTopBar from "../../Components/CreateNewTopBar";
+import CreateNewTopBar from "../../components/CreateNewTopBar";
 import { createPrivacyPolicy, getPolicyById } from "../../service/allApi";
 import { useNavigate, useParams } from "react-router-dom";
 

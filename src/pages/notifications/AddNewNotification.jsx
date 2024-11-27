@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import CreateNewTopBar from "../../Components/CreateNewTopBar";
+import CreateNewTopBar from "../../components/CreateNewTopBar";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, TextField, Typography } from "@mui/material";
 

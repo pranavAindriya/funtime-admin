@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Box, Button } from "@mui/material";
-import CreateNewTopBar from "../../Components/CreateNewTopBar";
+import CreateNewTopBar from "../../components/CreateNewTopBar";
 import InputField from "../../components/InputField";
-import LabeldInputField from "../../Components/LabeldInputField";
+import LabeldInputField from "../../components/LabeldInputField";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
 import iconPlaceholder from "../../assets/Heart.svg";
-import SelectField from "../../Components/SelectField";
+import SelectField from "../../components/SelectField";
 
 const AddNewLeaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState({

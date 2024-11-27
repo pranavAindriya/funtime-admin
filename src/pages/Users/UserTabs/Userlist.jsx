@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import DataTable from "../../../Components/DataTable";
+import DataTable from "../../../components/DataTable";
 import { Button, ButtonGroup, Checkbox } from "@mui/material";
 import { Link } from "react-router-dom";
 import { getAllUsers } from "../../../service/allApi";
