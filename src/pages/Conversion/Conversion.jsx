@@ -3,23 +3,20 @@ import React, { useEffect, useState } from "react";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import InputField from "../../components/InputField";
 import SmallCoin from "../../assets/SmallCoin.svg";
-import SmallHeart from "../../assets/SmallHeart.svg";
+import SmallDiamond from "../../assets/SmallHeart.svg";
 import { conversionsEdit, getConversionFactors } from "../../service/allApi";
 import { Slide, ToastContainer, toast } from "react-toastify";
 
 const Conversion = () => {
   const [isEditable, setIsEditable] = useState(false);
   const [conversionData, setConversionData] = useState({
-    coinHeartConversionFactor: {
+    coinToDiamond: {
       coins: 0,
-      hearts: 0,
+      diamond: 0,
     },
-    heartConversionFactor: {
-      hearts: 0,
-      indianRupees: 0,
-    },
-    referrals: {
-      coinPerReferreals: 0,
+    diamondToRupee: {
+      diamond: 0,
+      rupee: 0,
     },
   });
   const [validationError, setValidationError] = useState();
@@ -29,19 +26,15 @@ const Conversion = () => {
   const fetchConversionDetails = async () => {
     const response = await getConversionFactors();
     console.log(response);
-    const { coinConversionData } = response.data;
+    const { conversion } = response.data;
     setConversionData({
-      coinHeartConversionFactor: {
-        coins: coinConversionData?.coinHeartConversionFactor?.coins || 0,
-        hearts: coinConversionData?.coinHeartConversionFactor?.hearts || 0,
+      coinToDiamond: {
+        coins: conversion?.coinToDiamond?.coins || 0,
+        diamond: conversion?.coinToDiamond?.diamond || 0,
       },
-      heartConversionFactor: {
-        hearts: coinConversionData?.heartConversionFactor.hearts || 0,
-        indianRupees:
-          coinConversionData?.heartConversionFactor.indianRupees || 0,
-      },
-      referrals: {
-        coinPerReferreals: coinConversionData?.referrals.coinPerReferreals || 0,
+      diamondToRupee: {
+        diamond: conversion?.diamondToRupee.diamond || 0,
+        rupee: conversion?.diamondToRupee.rupee || 0,
       },
     });
   };
@@ -63,7 +56,7 @@ const Conversion = () => {
   const handleConversionChangesSave = async () => {
     const response = await conversionsEdit(conversionData);
     if (response.status === 200) {
-      toast.success("Coin conversion data Updated", {
+      toast.success("Conversion data Updated", {
         autoClose: 1000,
         transition: Slide,
       });
@@ -116,10 +109,10 @@ const Conversion = () => {
             }}
           >
             <img src={SmallCoin} />
-            <span>Coin - Diamonds conversion factor-</span>
+            <span>Coin - Diamond conversion factor-</span>
             <InputField
-              value={conversionData?.coinHeartConversionFactor.coins}
-              name="coinHeartConversionFactor.coins"
+              value={conversionData?.coinToDiamond.coins}
+              name="coinToDiamond.coins"
               onChange={handleFieldChange}
               disabled={isEditable ? false : true}
               styles={{
@@ -140,8 +133,8 @@ const Conversion = () => {
           >
             <span>Coins =</span>
             <InputField
-              value={conversionData?.coinHeartConversionFactor.hearts}
-              name="coinHeartConversionFactor.hearts"
+              value={conversionData?.coinToDiamond.diamond}
+              name="coinToDiamond.diamond"
               onChange={handleFieldChange}
               disabled={isEditable ? false : true}
               styles={{
@@ -150,7 +143,7 @@ const Conversion = () => {
               error={validationError}
               setError={setValidationError}
             />
-            Hearts
+            Diamonds
           </Box>
         </Box>
 
@@ -174,11 +167,11 @@ const Conversion = () => {
               fontWeight: 700,
             }}
           >
-            <img src={SmallHeart} />
-            <span>Diamonds conversion factor-</span>
+            <img src={SmallDiamond} />
+            <span>Diamond conversion factor-</span>
             <InputField
-              value={conversionData?.heartConversionFactor.hearts}
-              name="heartConversionFactor.hearts"
+              value={conversionData?.diamondToRupee.diamond}
+              name="diamondToRupee.diamond"
               onChange={handleFieldChange}
               disabled={isEditable ? false : true}
               styles={{
@@ -197,10 +190,10 @@ const Conversion = () => {
               fontWeight: 700,
             }}
           >
-            <span>Hearts =</span>
+            <span>Diamonds =</span>
             <InputField
-              value={conversionData?.heartConversionFactor.indianRupees}
-              name="heartConversionFactor.indianRupees"
+              value={conversionData?.diamondToRupee.rupee}
+              name="diamondToRupee.rupee"
               onChange={handleFieldChange}
               disabled={isEditable ? false : true}
               styles={{
@@ -210,58 +203,6 @@ const Conversion = () => {
               setError={setValidationError}
             />
             Indian Rupees
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            display: "grid",
-            gap: "25px",
-            marginTop: "30px",
-          }}
-        >
-          <span
-            style={{
-              fontWeight: 700,
-              fontSize: 18,
-            }}
-          >
-            Referrals
-          </span>
-
-          <Box
-            sx={{
-              padding: "25px",
-              backgroundColor: theme.palette.secondary.light,
-              borderRadius: "10px",
-              marginBottom: "25px",
-              display: "flex",
-              gap: "25px",
-              flexWrap: "wrap",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "15px",
-                fontWeight: 700,
-              }}
-            >
-              <span>Coins received per referreal</span>
-              <InputField
-                value={conversionData?.referrals.coinPerReferreals}
-                name="referrals.coinPerReferreals"
-                onChange={handleFieldChange}
-                disabled={isEditable ? false : true}
-                styles={{
-                  maxWidth: "100px",
-                }}
-                error={validationError}
-                setError={setValidationError}
-              />
-            </Box>
           </Box>
         </Box>
       </Box>

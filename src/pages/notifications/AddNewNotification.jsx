@@ -1,21 +1,44 @@
 import React, { useRef, useState } from "react";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, Avatar } from "@mui/material";
+import { addNewNotification } from "../../service/allApi";
+import { ToastContainer, toast, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddNewNotification = () => {
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [notificationData, setNotificationData] = useState({
     title: "",
     description: "",
   });
 
   const navigate = useNavigate();
-
   const inputRef = useRef(null);
 
-  const handleAddNewNotification = () => {
-    return;
+  const handleAddNewNotification = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("title", notificationData.title);
+      formData.append("description", notificationData.description);
+      formData.append("image", image);
+
+      await addNewNotification(formData);
+      toast.success("Notification added successfully!", {
+        position: "top-center",
+        autoClose: 2000,
+        transition: Slide,
+      });
+      navigate("/notifications");
+    } catch (error) {
+      toast.error("Failed to add notification. Please try again.", {
+        position: "top-center",
+        autoClose: 2000,
+        transition: Slide,
+      });
+      console.error("Error adding new notification:", error);
+    }
   };
 
   const handleInputFieldChange = (e) => {
@@ -23,15 +46,22 @@ const AddNewNotification = () => {
     setNotificationData((prevdata) => ({ ...prevdata, [name]: value }));
   };
 
-  console.log(notificationData);
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   return (
     <Box display={"grid"} gap={4}>
+      <ToastContainer />
       <CreateNewTopBar
         label={"Back"}
         onAddButtonClick={handleAddNewNotification}
         disableAddButton={
-          notificationData.description === "" || notificationData.title === ""
+          notificationData.description === "" ||
+          notificationData.title === "" ||
+          !image
         }
         onBackButtonClick={() => navigate("/notifications")}
       />
@@ -53,11 +83,22 @@ const AddNewNotification = () => {
           color="primary"
           onClick={() => inputRef.current.click()}
         >
-          upload
+          Upload
         </Button>
+        <input
+          type="file"
+          ref={inputRef}
+          style={{ display: "none" }}
+          onChange={handleImageUpload}
+        />
       </Box>
-
-      <input type="file" ref={inputRef} style={{ display: "none" }} />
+      {imagePreview && (
+        <img
+          src={imagePreview}
+          alt="Notification Preview"
+          style={{ width: 300, marginInline: "auto" }}
+        />
+      )}
 
       <Box display={"flex"} flexWrap={"wrap"} gap={2}>
         <Typography minWidth={"200px"}>Description</Typography>

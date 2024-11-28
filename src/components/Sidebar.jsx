@@ -46,11 +46,6 @@ const Sidebar = () => {
       icon: <SquaresFour size={26} color="white" />,
       link: "/dashboard",
     },
-    {
-      text: "Banner",
-      icon: <FlagBanner size={26} color="white" />,
-      link: "/banner",
-    },
     { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
     {
       text: "Coins",
@@ -62,21 +57,11 @@ const Sidebar = () => {
       icon: <Scales size={26} color="white" />,
       link: "/conversion",
     },
-    {
-      text: "Levels",
-      icon: <Ranking size={26} color="white" />,
-      link: "/levels",
-    },
-    {
-      text: "Rooms",
-      icon: <UsersFour size={26} color="white" />,
-      link: "/rooms",
-    },
-    {
-      text: "Leader Board",
-      icon: <Trophy size={26} color="white" />,
-      link: "/leaderboard",
-    },
+    // {
+    //   text: "Leader Board",
+    //   icon: <Trophy size={26} color="white" />,
+    //   link: "/leaderboard",
+    // },
     {
       text: "Notifications",
       icon: <Notification size={26} color="white" />,
@@ -92,30 +77,10 @@ const Sidebar = () => {
       icon: <Translate size={26} color="white" />,
       link: "/language",
     },
-    { text: "Offers", icon: <Tag size={26} color="white" />, link: "/offers" },
     {
       text: "CMS Page",
       icon: <FileText size={26} color="white" />,
       link: "/cms",
-    },
-  ];
-
-  const coinsAndGiftsItems = [
-    {
-      text: "Moods",
-      icon: <Circle size={15} color="white" />,
-      link: "/moods",
-    },
-    { text: "Gifts", icon: <Circle size={15} color="white" />, link: "/gifts" },
-    {
-      text: "Frames",
-      icon: <Circle size={15} color="white" />,
-      link: "/frames",
-    },
-    {
-      text: "Wallpapers",
-      icon: <Circle size={15} color="white" />,
-      link: "/wallpapers",
     },
   ];
 

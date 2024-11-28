@@ -25,6 +25,7 @@ import Notifications from "./pages/notifications/Notifications";
 import AddNewNotification from "./pages/notifications/AddNewNotification";
 import AddNewAdmin from "./pages/Admin/UserRoles/AddNewAdmin";
 import AddNewRole from "./pages/Admin/UserRoles/AddNewRole";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   const mediaQuery800px = useMediaQuery("(min-width:800px)");

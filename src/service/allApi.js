@@ -44,6 +44,17 @@ export const deleteSingleLaguage = async (id) => {
   return commonRequest("DELETE", `api/users/deleteLanguageById/${id}`);
 };
 
+// Notifications
+
+export const addNewNotification = async (body) => {
+  return commonRequest(
+    "POST",
+    "api/users/addNotification",
+    body,
+    "multipart/form-data"
+  );
+};
+
 // Coin
 
 export const getCoinList = async () => {
@@ -65,11 +76,18 @@ export const updateFreeCoinDetails = async (id, body) => {
 // Conversions
 
 export const getConversionFactors = async () => {
-  return commonRequest("GET", "api/users/getCoinConversion");
+  return commonRequest(
+    "GET",
+    "api/users/getConversionFactors/67484d6bdb7f5649821fa945"
+  );
 };
 
 export const conversionsEdit = async (body) => {
-  return commonRequest("PUT", "api/users/updateCoinConversion", body);
+  return commonRequest(
+    "PUT",
+    "api/users/updateConversionFactor/67484d6bdb7f5649821fa945",
+    body
+  );
 };
 
 // Wallpapers
