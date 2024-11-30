@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
 import InputField from "../../components/InputField";
 import SelectField from "../../components/SelectField";
-import LabeldInputField from "../../components/LabeldInputField";
 import ProfileImagePlaceholder from "../../assets/ProfileImagePlaceholder.png";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { createUser, requestOtp, verifyOtp } from "../../service/allApi";
 
 const AddNewUser = () => {
   const [userData, setUserData] = useState({
     username: "",
+    userId: "",
     phoneNumber: "",
     dob: "",
     location: "",
@@ -17,10 +19,15 @@ const AddNewUser = () => {
     icon: null,
     coins: "",
     kyc: "",
+    email: "",
   });
   const [iconPreview, setIconPreview] = useState("");
-
   const [validationError, setValidationError] = useState();
+  const [loading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [message, setMessage] = useState({ text: "", severity: "success" });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const navigate = useNavigate();
 
@@ -47,11 +54,101 @@ const AddNewUser = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleRequestOTP = async () => {
+    try {
+      const response = await requestOtp({ mobileNumber: userData.phoneNumber });
+      if (response.status === 200) {
+        setOtpSent(true);
+        setMessage({ text: "OTP sent successfully!", severity: "success" });
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      setMessage({
+        text: error.response?.data?.message || "Failed to send OTP",
+        severity: "error",
+      });
+      setOpenSnackbar(true);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    try {
+      const response = await verifyOtp({
+        mobileNumber: userData.phoneNumber,
+        otp: otp,
+      });
+      console.log(response);
+      if (response.status === 200) {
+        setUserData((prev) => ({
+          ...prev,
+          userId: response.data.user._id,
+        }));
+        setMessage({ text: "OTP Verified Successfully!", severity: "success" });
+        setOpenSnackbar(true);
+        setOtpSent(false);
+      }
+    } catch (error) {
+      setMessage({
+        text: error.response?.data?.message || "OTP Verification Failed",
+        severity: "error",
+      });
+      setOpenSnackbar(true);
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (!userData.userId) {
+      setMessage({
+        text: "User Creation Failed, No user id found",
+        severity: "error",
+      });
+      setOpenSnackbar(true);
+    }
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+
+      formData.append("username", userData.username);
+      formData.append("dateOfBirth", userData.dob);
+      formData.append("language", "English");
+      formData.append("place", userData.location);
+      formData.append("userDescription", "");
+      formData.append("gender", userData.gender);
+      formData.append("email", userData.email);
+      if (userData.icon) {
+        formData.append("avatar", userData.icon);
+      }
+
+      const response = await createUser(formData, userData.userId);
+
+      if (response.status === 200) {
+        setMessage({ text: "User Created Successfully!", severity: "success" });
+        setOpenSnackbar(true);
+        navigate("/users");
+      }
+    } catch (error) {
+      setMessage({
+        text: error.response?.data?.message || "User Creation Failed",
+        severity: "error",
+      });
+      setOpenSnackbar(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  console.log(userData.userId);
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   return (
     <div>
       <CreateNewTopBar
         label={"Add New User"}
         onBackButtonClick={() => navigate("/users")}
+        onAddButtonClick={handleCreateUser}
       />
 
       <Box
@@ -80,7 +177,6 @@ const AddNewUser = () => {
             <span>User name</span>
             <Box sx={{ width: "500px" }}>
               <InputField
-                fullWidth
                 name="username"
                 value={userData.username}
                 onChange={handleChange}
@@ -99,7 +195,7 @@ const AddNewUser = () => {
             }}
           >
             <span>Phone Number</span>
-            <Box sx={{ width: "300px" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <InputField
                 name="phoneNumber"
                 fullWidth
@@ -108,7 +204,28 @@ const AddNewUser = () => {
                 placeholder={"Enter 10 digit Phone Number"}
                 error={validationError}
                 setError={setValidationError}
+                sx={{ width: "300px" }}
               />
+              {!otpSent ? (
+                <Button onClick={handleRequestOTP} variant="outlined">
+                  OTP
+                </Button>
+              ) : (
+                <InputField
+                  name="otp"
+                  error={validationError}
+                  setError={setValidationError}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="Enter OTP"
+                  sx={{ width: "150px" }}
+                />
+              )}
+              {otpSent && (
+                <Button onClick={handleVerifyOTP} variant="contained">
+                  Verify
+                </Button>
+              )}
             </Box>
           </Box>
         </Box>
@@ -153,10 +270,13 @@ const AddNewUser = () => {
           >
             <span>Location</span>
             <Box sx={{ width: "200px" }}>
-              <SelectField
+              <InputField
                 name="location"
                 value={userData.location}
                 onChange={handleChange}
+                placeholder={"Enter location"}
+                error={validationError}
+                setError={setValidationError}
               />
             </Box>
           </Box>
@@ -174,14 +294,14 @@ const AddNewUser = () => {
               <SelectField
                 options={[
                   {
-                    value: "male",
+                    value: "Male",
                     name: "Male",
                   },
                   {
-                    value: "female",
+                    value: "Female",
                     name: "Female",
                   },
-                  { value: "other", name: "Other" },
+                  { value: "Other", name: "Other" },
                 ]}
                 name="gender"
                 value={userData.gender}
@@ -273,7 +393,7 @@ const AddNewUser = () => {
           </Box>
         </Box>
 
-        <Box>
+        {/* <Box>
           <Box
             sx={{
               display: "flex",
@@ -301,7 +421,7 @@ const AddNewUser = () => {
               />
             </Box>
           </Box>
-        </Box>
+        </Box> */}
       </Box>
     </div>
   );

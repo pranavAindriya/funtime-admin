@@ -12,6 +12,23 @@ export const getAllUsers = async () => {
   return commonRequest("GET", "api/users/getUsers");
 };
 
+export const requestOtp = async (body) => {
+  return commonRequest("POST", "api/users/userRequestOTP", body);
+};
+
+export const verifyOtp = async (body) => {
+  return commonRequest("POST", "api/users/userVerifyOTP", body);
+};
+
+export const createUser = async (body, id) => {
+  return commonRequest(
+    "POST",
+    `api/users/createUser/${id}`,
+    body,
+    "multipart/form-data"
+  );
+};
+
 // Admin
 
 export const getAllRoles = async (id) => {
