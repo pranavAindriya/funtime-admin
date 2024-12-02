@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button } from "@mui/material";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
 import InputField from "../../components/InputField";
 import SelectField from "../../components/SelectField";
 import ProfileImagePlaceholder from "../../assets/ProfileImagePlaceholder.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { createUser, requestOtp, verifyOtp } from "../../service/allApi";
+import {
+  createUser,
+  editUser,
+  getUserById,
+  requestOtp,
+  verifyOtp,
+} from "../../service/allApi";
 
 const AddNewUser = () => {
   const [userData, setUserData] = useState({
@@ -29,7 +35,50 @@ const AddNewUser = () => {
   const [message, setMessage] = useState({ text: "", severity: "success" });
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
+  const { type, id } = useParams();
+
   const navigate = useNavigate();
+
+  const fetchUserDetails = async () => {
+    try {
+      const response = await getUserById(id);
+
+      if (response.status === 200) {
+        const userDetails = response?.data;
+
+        setUserData({
+          username: userDetails.username || "",
+          userId: userDetails._id || "",
+          phoneNumber: userDetails.mobileNumber || "",
+          dob: userDetails.profile?.dateOfBirth
+            ? new Date(userDetails.profile.dateOfBirth)
+                .toISOString()
+                .split("T")[0]
+            : "",
+          location: userDetails.profile?.place || "",
+          gender: userDetails.profile?.gender || "",
+          coins: userDetails.profile?.coin?.toString() || "",
+          icon: null,
+        });
+
+        if (userDetails.avatar) {
+          setIconPreview(userDetails.avatar);
+        }
+      }
+    } catch (error) {
+      setMessage({
+        text: "Failed to fetch user details",
+        severity: "error",
+      });
+      setOpenSnackbar(true);
+    }
+  };
+
+  useEffect(() => {
+    if (type === "edit" || type === "view") {
+      fetchUserDetails();
+    }
+  }, [type]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,7 +168,13 @@ const AddNewUser = () => {
         formData.append("avatar", userData.icon);
       }
 
-      const response = await createUser(formData, userData.userId);
+      let response;
+
+      if (type === "edit") {
+        response = await editUser(userData.userId, formData);
+      } else {
+        response = await createUser(formData, userData.userId);
+      }
 
       if (response.status === 200) {
         setMessage({ text: "User Created Successfully!", severity: "success" });
@@ -177,6 +232,7 @@ const AddNewUser = () => {
             <span>User name</span>
             <Box sx={{ width: "500px" }}>
               <InputField
+                disabled={type === "view"}
                 name="username"
                 value={userData.username}
                 onChange={handleChange}
@@ -205,26 +261,32 @@ const AddNewUser = () => {
                 error={validationError}
                 setError={setValidationError}
                 sx={{ width: "300px" }}
+                disabled={type}
               />
-              {!otpSent ? (
-                <Button onClick={handleRequestOTP} variant="outlined">
-                  OTP
-                </Button>
-              ) : (
-                <InputField
-                  name="otp"
-                  error={validationError}
-                  setError={setValidationError}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="Enter OTP"
-                  sx={{ width: "150px" }}
-                />
-              )}
-              {otpSent && (
-                <Button onClick={handleVerifyOTP} variant="contained">
-                  Verify
-                </Button>
+              {!type && (
+                <Box>
+                  {!otpSent ? (
+                    <Button onClick={handleRequestOTP} variant="outlined">
+                      OTP
+                    </Button>
+                  ) : (
+                    <InputField
+                      disabled={type}
+                      name="otp"
+                      error={validationError}
+                      setError={setValidationError}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="Enter OTP"
+                      sx={{ width: "150px" }}
+                    />
+                  )}
+                  {otpSent && (
+                    <Button onClick={handleVerifyOTP} variant="contained">
+                      Verify
+                    </Button>
+                  )}
+                </Box>
               )}
             </Box>
           </Box>
@@ -250,6 +312,7 @@ const AddNewUser = () => {
             <span>DOB</span>
             <Box sx={{ width: "200px" }}>
               <InputField
+                disabled={type === "view"}
                 name="dob"
                 value={userData.dob}
                 onChange={handleChange}
@@ -271,6 +334,7 @@ const AddNewUser = () => {
             <span>Location</span>
             <Box sx={{ width: "200px" }}>
               <InputField
+                disabled={type === "view"}
                 name="location"
                 value={userData.location}
                 onChange={handleChange}
@@ -292,6 +356,7 @@ const AddNewUser = () => {
             <span>Gender</span>
             <Box sx={{ width: "200px" }}>
               <SelectField
+                disabled={type === "view"}
                 options={[
                   {
                     value: "Male",
@@ -341,31 +406,35 @@ const AddNewUser = () => {
                   borderRadius: "50%",
                 }}
               />
-              <input
-                type="file"
-                id="icon"
-                style={{ display: "none" }}
-                onChange={handleIconChange}
-              />
-              <label
-                htmlFor="icon"
-                style={{
-                  backgroundColor: "#E5E5E5",
-                  padding: "6px 20px",
-                  width: "max-content",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-              >
-                Change
-              </label>
-              <span
-                style={{
-                  fontSize: "12px",
-                }}
-              >
-                Upload PNG of resolution 100x100 and size below 1mb
-              </span>
+              {type !== "view" && (
+                <>
+                  <input
+                    type="file"
+                    id="icon"
+                    style={{ display: "none" }}
+                    onChange={handleIconChange}
+                  />
+                  <label
+                    htmlFor="icon"
+                    style={{
+                      backgroundColor: "#E5E5E5",
+                      padding: "6px 20px",
+                      width: "max-content",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Change
+                  </label>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                    }}
+                  >
+                    Upload PNG of resolution 100x100 and size below 1mb
+                  </span>
+                </>
+              )}
             </Box>
           </Box>
         </Box>

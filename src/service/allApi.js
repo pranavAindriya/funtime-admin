@@ -12,6 +12,19 @@ export const getAllUsers = async () => {
   return commonRequest("GET", "api/users/getUsers");
 };
 
+export const getUserById = async (id) => {
+  return commonRequest("GET", `api/users/getUserDataByUserId/${id}`);
+};
+
+export const editUser = async (id, body) => {
+  return commonRequest(
+    "PUT",
+    `api/users/updateUser/${id}`,
+    body,
+    "multipart/form-data"
+  );
+};
+
 export const requestOtp = async (body) => {
   return commonRequest("POST", "api/users/userRequestOTP", body);
 };
