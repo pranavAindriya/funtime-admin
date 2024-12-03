@@ -1,16 +1,72 @@
-import { Box, Button, useTheme } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Button, IconButton, useTheme } from "@mui/material";
+import React, { useState, useEffect } from "react";
 import InputField from "../../components/InputField";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import DataTable from "../../components/DataTable";
 import { useNavigate } from "react-router-dom";
+import { getAllNotifications } from "../../service/allApi";
+import { Pencil, Trash } from "@phosphor-icons/react";
 
 const Notifications = () => {
+  const [notifications, setAllNotifications] = useState([]);
   const [validationErrors, setValidationErrors] = useState();
 
   const theme = useTheme();
-
   const navigte = useNavigate();
+
+  const fetchAllNotifications = async () => {
+    const response = await getAllNotifications();
+    console.log(response);
+    if (response.status === 200) {
+      setAllNotifications(response?.data?.data);
+    }
+  };
+
+  const columns = [
+    { field: "slno", headerName: "#" },
+    { field: "title", headerName: "Title" },
+    { field: "description", headerName: "Description" },
+    {
+      field: "image",
+      headerName: "Image",
+      renderCell: (value) => (
+        <img src={value} alt="img unavilable" style={{ width: "50px" }} />
+      ),
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      renderCell: (value) => (
+        <>
+          <IconButton>
+            <Pencil size={20} color={theme.palette.info.main} />
+          </IconButton>
+          <IconButton aria-describedby="delete-pop">
+            <Trash size={20} color={theme.palette.error.main} />
+          </IconButton>
+          <Button variant="contained" size="small" sx={{ ml: 1 }}>
+            Send
+          </Button>
+        </>
+      ),
+    },
+  ];
+
+  const formatedNotifications = () => {
+    return notifications?.map((notification, ind) => ({
+      id: notification?._id,
+      slno: ind + 1,
+      title: notification?.title,
+      description: notification?.description,
+      image: notification?.image,
+    }));
+  };
+
+  const formattedRows = formatedNotifications();
+
+  useEffect(() => {
+    fetchAllNotifications();
+  }, []);
 
   return (
     <>
@@ -45,7 +101,7 @@ const Notifications = () => {
         label={"Push Notification List"}
         onAddButtonClick={() => navigte("/notifications/addnew")}
       />
-      <DataTable />
+      <DataTable columns={columns} rows={formattedRows} />
     </>
   );
 };

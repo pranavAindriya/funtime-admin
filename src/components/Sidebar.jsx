@@ -57,11 +57,11 @@ const Sidebar = () => {
       icon: <Scales size={26} color="white" />,
       link: "/conversion",
     },
-    // {
-    //   text: "Leader Board",
-    //   icon: <Trophy size={26} color="white" />,
-    //   link: "/leaderboard",
-    // },
+    {
+      text: "Leader Board",
+      icon: <Trophy size={26} color="white" />,
+      link: "/leaderboard",
+    },
     {
       text: "Notifications",
       icon: <Notification size={26} color="white" />,

@@ -74,7 +74,17 @@ export const deleteSingleLaguage = async (id) => {
   return commonRequest("DELETE", `api/users/deleteLanguageById/${id}`);
 };
 
+// Leaderboard
+
+export const getLeaderboard = async () => {
+  return commonRequest("GET", "api/users/getLeaderBoard");
+};
+
 // Notifications
+
+export const getAllNotifications = async () => {
+  return commonRequest("GET", "api/users/getAllNotifications");
+};
 
 export const addNewNotification = async (body) => {
   return commonRequest(
