@@ -1,8 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField, Typography, Avatar } from "@mui/material";
-import { addNewNotification } from "../../service/allApi";
+import { addNewNotification, getNotificationById } from "../../service/allApi";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -13,6 +13,19 @@ const AddNewNotification = () => {
     title: "",
     description: "",
   });
+
+  const { type, id } = useParams();
+
+  const fetchNotificationById = async () => {
+    const response = await getNotificationById(id);
+    console.log(response);
+  };
+
+  useEffect(() => {
+    if (type && id) {
+      fetchNotificationById();
+    }
+  }, [type, id]);
 
   const navigate = useNavigate();
   const inputRef = useRef(null);

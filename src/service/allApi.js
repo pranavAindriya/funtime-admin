@@ -86,6 +86,10 @@ export const getAllNotifications = async () => {
   return commonRequest("GET", "api/users/getAllNotifications");
 };
 
+export const getNotificationById = async (id) => {
+  return commonRequest("GET", `api/users/getNotificationById/${id}`);
+};
+
 export const addNewNotification = async (body) => {
   return commonRequest(
     "POST",

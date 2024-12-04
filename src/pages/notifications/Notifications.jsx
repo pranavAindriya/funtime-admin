@@ -38,7 +38,7 @@ const Notifications = () => {
       headerName: "Actions",
       renderCell: (value) => (
         <>
-          <IconButton>
+          <IconButton onClick={() => navigte(`/notifications/edit/${value}`)}>
             <Pencil size={20} color={theme.palette.info.main} />
           </IconButton>
           <IconButton aria-describedby="delete-pop">
@@ -55,6 +55,7 @@ const Notifications = () => {
   const formatedNotifications = () => {
     return notifications?.map((notification, ind) => ({
       id: notification?._id,
+      actions: notification?._id,
       slno: ind + 1,
       title: notification?.title,
       description: notification?.description,
