@@ -77,6 +77,7 @@ const AddNewLanguage = () => {
         label={"Add New Language"}
         buttonStyles={{ width: "120px" }}
         onAddButtonClick={handleSubmit}
+        onBackButtonClick={() => navigate("/language")}
       />
 
       <form onSubmit={handleSubmit}>

@@ -157,6 +157,7 @@ const AddNewCoin = () => {
         label={type === "edit" ? "Edit Package" : "Add New Coin Package"}
         buttonStyles={{ width: "120px" }}
         onAddButtonClick={handleSubmit}
+        onBackButtonClick={() => navigate("/coins")}
       />
 
       <Box
