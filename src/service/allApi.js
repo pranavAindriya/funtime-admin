@@ -60,6 +60,12 @@ export const updateUserRole = async (id, body) => {
   return commonRequest("PUT", `api/users/updateRole/${id}`, body);
 };
 
+// Dashboard
+
+export const getDashboardData = async () => {
+  return commonRequest("GET", "api/users/getRevenueDetails");
+};
+
 // Language
 
 export const createNewLanguage = async (body) => {
@@ -70,8 +76,16 @@ export const getAllLanguages = async () => {
   return commonRequest("GET", "api/users/getAllLanguages");
 };
 
+export const getLanguageById = async (id) => {
+  return commonRequest("GET", `api/users/getLanguageBYId/${id}`);
+};
+
 export const deleteSingleLaguage = async (id) => {
   return commonRequest("DELETE", `api/users/deleteLanguageById/${id}`);
+};
+
+export const updateLanguage = async (id, body) => {
+  return commonRequest("PUT", `api/users/updateLanguageById/${id}`, body);
 };
 
 // Leaderboard
@@ -90,6 +104,10 @@ export const getNotificationById = async (id) => {
   return commonRequest("GET", `api/users/getNotificationById/${id}`);
 };
 
+export const updateNotification = async (id, body) => {
+  return commonRequest("PUT", `api/users/updateNotification/${id}`, body);
+};
+
 export const addNewNotification = async (body) => {
   return commonRequest(
     "POST",
@@ -97,6 +115,16 @@ export const addNewNotification = async (body) => {
     body,
     "multipart/form-data"
   );
+};
+
+// Hosted Users
+
+export const getAllHostedUsers = async () => {
+  return commonRequest("GET", "api/users/getHostedUsers");
+};
+
+export const updateHostedUserStatus = async (body) => {
+  return commonRequest("PUT", "api/users/updateHostedUserStatus", body);
 };
 
 // Coin
@@ -109,12 +137,24 @@ export const createCoinPackage = async (body) => {
   return commonRequest("POST", "api/users/createCoinPackage", body);
 };
 
+export const getCoinById = async (id) => {
+  return commonRequest("GET", `api/users/getCoinPackageById/${id}`);
+};
+
+export const updateCoinPackage = async (id, body) => {
+  return commonRequest("PUT", `api/users/updateCoinPackage/${id}`, body);
+};
+
 export const getFreeCoinDetails = async () => {
   return commonRequest("GET", "api/users/getFreeCoin");
 };
 
 export const updateFreeCoinDetails = async (id, body) => {
   return commonRequest("PUT", `api/users/updateFreeCoin/${id}`, body);
+};
+
+export const deleteCoinPackage = async (id) => {
+  return commonRequest("DELETE", `api/users/deleteCoinPackage/${id}`);
 };
 
 // Conversions

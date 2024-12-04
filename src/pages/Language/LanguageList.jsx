@@ -74,24 +74,13 @@ const LanguageList = () => {
   const columns = [
     { field: "slno", headerName: "#" },
     { field: "language", headerName: "Language" },
-    {
-      field: "image",
-      headerName: "Image",
-      renderCell: (value) => (
-        <img src={value} alt="img unavilable" style={{ width: "50px" }} />
-      ),
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      renderCell: (value) => <TableToggleSwitch value={value} />,
-    },
+    { field: "users", headerName: "Users" },
     {
       field: "actions",
       headerName: "Actions",
       renderCell: (value) => (
         <>
-          <IconButton>
+          <IconButton onClick={() => navigate(`/language/edit/${value}`)}>
             <Pencil size={20} color={theme.palette.info.main} />
           </IconButton>
           <IconButton
@@ -110,8 +99,7 @@ const LanguageList = () => {
       id: language._id,
       slno: ind + 1,
       language: language.language,
-      image: language.avatar,
-      status: language.status,
+      users: language.user,
       actions: language._id,
     }));
   };

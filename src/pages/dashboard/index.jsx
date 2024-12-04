@@ -1,4 +1,4 @@
-import { Box, Divider } from "@mui/material";
+import { Box, Button, Divider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Rupee from "../../assets/DashboardRupeeSymbol.svg";
 import TotalSales from "../../assets/DashboardTotalSalesSymbol.svg";
@@ -7,47 +7,73 @@ import TotalShops from "../../assets/DashboardTotalShopsSymbol.svg";
 import DashboardCards from "../../components/DashboardCards";
 import DashboardLinechart from "../../components/DashboardLinechart";
 import TopSellingPackages from "../../components/TopSellingPackages";
+import { getDashboardData } from "../../service/allApi";
+import DataTable from "../../components/DataTable";
 
 const DashboardMain = () => {
-  const [dashboardData, setDashboardData] = useState([]);
+  const [dashboardData, setDashboardData] = useState({
+    totalRevenue: 0,
+    totalExpense: 0,
+    totalTransactions: 0,
+    totalProfit: 0,
+    transactions: [],
+  });
   const [ApiSuccess, setApiSuccess] = useState(false);
 
-  //   const getDashboardData = async () => {
-  //     const response = await getDashboardDetails();
-  //     if (response.status === 201) {
-  //       setApiSuccess(true);
-  //       setDashboardData(response.data);
-  //     }
-  //   };
+  const fetchDashboardData = async () => {
+    const response = await getDashboardData();
+    console.log(response);
+    if (response.status === 200) {
+      setApiSuccess(true);
+      setDashboardData(response.data);
+    }
+  };
 
-  //   useEffect(() => {
-  //     getDashboardData();
-  //   }, []);
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const columns = [
+    { field: "userId", headerName: "User ID" },
+    { field: "user", headerName: "User" },
+    { field: "phone", headerName: "Phone" },
+    { field: "dob", headerName: "DOB" },
+    { field: "place", headerName: "Place" },
+    { field: "gender", headerName: "Gender" },
+    { field: "Coins", headerName: "Coins" },
+    {
+      field: "edit",
+      headerName: "Edit",
+      renderCell: (params) => (
+        <>
+          <Button size="small" variant="contained">
+            View
+          </Button>
+        </>
+      ),
+    },
+  ];
 
   const cardData = [
     {
       icon: Rupee,
       label: "Total Revenue",
-      amount: dashboardData.TotalRevenue ? dashboardData.TotalRevenue : null,
+      amount: dashboardData?.totalRevenue,
     },
     {
       icon: TotalSales,
-      label: "Total Sales Order",
-      amount: dashboardData.TotalSalesOrder
-        ? dashboardData.TotalSalesOrder
-        : null,
+      label: "Total Users",
+      amount: dashboardData?.totalExpense,
     },
     {
       icon: TotalReturn,
-      label: "Total Return Order",
-      amount: dashboardData.TotalReturnOrder
-        ? dashboardData.TotalReturnOrder
-        : null,
+      label: "Total Withdrawal",
+      amount: dashboardData?.totalTransactions,
     },
     {
       icon: TotalShops,
-      label: "Total Shops",
-      amount: dashboardData.TotalShop ? dashboardData.TotalShop : null,
+      label: "Total Profits",
+      amount: dashboardData?.totalProfit,
     },
   ];
 
@@ -57,7 +83,7 @@ const DashboardMain = () => {
       <Box
         sx={{
           display: "flex",
-          gap: "20px",
+          gap: { xs: 0, md: "20px" },
           marginInline: "30px",
           flexWrap: "wrap",
           justifyContent: "space-between",
@@ -79,6 +105,8 @@ const DashboardMain = () => {
           flexWrap: "wrap",
           marginBlock: "40px",
           justifyContent: "space-around",
+          mb: 10,
+          gap: { xs: 10, md: 0 },
         }}
       >
         <Box
@@ -87,7 +115,9 @@ const DashboardMain = () => {
             alignItems: "center",
           }}
         >
-          <DashboardLinechart />
+          <DashboardLinechart
+            transactions={dashboardData.transactions.slice(0, 10)}
+          />
         </Box>
 
         <Box
@@ -96,16 +126,21 @@ const DashboardMain = () => {
             borderRadius: "16px",
             paddingInline: "30px",
             flexGrow: 0.5,
+            minHeight: 300,
           }}
+          py={2}
         >
           <p style={{ fontWeight: 600, fontSize: "22px" }}>
             Top Selling Packages
           </p>
-          <Box>
-            <TopSellingPackages />
+          <Box height={"100%"}>
+            <TopSellingPackages
+              transactions={dashboardData.transactions.slice(0, 5)}
+            />
           </Box>
         </Box>
       </Box>
+      {/* <DataTable columns={columns} /> */}
     </div>
   );
 };

@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
 import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField, Typography, Avatar } from "@mui/material";
-import { addNewNotification, getNotificationById } from "../../service/allApi";
+import {
+  addNewNotification,
+  getNotificationById,
+  updateNotification,
+} from "../../service/allApi";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -18,6 +22,12 @@ const AddNewNotification = () => {
 
   const fetchNotificationById = async () => {
     const response = await getNotificationById(id);
+    if (response.status === 200) {
+      setNotificationData({
+        description: response.data.data.description,
+        title: response.data.data.title,
+      });
+    }
     console.log(response);
   };
 
@@ -37,12 +47,28 @@ const AddNewNotification = () => {
       formData.append("description", notificationData.description);
       formData.append("image", image);
 
-      await addNewNotification(formData);
-      toast.success("Notification added successfully!", {
-        position: "top-center",
-        autoClose: 2000,
-        transition: Slide,
-      });
+      if (type === "edit") {
+        const response = await updateNotification(id, {
+          title: notificationData.title,
+          description: notificationData.description,
+        });
+        if (response.status === 200) {
+          toast.success("Notification added successfully!", {
+            position: "top-center",
+            autoClose: 2000,
+            transition: Slide,
+          });
+        }
+      } else {
+        const response = await addNewNotification(formData);
+        if (response.status === 200) {
+          toast.success("Notification added successfully!", {
+            position: "top-center",
+            autoClose: 2000,
+            transition: Slide,
+          });
+        }
+      }
       navigate("/notifications");
     } catch (error) {
       toast.error("Failed to add notification. Please try again.", {
@@ -74,7 +100,7 @@ const AddNewNotification = () => {
         disableAddButton={
           notificationData.description === "" ||
           notificationData.title === "" ||
-          !image
+          (!image && type !== "edit")
         }
         onBackButtonClick={() => navigate("/notifications")}
       />
@@ -89,22 +115,24 @@ const AddNewNotification = () => {
         />
       </Box>
 
-      <Box display={"flex"} flexWrap={"wrap"} gap={2}>
-        <Typography minWidth={"200px"}>Image</Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => inputRef.current.click()}
-        >
-          Upload
-        </Button>
-        <input
-          type="file"
-          ref={inputRef}
-          style={{ display: "none" }}
-          onChange={handleImageUpload}
-        />
-      </Box>
+      {type !== "edit" && (
+        <Box display={"flex"} flexWrap={"wrap"} gap={2}>
+          <Typography minWidth={"200px"}>Image</Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => inputRef.current.click()}
+          >
+            Upload
+          </Button>
+          <input
+            type="file"
+            ref={inputRef}
+            style={{ display: "none" }}
+            onChange={handleImageUpload}
+          />
+        </Box>
+      )}
       {imagePreview && (
         <img
           src={imagePreview}

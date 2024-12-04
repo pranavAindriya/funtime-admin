@@ -6,6 +6,7 @@ import KycRequests from "./UserTabs/KycRequests";
 import BlackLists from "./UserTabs/BlackLists";
 import { Plus } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
+import HostedUsers from "./UserTabs/HostedUsers";
 
 const tabs = [
   {
@@ -13,13 +14,17 @@ const tabs = [
     component: <Userlist />,
   },
   {
-    label: "KYC Requests",
-    component: <KycRequests />,
+    label: "Host Requests",
+    component: <HostedUsers />,
   },
-  {
-    label: "Black List",
-    component: <BlackLists />,
-  },
+  // {
+  //   label: "KYC Requests",
+  //   component: <KycRequests />,
+  // },
+  // {
+  //   label: "Black List",
+  //   component: <BlackLists />,
+  // },
 ];
 
 const Users = () => {
@@ -49,32 +54,12 @@ const Users = () => {
       </Button>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList
-            onChange={handleChange}
-            aria-label="lab API tabs example"
-            sx={{ backgroundColor: "white" }}
-            TabIndicatorProps={{
-              sx: {
-                backgroundColor: "white",
-                height: "100%",
-              },
-            }}
-          >
+          <TabList onChange={handleChange} aria-label="lab API tabs example">
             {tabs.map((tab, ind) => (
               <Tab
                 key={ind}
                 label={tab.label}
                 value={(ind + 1).toString()}
-                sx={{
-                  backgroundColor:
-                    value === (ind + 1).toString()
-                      ? "white"
-                      : theme.palette.secondary.main,
-                  marginRight: "4px",
-                  zIndex: value === (ind + 1).toString() && 1,
-                  borderTopRightRadius: "8px",
-                  borderTopLeftRadius: "8px",
-                }}
                 disableRipple
               />
             ))}

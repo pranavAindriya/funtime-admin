@@ -77,11 +77,11 @@ const Sidebar = () => {
       icon: <Translate size={26} color="white" />,
       link: "/language",
     },
-    {
-      text: "CMS Page",
-      icon: <FileText size={26} color="white" />,
-      link: "/cms",
-    },
+    // {
+    //   text: "CMS Page",
+    //   icon: <FileText size={26} color="white" />,
+    //   link: "/cms",
+    // },
   ];
 
   const getListItemStyle = (link) => {

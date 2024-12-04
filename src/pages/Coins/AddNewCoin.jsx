@@ -4,7 +4,11 @@ import InputField from "../../components/InputField";
 import { Box, Button } from "@mui/material";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
 import coin from "../../assets/CoinImage.png";
-import { createCoinPackage } from "../../service/allApi";
+import {
+  createCoinPackage,
+  getCoinById,
+  updateCoinPackage,
+} from "../../service/allApi";
 import { Slide, toast } from "react-toastify";
 import LabeldInputField from "../../components/LabeldInputField";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
@@ -24,21 +28,24 @@ const AddNewCoin = () => {
 
   const navigate = useNavigate();
 
+  const fetchCoinById = async () => {
+    const response = await getCoinById(id);
+    if (response.status === 200) {
+      setCoinData({
+        numberOfCoins: response.data.coin,
+        rateInINR: response.data.rateInInr,
+        status: response.data.status,
+        text: response.data.text,
+      });
+    }
+    console.log(response);
+  };
+
   useEffect(() => {
     if (type === "edit" || type === "view") {
-      // Fetch data based on ID or any other identifier from URL params
-      // For example:
-      // fetchDataById(id).then((data) => {
-      //   setCoinData({
-      //     numberOfCoins: data.numberOfCoins,
-      //     rateInINR: data.rateInINR,
-      //     text: data.text,
-      //     status: data.status,
-      //     icon: data.icon, // Assuming the fetched data contains the icon URL
-      //   });
-      // });
+      fetchCoinById();
     }
-  }, [type]);
+  }, [type, id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,8 +98,39 @@ const AddNewCoin = () => {
           text: coinData.text,
           status: coinData.status,
         };
-
-        const response = await createCoinPackage(payload);
+        if (type === "edit") {
+          const response = await updateCoinPackage(id, payload);
+          if (response.status === 200) {
+            toast.success("Coin Package Updated", {
+              autoClose: 1000,
+              transition: Slide,
+            });
+            navigate("/coins");
+            setCoinData({
+              numberOfCoins: "",
+              rateInINR: "",
+              text: "",
+              status: false,
+              icon: null,
+            });
+          }
+        } else {
+          const response = await createCoinPackage(payload);
+          if (response.status === 201) {
+            toast.success("Coin Package Created", {
+              autoClose: 1000,
+              transition: Slide,
+            });
+            navigate("/coins");
+            setCoinData({
+              numberOfCoins: "",
+              rateInINR: "",
+              text: "",
+              status: false,
+              icon: null,
+            });
+          }
+        }
         if (response.status === 201) {
           toast.success("Coin Package Created", {
             autoClose: 1000,
@@ -139,7 +177,7 @@ const AddNewCoin = () => {
             />
           }
         />
-        <LabeldInputField
+        {/* <LabeldInputField
           label={"Icon"}
           input={
             <Box
@@ -187,7 +225,7 @@ const AddNewCoin = () => {
               </span>
             </Box>
           }
-        />
+        /> */}
         <LabeldInputField
           label={"Rate in INR"}
           input={
@@ -217,7 +255,7 @@ const AddNewCoin = () => {
           input={
             <Box sx={{ width: "130px" }}>
               <TableToggleSwitch
-                checked={coinData.status}
+                value={coinData.status}
                 onChange={handleStatusChange}
                 error={validationErrors}
                 setError={setValidationErrors}

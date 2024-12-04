@@ -1,9 +1,21 @@
-import { Box, Button, IconButton, InputAdornment, Switch } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  InputAdornment,
+  Switch,
+} from "@mui/material";
 import { Pencil, Trash } from "@phosphor-icons/react";
 import React, { useEffect, useState } from "react";
 import DataTable from "../../components/DataTable";
 import coinImage from "../../assets/Coin.svg";
 import {
+  deleteCoinPackage,
   getCoinList,
   getFreeCoinDetails,
   updateFreeCoinDetails,
@@ -15,39 +27,6 @@ import { Slide, ToastContainer, toast } from "react-toastify";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import { useNavigate } from "react-router-dom";
 
-const columns = [
-  { field: "slno", headerName: "Sl No" },
-  { field: "coin", headerName: "Coin" },
-  { field: "rateInInr", headerName: "Rate in INR" },
-  {
-    field: "image",
-    headerName: "Image",
-    renderCell: () => (
-      <img src={coinImage} alt="Coin" style={{ width: 40, height: 40 }} />
-    ),
-  },
-  { field: "text", headerName: "Text" },
-  {
-    field: "status",
-    headerName: "Status",
-    renderCell: (value) => <TableToggleSwitch value={value} />,
-  },
-  {
-    field: "edit",
-    headerName: "Edit",
-    renderCell: () => (
-      <>
-        <IconButton>
-          <Pencil size={20} color={theme.palette.info.main} />
-        </IconButton>
-        <IconButton>
-          <Trash size={20} color={theme.palette.error.main} />
-        </IconButton>
-      </>
-    ),
-  },
-];
-
 const Coins = () => {
   const [coinList, setCoinList] = useState();
   const [freeCoinDetails, setFreeCoinDetails] = useState({
@@ -57,6 +36,8 @@ const Coins = () => {
     id: "",
   });
   const [validationErrors, setValidationErrors] = useState();
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [coinToDelete, setCoinToDelete] = useState(null);
 
   const navigate = useNavigate();
 
@@ -90,6 +71,39 @@ const Coins = () => {
     }
   };
 
+  const handleDeleteCoin = async () => {
+    if (coinToDelete) {
+      try {
+        const response = await deleteCoinPackage(coinToDelete);
+        if (response.status === 204) {
+          toast.success("Coin Package Deleted Successfully", {
+            autoClose: 1000,
+            transition: Slide,
+          });
+          fetchCoinList();
+        }
+      } catch (error) {
+        toast.error("Failed to delete Coin Package", {
+          autoClose: 1000,
+          transition: Slide,
+        });
+      }
+
+      setDeleteConfirmationOpen(false);
+      setCoinToDelete(null);
+    }
+  };
+
+  const openDeleteConfirmation = (id) => {
+    setCoinToDelete(id);
+    setDeleteConfirmationOpen(true);
+  };
+
+  const handleCloseDeleteConfirmation = () => {
+    setDeleteConfirmationOpen(false);
+    setCoinToDelete(null);
+  };
+
   const fetchFreeCoinData = async () => {
     const response = await getFreeCoinDetails();
     setFreeCoinDetails({
@@ -105,6 +119,39 @@ const Coins = () => {
     fetchFreeCoinData();
   }, []);
 
+  const columns = [
+    { field: "slno", headerName: "Sl No" },
+    { field: "coin", headerName: "Coin" },
+    { field: "rateInInr", headerName: "Rate in INR" },
+    {
+      field: "image",
+      headerName: "Image",
+      renderCell: () => (
+        <img src={coinImage} alt="Coin" style={{ width: 40, height: 40 }} />
+      ),
+    },
+    { field: "text", headerName: "Text" },
+    {
+      field: "status",
+      headerName: "Status",
+      renderCell: (value) => <TableToggleSwitch value={value} />,
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      renderCell: (params) => (
+        <>
+          <IconButton onClick={() => navigate(`/coins/edit/${params}`)}>
+            <Pencil size={20} color={theme.palette.info.main} />
+          </IconButton>
+          <IconButton onClick={() => openDeleteConfirmation(params)}>
+            <Trash size={20} color={theme.palette.error.main} />
+          </IconButton>
+        </>
+      ),
+    },
+  ];
+
   const formatedCoinsForDataTable = () => {
     return coinList?.map((item, ind) => ({
       slno: ind + 1,
@@ -112,6 +159,7 @@ const Coins = () => {
       rateInInr: item.rateInInr,
       text: item.text,
       status: item.status,
+      edit: item._id,
     }));
   };
 
@@ -186,6 +234,7 @@ const Coins = () => {
         <Button
           sx={{ paddingInline: "30px" }}
           onClick={handleFreeCoinDetailsUpdate}
+          variant="contained"
         >
           Update
         </Button>
@@ -196,6 +245,48 @@ const Coins = () => {
       />
       <ToastContainer position="top-center" transition={"Slide"} />
       <DataTable columns={columns} rows={formattedCoinRows} />
+      <Dialog
+        open={deleteConfirmationOpen}
+        onClose={handleCloseDeleteConfirmation}
+        aria-labelledby="delete-confirmation-title"
+        aria-describedby="delete-confirmation-description"
+        PaperProps={{
+          sx: {
+            p: 3,
+            borderRadius: 5,
+          },
+        }}
+      >
+        <DialogTitle
+          id="delete-confirmation-title"
+          fontSize={22}
+          fontWeight={500}
+        >
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-confirmation-description">
+            Are you sure you want to delete this coin package?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCloseDeleteConfirmation}
+            color="primary"
+            variant="outlined"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteCoin}
+            color="error"
+            autoFocus
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
