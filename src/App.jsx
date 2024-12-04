@@ -30,8 +30,7 @@ import Reports from "./pages/Report/Reports";
 
 const App = () => {
   const mediaQuery800px = useMediaQuery("(min-width:800px)");
-  // const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const isLoggedIn = true;
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const navigate = useNavigate();
 
   useEffect(() => {

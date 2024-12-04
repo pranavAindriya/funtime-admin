@@ -1,20 +1,15 @@
-import {
-  Avatar,
-  Box,
-  ButtonBase,
-  IconButton,
-  Menu,
-  MenuItem,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import React, { useState } from "react";
 import { CaretDown } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
+import { setLogout } from "../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -22,6 +17,12 @@ const Header = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    dispatch(setLogout());
+    handleClose();
+    navigate("/");
   };
 
   return (
@@ -108,7 +109,7 @@ const Header = () => {
           >
             Settings
           </MenuItem>
-          <MenuItem onClick={handleClose}>Logout</MenuItem>
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </div>
     </Box>
