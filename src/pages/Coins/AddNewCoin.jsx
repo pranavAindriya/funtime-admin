@@ -240,7 +240,7 @@ const AddNewCoin = () => {
           }
         />
         <LabeldInputField
-          label={"Text"}
+          label={"Actual Price"}
           input={
             <InputField
               name="text"

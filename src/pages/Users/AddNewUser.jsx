@@ -359,8 +359,8 @@ const AddNewUser = () => {
                 disabled={type === "view"}
                 options={[
                   {
-                    value: "Male",
-                    name: "Male",
+                    value: "Man",
+                    name: "Man",
                   },
                   {
                     value: "Female",
