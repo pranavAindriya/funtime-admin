@@ -42,6 +42,18 @@ export const createUser = async (body, id) => {
   );
 };
 
+export const getAllKyc = async () => {
+  return commonRequest("GET", "api/users/getAllKycPancards");
+};
+
+export const changeKycStatus = async (id, verified) => {
+  return commonRequest("PUT", `api/users/updateKycPancard/${id}`, { verified });
+};
+
+export const getAllBlockedUsers = async () => {
+  return commonRequest("GET", "api/users/getAllUserReports");
+};
+
 // Admin
 
 export const getAllRoles = async (id) => {

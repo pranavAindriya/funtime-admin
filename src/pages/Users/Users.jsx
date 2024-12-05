@@ -21,10 +21,10 @@ const tabs = [
   //   label: "KYC Requests",
   //   component: <KycRequests />,
   // },
-  // {
-  //   label: "Black List",
-  //   component: <BlackLists />,
-  // },
+  {
+    label: "Black List",
+    component: <BlackLists />,
+  },
 ];
 
 const Users = () => {
