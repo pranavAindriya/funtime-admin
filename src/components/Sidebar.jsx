@@ -20,6 +20,7 @@ import {
   Notification,
   Ranking,
   Scales,
+  Shield,
   SquaresFour,
   Tag,
   Translate,
@@ -66,6 +67,11 @@ const Sidebar = () => {
       text: "Notifications",
       icon: <Notification size={26} color="white" />,
       link: "/notifications",
+    },
+    {
+      text: "Report / Block",
+      icon: <Shield size={26} color="white" />,
+      link: "/reportandblock",
     },
     {
       text: "Reports",

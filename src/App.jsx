@@ -27,6 +27,7 @@ import AddNewAdmin from "./pages/Admin/UserRoles/AddNewAdmin";
 import AddNewRole from "./pages/Admin/UserRoles/AddNewRole";
 import "react-toastify/dist/ReactToastify.css";
 import Reports from "./pages/Report/Reports";
+import ReportAndBlock from "./pages/ReportOrBlock/ReportAndBlock";
 
 const App = () => {
   const mediaQuery800px = useMediaQuery("(min-width:800px)");
@@ -69,6 +70,7 @@ const App = () => {
             <Route path="/coins" element={<Coins />} />
             <Route path="/language" element={<LanguageList />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/reportandblock" element={<ReportAndBlock />} />
             <Route path="/cms" element={<CMSPage />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/leaderboard" element={<Leaderboard />} />

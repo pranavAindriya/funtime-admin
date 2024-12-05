@@ -127,6 +127,20 @@ export const updateHostedUserStatus = async (body) => {
   return commonRequest("PUT", "api/users/updateHostedUserStatus", body);
 };
 
+// Report / Block
+
+export const getAllReportReasons = async () => {
+  return commonRequest("GET", "api/users/getAllReportReasons");
+};
+
+export const createNewReportReason = async (body) => {
+  return commonRequest("POST", "api/users/createReportReason", body);
+};
+
+export const deleteReportReason = async (id) => {
+  return commonRequest("DELETE", `api/users/deleteReportReason/${id}`);
+};
+
 // Coin
 
 export const getCoinList = async () => {
