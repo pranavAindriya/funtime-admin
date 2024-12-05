@@ -106,7 +106,7 @@ const HostedUsers = () => {
                   size="small"
                   variant="contained"
                   color="success"
-                  sx={{ mr: 1 }}
+                  sx={{ mr: 1, color: "white" }}
                   onClick={() => handleStatusChange(userId, "approved")}
                 >
                   Approve
@@ -136,6 +136,7 @@ const HostedUsers = () => {
                 size="small"
                 variant="contained"
                 color="success"
+                sx={{ color: "white" }}
                 onClick={() => handleStatusChange(userId, "approved")}
               >
                 Approve
