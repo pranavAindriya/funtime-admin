@@ -75,15 +75,6 @@ const App = () => {
             <Route path="/conversion" element={<Conversion />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/user-roles" element={<UserRoles />} />
-            {/* <Route path="/wallpapers" element={<Wallpapers />} />
-            <Route path="/frames" element={<Frames />} />
-            <Route path="/language" element={<LanguageList />} />
-            <Route path="/gifts" element={<Gifts />} />
-            <Route path="/moods" element={<Moods />} />
-            <Route path="/levels" element={<Levels />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/banner" element={<Banners />} />
-            <Route path="/cms" element={<CMSPage />} /> */}
 
             {/* Users */}
             <Route path="/users/add" element={<AddNewUser />} />
