@@ -1,15 +1,27 @@
-import { Box, Button, IconButton, useTheme } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  IconButton,
+  Snackbar,
+  useTheme,
+} from "@mui/material";
 import React, { useState, useEffect } from "react";
 import InputField from "../../components/InputField";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import DataTable from "../../components/DataTable";
 import { useNavigate } from "react-router-dom";
-import { getAllNotifications } from "../../service/allApi";
+import {
+  getAllNotifications,
+  sendPushNotification,
+} from "../../service/allApi";
 import { Pencil, Trash } from "@phosphor-icons/react";
 
 const Notifications = () => {
   const [notifications, setAllNotifications] = useState([]);
   const [validationErrors, setValidationErrors] = useState();
+  const [message, setMessage] = useState({ text: "", severity: "success" });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const theme = useTheme();
   const navigte = useNavigate();
@@ -20,6 +32,26 @@ const Notifications = () => {
     if (response.status === 200) {
       setAllNotifications(response?.data?.data);
     }
+  };
+
+  const handleSuccess = (text) => {
+    setMessage({ text, severity: "success" });
+    setOpenSnackbar(true);
+  };
+
+  const handleError = (text) => {
+    setMessage({ text, severity: "error" });
+    setOpenSnackbar(true);
+  };
+
+  const handleSendPushNotification = async (id) => {
+    const response = await sendPushNotification(id);
+    if (response.status === 200) {
+      handleSuccess("Notification Send Successfully");
+    } else {
+      handleError("Error while Sending Notification");
+    }
+    console.log(response);
   };
 
   const columns = [
@@ -44,7 +76,12 @@ const Notifications = () => {
           <IconButton aria-describedby="delete-pop">
             <Trash size={20} color={theme.palette.error.main} />
           </IconButton>
-          <Button variant="contained" size="small" sx={{ ml: 1 }}>
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ ml: 1 }}
+            onClick={() => handleSendPushNotification(value)}
+          >
             Send
           </Button>
         </>
@@ -71,7 +108,7 @@ const Notifications = () => {
 
   return (
     <>
-      <Box
+      {/* <Box
         sx={{
           padding: "25px",
           backgroundColor: theme.palette.secondary.light,
@@ -97,12 +134,26 @@ const Notifications = () => {
           name={""}
         />
         <Button variant="contained">Update</Button>
-      </Box>
+      </Box> */}
       <TopAddNewBar
         label={"Push Notification List"}
         onAddButtonClick={() => navigte("/notifications/addnew")}
       />
       <DataTable columns={columns} rows={formattedRows} />
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={message.severity}
+          sx={{ width: "100%" }}
+        >
+          {message.text}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

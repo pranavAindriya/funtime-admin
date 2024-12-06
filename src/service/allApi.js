@@ -129,6 +129,12 @@ export const addNewNotification = async (body) => {
   );
 };
 
+export const sendPushNotification = async (id) => {
+  return commonRequest("POST", "api/users/sendNotification", {
+    notificationId: id,
+  });
+};
+
 // Hosted Users
 
 export const getAllHostedUsers = async () => {
