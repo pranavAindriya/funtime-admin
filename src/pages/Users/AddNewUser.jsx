@@ -220,11 +220,7 @@ const AddNewUser = () => {
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={loading || !formik.isValid}
-          >
+          <Button type="submit" variant="contained" disabled={loading}>
             {type === "edit" ? "Update" : "Create"}
           </Button>
         </Box>
