@@ -103,7 +103,7 @@ const AddNewUser = () => {
       handleError(error.response?.data?.message || "Failed to send OTP");
     }
   };
-  // Handle OTP Verification
+
   const handleVerifyOTP = async () => {
     try {
       const response = await verifyOtp({
@@ -121,7 +121,6 @@ const AddNewUser = () => {
     }
   };
 
-  // Handle Icon Upload
   const handleIconChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -135,7 +134,6 @@ const AddNewUser = () => {
     }
   };
 
-  // Create/Edit User
   const handleCreateUser = async (values) => {
     setIsLoading(true);
     try {
@@ -150,7 +148,7 @@ const AddNewUser = () => {
       formData.append("email", values.email);
 
       if (values.icon) {
-        formData.append("avatar", values.icon);
+        formData.append("image", values.icon);
       }
 
       let response;
@@ -258,7 +256,7 @@ const AddNewUser = () => {
               helperText={
                 formik.touched.phoneNumber && formik.errors.phoneNumber
               }
-              disabled={type === "view" || otpSent}
+              disabled={type === "view" || type === "edit" || otpSent}
               slotProps={{
                 input: {
                   endAdornment: (
@@ -365,7 +363,7 @@ const AddNewUser = () => {
             onChange={formik.handleChange}
             error={formik.touched.email && Boolean(formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
-            disabled={type === "view"}
+            disabled={type === "view" || type === "edit"}
           />
         </Box>
 
