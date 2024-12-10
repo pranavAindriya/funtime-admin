@@ -17,10 +17,10 @@ const tabs = [
     label: "Host Requests",
     component: <HostedUsers />,
   },
-  // {
-  //   label: "KYC Requests",
-  //   component: <KycRequests />,
-  // },
+  {
+    label: "KYC Requests",
+    component: <KycRequests />,
+  },
   {
     label: "Black List",
     component: <BlackLists />,

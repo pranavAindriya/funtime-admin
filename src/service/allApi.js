@@ -43,11 +43,11 @@ export const createUser = async (body, id) => {
 };
 
 export const getAllKyc = async () => {
-  return commonRequest("GET", "api/users/getAllKycPancards");
+  return commonRequest("GET", "api/users/getAllKYCDetails");
 };
 
-export const changeKycStatus = async (id, verified) => {
-  return commonRequest("PUT", `api/users/updateKycPancard/${id}`, { verified });
+export const changeKycStatus = async (id, kycStatus) => {
+  return commonRequest("PUT", `api/users/updateKYC/${id}`, { kycStatus });
 };
 
 export const getAllBlockedUsers = async () => {

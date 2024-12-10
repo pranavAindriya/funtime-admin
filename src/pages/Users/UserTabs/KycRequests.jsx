@@ -1,109 +1,154 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Button, Alert, Avatar } from "@mui/material";
+import { getAllKyc, changeKycStatus } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
-
-const initialRows = [
-  {
-    userid: "1",
-    username: "John Doe",
-    phone: "1234567890",
-    kycStatus: "Pending",
-  },
-  {
-    userid: "2",
-    username: "Jane Smith",
-    phone: "0987654321",
-    kycStatus: "Approved",
-  },
-  {
-    userid: "3",
-    username: "Sam Brown",
-    phone: "1122334455",
-    kycStatus: "Declined",
-  },
-];
+import formatDate from "../../../utils/formatdate";
 
 const KycRequests = () => {
-  const [rows, setRows] = useState(initialRows);
+  const [kycData, setKycData] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleApprove = (userid) => {
-    setRows(
-      rows.map((row) =>
-        row.userid === userid ? { ...row, kycStatus: "Approved" } : row
-      )
-    );
+  const fetchAllKycRequests = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllKyc();
+      console.log(response);
+
+      if (response.data.data) {
+        const transformedData = response?.data?.data.map((item, ind) => ({
+          slno: ind + 1,
+          id: item._id,
+          username: {
+            username: item.userDetails.username,
+            image: item.userDetails.profileImage,
+          },
+          panNumber: item.panDetails?.panNumber,
+          aadhaarNumber: item.aadhaarDetails?.aadhaarNumber,
+          status: item.kycStatus,
+          createdAt: formatDate(item.createdAt),
+          verified: {
+            verified: item.kycStatus === "approved" ? true : false,
+            id: item._id,
+          },
+        }));
+        setKycData(transformedData);
+      }
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch KYC requests");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDecline = (userid) => {
-    setRows(
-      rows.map((row) =>
-        row.userid === userid ? { ...row, kycStatus: "Declined" } : row
-      )
-    );
+  useEffect(() => {
+    fetchAllKycRequests();
+  }, []);
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      setKycData((prevData) =>
+        prevData.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                verified: { verified: newStatus, id },
+                status: newStatus ? "approved" : "rejected",
+              }
+            : item
+        )
+      );
+
+      const response = await changeKycStatus(
+        id,
+        newStatus === true ? "approved" : "rejected"
+      );
+
+      if (!response.status === 200) {
+        setKycData((prevData) =>
+          prevData.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  verified: { verified: !newStatus, id },
+                  status: !newStatus ? "approved" : "rejected",
+                }
+              : item
+          )
+        );
+        setError("Failed to update KYC status");
+      }
+    } catch (err) {
+      setKycData((prevData) =>
+        prevData.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                verified: { verified: !newStatus, id },
+                status: !newStatus ? "approved" : "rejected",
+              }
+            : item
+        )
+      );
+      setError("Failed to update KYC status");
+      console.error(err);
+    }
   };
 
   const columns = [
-    { field: "userid", headerName: "Userid" },
-    { field: "username", headerName: "Username" },
-    { field: "phone", headerName: "Phone" },
-    { field: "kycStatus", headerName: "Kyc Status" },
+    { field: "slno", headerName: "SlNo" },
     {
-      field: "action",
-      headerName: "Action",
-      renderCell: (value, row) => (
-        <Box display={"flex"} marginLeft={"auto"}>
-          <Button size="small" variant="contained" color="info" sx={{ mr: 1 }}>
-            View
-          </Button>
-          {row.kycStatus === "Pending" && (
-            <>
-              <Button
-                size="small"
-                variant="contained"
-                color="success"
-                sx={{ mr: 1 }}
-                onClick={() => handleApprove(row.userid)}
-              >
-                Approve
-              </Button>
-              <Button
-                size="small"
-                variant="contained"
-                color="error"
-                onClick={() => handleDecline(row.userid)}
-              >
-                Decline
-              </Button>
-            </>
-          )}
-          {row.kycStatus === "Approved" && (
-            <Button
-              size="small"
-              variant="contained"
-              color="error"
-              onClick={() => handleDecline(row.userid)}
-            >
-              Decline
-            </Button>
-          )}
-          {row.kycStatus === "Declined" && (
+      field: "username",
+      headerName: "Username",
+      renderCell: (params) => (
+        <Box display={"flex"} alignItems={"center"} gap={2}>
+          <Avatar src={params.image} />
+          <span>{params.username}</span>
+        </Box>
+      ),
+    },
+    { field: "panNumber", headerName: "PAN Number" },
+    { field: "aadhaarNumber", headerName: "Aadhaar Number" },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            color: params === "approved" ? "success.main" : "error.main",
+            fontWeight: "medium",
+          }}
+        >
+          {params}
+        </Box>
+      ),
+    },
+    { field: "createdAt", headerName: "Created Date" },
+    {
+      field: "verified",
+      headerName: "Actions",
+      renderCell: (params) => (
+        <Box>
+          {!params.verified ? (
             <Button
               size="small"
               variant="contained"
               color="success"
-              onClick={() => handleApprove(row.userid)}
+              onClick={() => handleStatusChange(params.id, true)}
             >
-              Approve
+              Verify
+            </Button>
+          ) : (
+            <Button
+              size="small"
+              variant="contained"
+              color="error"
+              onClick={() => handleStatusChange(params.id, false)}
+            >
+              Unverify
             </Button>
           )}
         </Box>
@@ -111,7 +156,17 @@ const KycRequests = () => {
     },
   ];
 
-  return <DataTable columns={columns} rows={rows} />;
+  return (
+    <Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      <DataTable columns={columns} rows={kycData} />
+    </Box>
+  );
 };
 
 export default KycRequests;
