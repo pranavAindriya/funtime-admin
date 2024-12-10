@@ -3,11 +3,14 @@ import { Box, Button, Alert, Avatar } from "@mui/material";
 import { getAllKyc, changeKycStatus } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
 import formatDate from "../../../utils/formatdate";
+import { useNavigate } from "react-router-dom";
 
 const KycRequests = () => {
   const [kycData, setKycData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   const fetchAllKycRequests = async () => {
     try {
@@ -29,6 +32,7 @@ const KycRequests = () => {
           createdAt: formatDate(item.createdAt),
           verified: {
             verified: item.kycStatus === "approved" ? true : false,
+            userId: item.userId,
             id: item._id,
           },
         }));
@@ -131,15 +135,25 @@ const KycRequests = () => {
       field: "verified",
       headerName: "Actions",
       renderCell: (params) => (
-        <Box>
+        <Box display={"flex"} flexWrap={"wrap"} gap={1}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => navigate(`kyc-details/${params.userId}`)}
+          >
+            View
+          </Button>
           {!params.verified ? (
             <Button
               size="small"
               variant="contained"
               color="success"
               onClick={() => handleStatusChange(params.id, true)}
+              sx={{
+                color: "white",
+              }}
             >
-              Verify
+              Approve
             </Button>
           ) : (
             <Button
@@ -148,7 +162,7 @@ const KycRequests = () => {
               color="error"
               onClick={() => handleStatusChange(params.id, false)}
             >
-              Unverify
+              Reject
             </Button>
           )}
         </Box>

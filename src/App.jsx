@@ -28,6 +28,7 @@ import AddNewRole from "./pages/Admin/UserRoles/AddNewRole";
 import "react-toastify/dist/ReactToastify.css";
 import Reports from "./pages/Report/Reports";
 import ReportAndBlock from "./pages/ReportOrBlock/ReportAndBlock";
+import KycDetails from "./pages/Users/UserTabs/KycDetails";
 
 const App = () => {
   const mediaQuery800px = useMediaQuery("(min-width:800px)");
@@ -81,6 +82,7 @@ const App = () => {
             {/* Users */}
             <Route path="/users/add" element={<AddNewUser />} />
             <Route path="/users/:type/:id" element={<AddNewUser />} />
+            <Route path="/users/kyc-details/:id" element={<KycDetails />} />
 
             {/* Admin */}
             <Route path="/admin/addnewadmin" element={<AddNewAdmin />} />

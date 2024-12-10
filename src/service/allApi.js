@@ -46,6 +46,10 @@ export const getAllKyc = async () => {
   return commonRequest("GET", "api/users/getAllKYCDetails");
 };
 
+export const getKycById = async (id) => {
+  return commonRequest("GET", `api/users/getKYCDetailsByUserId/${id}`);
+};
+
 export const changeKycStatus = async (id, kycStatus) => {
   return commonRequest("PUT", `api/users/updateKYC/${id}`, { kycStatus });
 };
