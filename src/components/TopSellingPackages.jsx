@@ -16,7 +16,7 @@ const TopSellingPackages = ({ transactions }) => {
         {packages?.map((item, ind) => (
           <Grid container>
             <Grid item md={2}>
-              1
+              {ind + 1}
             </Grid>
             <Grid item md={5}>
               {item.coins} Coins

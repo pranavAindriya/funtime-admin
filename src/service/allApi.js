@@ -195,19 +195,12 @@ export const deleteCoinPackage = async (id) => {
 
 // Conversions
 
-export const getConversionFactors = async () => {
-  return commonRequest(
-    "GET",
-    "api/users/getConversionFactors/67484d6bdb7f5649821fa945"
-  );
+export const getConversionFactors = async (id) => {
+  return commonRequest("GET", `api/users/getConversionFactors/${id}`);
 };
 
-export const conversionsEdit = async (body) => {
-  return commonRequest(
-    "PUT",
-    "api/users/updateConversionFactor/67484d6bdb7f5649821fa945",
-    body
-  );
+export const conversionsEdit = async (body, id) => {
+  return commonRequest("PUT", `api/users/updateConversionFactor/${id}`, body);
 };
 
 // Wallpapers
