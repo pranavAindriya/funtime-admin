@@ -12,6 +12,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { changeKycStatus, getKycById } from "../../../service/allApi";
 import { ArrowLeft } from "@phosphor-icons/react";
+import { usePDF } from "react-to-pdf";
 
 const ViewButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#00a650",
@@ -65,8 +66,11 @@ export default function KycDetails() {
   const [modalImage, setModalImage] = useState("");
   const [kycId, setKycId] = useState("");
   const [error, setError] = useState("");
+  const [isPdfGeneration, setIsPdfGeneration] = useState(false);
 
   const { id } = useParams();
+
+  const { toPDF, targetRef } = usePDF();
 
   const navigate = useNavigate();
 
@@ -115,6 +119,20 @@ export default function KycDetails() {
     setModalOpen(false);
   };
 
+  const handleExportPDF = () => {
+    setIsPdfGeneration(true);
+
+    setTimeout(() => {
+      toPDF({
+        filename: `KYC_${userDetails.username}_${
+          new Date().toISOString().split("T")[0]
+        }.pdf`,
+      });
+
+      setIsPdfGeneration(false);
+    }, 100);
+  };
+
   const handleStatusChange = async (newStatus) => {
     try {
       setKycStatus(newStatus === true ? "approved" : "rejected");
@@ -156,99 +174,129 @@ export default function KycDetails() {
         </Box>
         <Box>
           {kycStatus === "approved" ? (
-            <Button
-              variant="outlined"
-              color="error"
-              sx={{ mr: 2 }}
-              onClick={() => handleStatusChange(false)}
-            >
-              Reject
-            </Button>
+            <Box display={"flex"} gap={2}>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => handleStatusChange(false)}
+              >
+                Reject
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleExportPDF}
+              >
+                Export PDF
+              </Button>
+            </Box>
           ) : (
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: "#00a650",
-                "&:hover": { bgcolor: "#008f44" },
-              }}
-              onClick={() => handleStatusChange(true)}
-            >
-              Approve
-            </Button>
+            <Box display={"flex"} gap={2}>
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: "#00a650",
+                  "&:hover": { bgcolor: "#008f44" },
+                }}
+                onClick={() => handleStatusChange(true)}
+              >
+                Approve
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleExportPDF}
+              >
+                Export PDF
+              </Button>
+            </Box>
           )}
         </Box>
       </Box>
-
-      <Box sx={{ mb: 4 }}>
-        <DetailRow>
-          <Label>User Name</Label>
-          <Value>{userDetails.username}</Value>
-        </DetailRow>
-      </Box>
-
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, my: 5 }}>
-          PAN Card Details
-        </Typography>
-        <DetailRow>
-          <Label>PAN Number</Label>
-          <Value>{panDetails.panNumber}</Value>
-          <Label>Name as per PAN</Label>
-          <Value>{panDetails.nameOnPan}</Value>
-        </DetailRow>
-        <DetailRow>
-          <Label>Date of Birth</Label>
-          <Value>{panDetails.dob}</Value>
-        </DetailRow>
-        <Box sx={{ mt: 2 }}>
-          <DocumentImage src={panDetails.panImage} alt="PAN Card" />
-          <ViewButton onClick={() => handleView("PAN")} sx={{ mt: 1 }}>
-            View
-          </ViewButton>
+      <Box ref={targetRef}>
+        <Box sx={{ mb: 4 }}>
+          <DetailRow>
+            <Label>User Name</Label>
+            <Value>{userDetails.username}</Value>
+          </DetailRow>
         </Box>
-      </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, my: 5 }}>
-          Aadhar Card Details
-        </Typography>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <Typography sx={{ mb: 1 }}>Front Side</Typography>
-            <DocumentImage src={aadhaarDetails.frontImage} alt="Aadhar Front" />
-            <ViewButton
-              onClick={() => handleView("AadharFront")}
-              sx={{ mt: 1 }}
-            >
-              View
-            </ViewButton>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography sx={{ mb: 1 }}>Back Side</Typography>
-            <DocumentImage src={aadhaarDetails.backImage} alt="Aadhar Back" />
-            <ViewButton onClick={() => handleView("AadharBack")} sx={{ mt: 1 }}>
-              View
-            </ViewButton>
-          </Grid>
-        </Grid>
-      </Box>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, my: 5 }}>
+            PAN Card Details
+          </Typography>
+          <DetailRow>
+            <Label>PAN Number</Label>
+            <Value>{panDetails.panNumber}</Value>
+            <Label>Name as per PAN</Label>
+            <Value>{panDetails.nameOnPan}</Value>
+          </DetailRow>
+          <DetailRow>
+            <Label>Date of Birth</Label>
+            <Value>{panDetails.dob}</Value>
+          </DetailRow>
+          <Box sx={{ mt: 2 }}>
+            <DocumentImage src={panDetails.panImage} alt="PAN Card" />
+            {!isPdfGeneration && (
+              <ViewButton onClick={() => handleView("PAN")} sx={{ mt: 1 }}>
+                View
+              </ViewButton>
+            )}
+          </Box>
+        </Box>
 
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 600, my: 5 }}>
-          Bank Details
-        </Typography>
-        <DetailRow>
-          <Label>Account Holder Name</Label>
-          <Value>{bankDetails.accountHolderName}</Value>
-          <Label>Bank Name</Label>
-          <Value>{bankDetails.bankName}</Value>
-        </DetailRow>
-        <DetailRow>
-          <Label>Account Number</Label>
-          <Value>{bankDetails.accountNumber}</Value>
-          <Label>IFSC Code</Label>
-          <Value>{bankDetails.ifcCode}</Value>
-        </DetailRow>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, my: 5 }}>
+            Aadhar Card Details
+          </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Typography sx={{ mb: 1 }}>Front Side</Typography>
+              <DocumentImage
+                src={aadhaarDetails.frontImage}
+                alt="Aadhar Front"
+              />
+              {!isPdfGeneration && (
+                <ViewButton
+                  onClick={() => handleView("AadharFront")}
+                  sx={{ mt: 1 }}
+                >
+                  View
+                </ViewButton>
+              )}
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography sx={{ mb: 1 }}>Back Side</Typography>
+              <DocumentImage src={aadhaarDetails.backImage} alt="Aadhar Back" />
+              {!isPdfGeneration && (
+                <ViewButton
+                  onClick={() => handleView("AadharBack")}
+                  sx={{ mt: 1 }}
+                >
+                  View
+                </ViewButton>
+              )}
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 600, my: 5 }}>
+            Bank Details
+          </Typography>
+          <DetailRow>
+            <Label>Account Holder Name</Label>
+            <Value>{bankDetails.accountHolderName}</Value>
+            <Label>Bank Name</Label>
+            <Value>{bankDetails.bankName}</Value>
+          </DetailRow>
+          <DetailRow>
+            <Label>Account Number</Label>
+            <Value>{bankDetails.accountNumber}</Value>
+            <Label>IFSC Code</Label>
+            <Value>{bankDetails.ifcCode}</Value>
+          </DetailRow>
+        </Box>
       </Box>
 
       {/* Modal for viewing images */}
