@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import InputField from "../../components/InputField";
-import { Box, Button } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
 import coin from "../../assets/CoinImage.png";
 import {
   createCoinPackage,
+  deleteCoinPackage,
   getCoinById,
   updateCoinPackage,
 } from "../../service/allApi";
@@ -15,6 +24,7 @@ import CreateNewTopBar from "../../components/CreateNewTopBar";
 
 const AddNewCoin = () => {
   const [coinData, setCoinData] = useState({
+    id: "",
     numberOfCoins: "",
     rateInINR: "",
     text: "",
@@ -23,6 +33,8 @@ const AddNewCoin = () => {
   });
   const [validationErrors, setValidationErrors] = useState();
   const [iconPreview, setIconPreview] = useState("");
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [coinToDelete, setCoinToDelete] = useState(null);
 
   const { type, id } = useParams();
 
@@ -32,6 +44,7 @@ const AddNewCoin = () => {
     const response = await getCoinById(id);
     if (response.status === 200) {
       setCoinData({
+        id: response.data._id,
         numberOfCoins: response.data.coin,
         rateInINR: response.data.rateInInr,
         status: response.data.status,
@@ -151,6 +164,39 @@ const AddNewCoin = () => {
     }
   };
 
+  const handleDeleteCoin = async () => {
+    if (coinToDelete) {
+      try {
+        const response = await deleteCoinPackage(coinToDelete);
+        if (response.status === 204) {
+          toast.success("Coin Package Deleted Successfully", {
+            autoClose: 1000,
+            transition: Slide,
+          });
+          navigate("/coins");
+        }
+      } catch (error) {
+        toast.error("Failed to delete Coin Package", {
+          autoClose: 1000,
+          transition: Slide,
+        });
+      }
+
+      setDeleteConfirmationOpen(false);
+      setCoinToDelete(null);
+    }
+  };
+
+  const openDeleteConfirmation = (id) => {
+    setCoinToDelete(id);
+    setDeleteConfirmationOpen(true);
+  };
+
+  const handleCloseDeleteConfirmation = () => {
+    setDeleteConfirmationOpen(false);
+    setCoinToDelete(null);
+  };
+
   return (
     <div>
       <CreateNewTopBar
@@ -158,6 +204,7 @@ const AddNewCoin = () => {
         buttonStyles={{ width: "120px" }}
         onAddButtonClick={handleSubmit}
         onBackButtonClick={() => navigate("/coins")}
+        onDeleteButtonClick={() => openDeleteConfirmation(coinData.id)}
       />
 
       <Box
@@ -264,6 +311,48 @@ const AddNewCoin = () => {
             </Box>
           }
         />
+        <Dialog
+          open={deleteConfirmationOpen}
+          onClose={handleCloseDeleteConfirmation}
+          aria-labelledby="delete-confirmation-title"
+          aria-describedby="delete-confirmation-description"
+          PaperProps={{
+            sx: {
+              p: 3,
+              borderRadius: 5,
+            },
+          }}
+        >
+          <DialogTitle
+            id="delete-confirmation-title"
+            fontSize={22}
+            fontWeight={500}
+          >
+            Confirm Delete
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="delete-confirmation-description">
+              Are you sure you want to delete this coin package?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCloseDeleteConfirmation}
+              color="primary"
+              variant="outlined"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteCoin}
+              color="error"
+              autoFocus
+              variant="contained"
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </div>
   );

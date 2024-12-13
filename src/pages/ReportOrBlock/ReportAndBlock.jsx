@@ -89,7 +89,7 @@ const ReportAndBlock = () => {
   const columns = [
     {
       field: "slno",
-      headerName: "slNo",
+      headerName: "SlNo",
     },
     {
       field: "item",
@@ -196,6 +196,12 @@ const ReportAndBlock = () => {
         open={openDeleteModal}
         onClose={() => setOpenDeleteModal(false)}
         maxWidth="sm"
+        PaperProps={{
+          sx: {
+            p: 2,
+            borderRadius: 5,
+          },
+        }}
       >
         <DialogTitle
           sx={{
