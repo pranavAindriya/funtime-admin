@@ -167,21 +167,27 @@ export default function KycDetails() {
         removeContainer: true,
       });
 
-      // Create PDF
+      // Create PDF with margins
       const pdf = new jsPDF("p", "mm", "a4");
       const imgData = canvas.toDataURL("image/png");
 
       // Get image properties
       const imgProps = pdf.getImageProperties(imgData);
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      // Calculate page dimensions with margins
+      const margin = 20; // 20mm margin
+      const pdfWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      const margin = 10;
-      const contentWidth = pageWidth - 2 * margin;
-      const contentHeight = pageHeight - 2 * margin;
-
-      pdf.addImage(imgData, "PNG", margin, margin, contentWidth, contentHeight);
+      // Add image to PDF with margins
+      pdf.addImage(
+        imgData,
+        "PNG",
+        margin, // X coordinate (left margin)
+        margin, // Y coordinate (top margin)
+        pdfWidth,
+        pdfHeight
+      );
 
       // Save PDF
       pdf.save(
