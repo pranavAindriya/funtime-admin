@@ -43,36 +43,36 @@ const Userlist = () => {
     { field: "phone", headerName: "Phone" },
     { field: "email", headerName: "Email" },
     { field: "dob", headerName: "Date of Birth" },
-    { field: "location", headerName: "Location" },
+    // { field: "location", headerName: "Location" },
     { field: "about", headerName: "About" },
     { field: "gender", headerName: "Gender" },
     { field: "coin", headerName: "Coin" },
-    {
-      field: "blacklist",
-      headerName: "Blacklist",
-      renderCell: (value) => <Checkbox checked={value} disabled />,
-    },
-    {
-      field: "kyc",
-      headerName: "KYC",
-      renderCell: (value) => {
-        let color;
-        switch (value) {
-          case "approved":
-            color = theme.palette.success.main;
-            break;
-          case "requested":
-            color = theme.palette.warning.main;
-            break;
-          case "declined":
-            color = theme.palette.error.main;
-            break;
-          default:
-            color = "inherit";
-        }
-        return <span style={{ color }}>{value}</span>;
-      },
-    },
+    // {
+    //   field: "blacklist",
+    //   headerName: "Blacklist",
+    //   renderCell: (value) => <Checkbox checked={value} disabled />,
+    // },
+    // {
+    //   field: "kyc",
+    //   headerName: "KYC",
+    //   renderCell: (value) => {
+    //     let color;
+    //     switch (value) {
+    //       case "approved":
+    //         color = theme.palette.success.main;
+    //         break;
+    //       case "requested":
+    //         color = theme.palette.warning.main;
+    //         break;
+    //       case "declined":
+    //         color = theme.palette.error.main;
+    //         break;
+    //       default:
+    //         color = "inherit";
+    //     }
+    //     return <span style={{ color }}>{value}</span>;
+    //   },
+    // },
     {
       field: "actions",
       headerName: "Actions",
