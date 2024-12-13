@@ -58,6 +58,12 @@ export const getAllBlockedUsers = async () => {
   return commonRequest("GET", "api/users/getAllUserReports");
 };
 
+// Calls
+
+export const getRecentCalls = async () => {
+  return commonRequest("GET", "api/users/CallTransactionHistory");
+};
+
 // Admin
 
 export const getAllRoles = async (id) => {

@@ -29,6 +29,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Reports from "./pages/Report/Reports";
 import ReportAndBlock from "./pages/ReportOrBlock/ReportAndBlock";
 import KycDetails from "./pages/Users/UserTabs/KycDetails";
+import CallsList from "./pages/Calls/CallsList";
 
 const App = () => {
   const mediaQuery800px = useMediaQuery("(min-width:800px)");
@@ -76,6 +77,7 @@ const App = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/conversion" element={<Conversion />} />
+            <Route path="/calls" element={<CallsList />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/user-roles" element={<UserRoles />} />
 

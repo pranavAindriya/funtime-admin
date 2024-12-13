@@ -18,6 +18,7 @@ import {
   FlagBanner,
   HandCoins,
   Notification,
+  Phone,
   Ranking,
   Scales,
   Shield,
@@ -48,6 +49,7 @@ const Sidebar = () => {
       link: "/dashboard",
     },
     { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
+    { text: "Calls", icon: <Phone size={26} color="white" />, link: "/calls" },
     {
       text: "Coins",
       icon: <HandCoins size={26} color="white" />,
