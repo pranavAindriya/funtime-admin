@@ -127,6 +127,9 @@ export default function KycDetails() {
         filename: `KYC_${userDetails.username}_${
           new Date().toISOString().split("T")[0]
         }.pdf`,
+        page: {
+          margin: 20,
+        },
       });
 
       setIsPdfGeneration(false);
@@ -213,7 +216,7 @@ export default function KycDetails() {
           )}
         </Box>
       </Box>
-      <Box ref={targetRef}>
+      <Box ref={targetRef} pb={4}>
         <Box sx={{ mb: 4 }}>
           <DetailRow>
             <Label>User Name</Label>
@@ -300,27 +303,29 @@ export default function KycDetails() {
       </Box>
 
       {/* Modal for viewing images */}
-      <Modal
-        open={modalOpen}
-        onClose={handleCloseModal}
-        aria-labelledby="image-modal"
-        aria-describedby="view-full-size-image"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            outline: "none",
-          }}
+      {!isPdfGeneration && (
+        <Modal
+          open={modalOpen}
+          onClose={handleCloseModal}
+          aria-labelledby="image-modal"
+          aria-describedby="view-full-size-image"
         >
-          <ModalImage src={modalImage} alt="Full size document" />
-        </Box>
-      </Modal>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              bgcolor: "background.paper",
+              boxShadow: 24,
+              p: 4,
+              outline: "none",
+            }}
+          >
+            <ModalImage src={modalImage} alt="Full size document" />
+          </Box>
+        </Modal>
+      )}
     </Box>
   );
 }
