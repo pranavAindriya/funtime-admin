@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -13,6 +13,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { changeKycStatus, getKycById } from "../../../service/allApi";
 import { ArrowLeft } from "@phosphor-icons/react";
 import { usePDF } from "react-to-pdf";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const ViewButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#00a650",
@@ -72,6 +74,8 @@ export default function KycDetails() {
 
   const { toPDF, targetRef } = usePDF();
 
+  const pdfRef = useRef();
+
   const navigate = useNavigate();
 
   const handleFetchKycDetails = async () => {
@@ -119,21 +123,80 @@ export default function KycDetails() {
     setModalOpen(false);
   };
 
-  const handleExportPDF = () => {
-    setIsPdfGeneration(true);
+  // const handleExportPDF = () => {
+  //   setIsPdfGeneration(true);
 
-    setTimeout(() => {
-      toPDF({
-        filename: `KYC_${userDetails.username}_${
-          new Date().toISOString().split("T")[0]
-        }.pdf`,
-        page: {
-          margin: 20,
-        },
+  //   setTimeout(() => {
+  //     toPDF({
+  //       filename: `KYC_${userDetails.username}_${
+  //         new Date().toISOString().split("T")[0]
+  //       }.pdf`,
+  //       page: {
+  //         margin: 20,
+  //       },
+  //     });
+
+  //     setIsPdfGeneration(false);
+  //   }, 100);
+  // };
+
+  const handleExportPDF = async () => {
+    setIsPdfGeneration(true);
+    try {
+      const input = pdfRef.current;
+
+      const images = input.getElementsByTagName("img");
+      await Promise.all(
+        Array.from(images).map((img) => {
+          return new Promise((resolve, reject) => {
+            if (img.complete) {
+              resolve();
+            } else {
+              img.onload = resolve;
+              img.onerror = reject;
+            }
+          });
+        })
+      );
+
+      const canvas = await html2canvas(input, {
+        useCORS: true,
+        scale: 2,
+        logging: false,
+        allowTaint: true,
+        removeContainer: true,
       });
 
+      // Create PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/png");
+
+      // Get image properties
+      const imgProps = pdf.getImageProperties(imgData);
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const margin = 10;
+      const contentWidth = pageWidth - 2 * margin;
+      const contentHeight = pageHeight - 2 * margin;
+
+      pdf.addImage(imgData, "PNG", margin, margin, contentWidth, contentHeight);
+
+      // Save PDF
+      pdf.save(
+        `KYC_${userDetails.username || "Details"}_${
+          new Date().toISOString().split("T")[0]
+        }.pdf`
+      );
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+
+      // Fallback method
+      window.print();
+    } finally {
       setIsPdfGeneration(false);
-    }, 100);
+    }
   };
 
   const handleStatusChange = async (newStatus) => {
@@ -216,7 +279,7 @@ export default function KycDetails() {
           )}
         </Box>
       </Box>
-      <Box ref={targetRef} pb={4}>
+      <Box ref={pdfRef} pb={4}>
         <Box sx={{ mb: 4 }}>
           <DetailRow>
             <Label>User Name</Label>
