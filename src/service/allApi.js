@@ -6,6 +6,16 @@ export const login = (body) => {
   return commonRequest("POST", "api/users/loginAdmin", body);
 };
 
+// Settings
+
+export const getSettings = () => {
+  return commonRequest("GET", "api/users/getSetting");
+};
+
+export const updateSettings = (data) => {
+  return commonRequest("PUT", "api/users/settingUpdate", data);
+};
+
 // User
 
 export const getAllUsers = async () => {

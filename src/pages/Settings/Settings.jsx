@@ -1,62 +1,67 @@
 import { Box, Button, Typography, useTheme } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputField from "../../components/InputField";
+import { getSettings, updateSettings } from "../../service/allApi";
+import { Slide, toast, ToastContainer } from "react-toastify";
 
 const Settings = () => {
   const [settingDetails, setSettingsDetails] = useState({
-    paymentGatewaySetting: {
-      secretKey: "",
-      stripeKey: "",
-    },
-    forceUpdate: {
-      appVersion: "",
-    },
+    razorPayKey: "",
+    razorPaySecret: "",
   });
 
-  const [editMode, setEditMode] = useState({
-    paymentGatewaySetting: false,
-    forceUpdate: false,
-  });
+  const [editMode, setEditMode] = useState(false);
 
   const theme = useTheme();
 
   const [validationError, setValidationError] = useState();
-  const handleEdit = (section) => {
-    setEditMode((prev) => ({ ...prev, [section]: true }));
-  };
 
-  const handleSave = async (section) => {
-    let payload = {};
-    switch (section) {
-      case "paymentGatewaySetting":
-        payload = {
-          paymentGatewaySetting: {
-            secretKey: settingDetails.paymentGatewaySetting.secretKey,
-            stripeKey: settingDetails.paymentGatewaySetting.stripeKey,
-          },
-        };
-        break;
-      case "forceUpdate":
-        payload = {
-          forceUpdate: {
-            appVersion: settingDetails.forceUpdate.appVersion,
-          },
-        };
-        break;
-      default:
-        break;
+  const fetchSettings = async () => {
+    const response = await getSettings();
+    if (response.status === 200) {
+      setSettingsDetails({
+        razorPayKey: response.data.RAZORPAY_KEY_ID,
+        razorPaySecret: response.data.RAZORPAY_KEY_SECRET,
+      });
+    } else {
+      toast.error("Failed to fetch payment settings details", {
+        autoClose: 1000,
+        transition: Slide,
+      });
     }
   };
 
-  const handleInputChange = (section, field, value) => {
-    setSettingsDetails((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value,
-      },
-    }));
+  const handleSave = async () => {
+    const response = await updateSettings({
+      RAZORPAY_KEY_ID: settingDetails.razorPayKey,
+      RAZORPAY_KEY_SECRET: settingDetails.razorPaySecret,
+    });
+    if (response.status === 200) {
+      setEditMode(false);
+      toast.success("Payment Settings Updated Successfully", {
+        autoClose: 1000,
+        transition: Slide,
+      });
+    } else {
+      toast.error("Payment Settings Updation Failed", {
+        autoClose: 1000,
+        transition: Slide,
+      });
+    }
+    console.log(response);
   };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSettingsDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  console.log(settingDetails);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
   return (
     <Box
       sx={{
@@ -64,6 +69,8 @@ const Settings = () => {
         gap: "40px",
       }}
     >
+      <ToastContainer position="top-center" transition={"Slide"} />
+
       <Box
         sx={{
           display: "grid",
@@ -80,7 +87,8 @@ const Settings = () => {
             backgroundColor: theme.palette.background.secondary,
             padding: "30px 20px",
             borderRadius: "10px",
-            alignItems: "flex-end",
+            gap: 4,
+            flexWrap: "wrap",
           }}
         >
           <Box
@@ -97,18 +105,13 @@ const Settings = () => {
                 flexGrow: 1,
               }}
             >
-              <Typography sx={{ width: "100px" }}>Stripe Key</Typography>
+              <Typography sx={{ width: "100px" }}>Razorpay Key</Typography>
               <InputField
-                value={settingDetails.paymentGatewaySetting.stripeKey}
+                name={"razorPayKey"}
+                value={settingDetails.razorPayKey}
                 styles={{ width: "300px", height: "30px" }}
-                disabled={!editMode.paymentGatewaySetting}
-                onChange={(e) =>
-                  handleInputChange(
-                    "paymentGatewaySetting",
-                    "stripeKey",
-                    e.target.value
-                  )
-                }
+                disabled={!editMode}
+                onChange={handleInputChange}
                 error={validationError}
                 setError={setValidationError}
               />
@@ -121,18 +124,13 @@ const Settings = () => {
                 flexGrow: 1,
               }}
             >
-              <Typography sx={{ width: "100px" }}>Secret Key</Typography>
+              <Typography sx={{ width: "100px" }}>Razorpay Secret</Typography>
               <InputField
-                value={settingDetails.paymentGatewaySetting.secretKey}
+                name={"razorPaySecret"}
+                value={settingDetails.razorPaySecret}
                 styles={{ width: "300px", height: "30px" }}
-                disabled={!editMode.paymentGatewaySetting}
-                onChange={(e) =>
-                  handleInputChange(
-                    "paymentGatewaySetting",
-                    "secretKey",
-                    e.target.value
-                  )
-                }
+                disabled={!editMode}
+                onChange={handleInputChange}
                 error={validationError}
                 setError={setValidationError}
               />
@@ -142,87 +140,24 @@ const Settings = () => {
             sx={{
               display: "flex",
               gap: "10px",
+              marginLeft: "auto",
+              marginTop: "auto",
             }}
           >
             <Button
               sx={{ height: "30px" }}
               variant="contained"
-              onClick={() => handleSave("paymentGatewaySetting")}
-              disabled={!editMode.paymentGatewaySetting}
+              onClick={handleSave}
+              disabled={!editMode}
             >
               Save
             </Button>
             <Button
               sx={{ height: "30px" }}
               variant="outlined"
-              onClick={() => handleEdit("paymentGatewaySetting")}
-              disabled={editMode.paymentGatewaySetting}
+              onClick={() => setEditMode(!editMode)}
             >
-              Edit
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-
-      <Box
-        sx={{
-          display: "grid",
-          gap: "20px",
-        }}
-      >
-        <Typography fontWeight={600} fontSize={20}>
-          Force Update
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            backgroundColor: "background.secondary",
-            padding: "30px 20px",
-            borderRadius: "10px",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              gap: "20px",
-              alignItems: "center",
-              flexGrow: 1,
-            }}
-          >
-            <Typography sx={{ width: "100px" }}>App Version</Typography>
-            <InputField
-              value={settingDetails.forceUpdate.appVersion}
-              styles={{ width: "300px", height: "30px" }}
-              disabled={!editMode.forceUpdate}
-              onChange={(e) =>
-                handleInputChange("forceUpdate", "appVersion", e.target.value)
-              }
-              error={validationError}
-              setError={setValidationError}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              gap: "10px",
-            }}
-          >
-            <Button
-              sx={{ height: "30px" }}
-              variant="contained"
-              onClick={() => handleSave("forceUpdate")}
-              disabled={!editMode.forceUpdate}
-            >
-              Save
-            </Button>
-            <Button
-              sx={{ height: "30px" }}
-              variant="outlined"
-              onClick={() => handleEdit("forceUpdate")}
-              disabled={editMode.forceUpdate}
-            >
-              Edit
+              {editMode ? "Cancel" : "Edit"}
             </Button>
           </Box>
         </Box>
