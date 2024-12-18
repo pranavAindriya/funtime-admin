@@ -28,6 +28,7 @@ import {
   Trophy,
   Users,
   UsersFour,
+  HandArrowDown,
 } from "@phosphor-icons/react";
 
 const drawerWidth = "16%";
@@ -59,6 +60,11 @@ const Sidebar = () => {
       text: "Conversion",
       icon: <Scales size={26} color="white" />,
       link: "/conversion",
+    },
+    {
+      text: "Withdrawal",
+      icon: <HandArrowDown size={26} color="white" />,
+      link: "/withdrawals",
     },
     {
       text: "Leader Board",
