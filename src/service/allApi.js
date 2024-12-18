@@ -83,6 +83,10 @@ export const changeWithdrawalStatus = async (id, status) => {
   });
 };
 
+export const exportWitrhdrawalData = async (status) => {
+  return commonRequest("GET", `api/users/exportWithdrawals?status=${status}`);
+};
+
 // Calls
 
 export const getRecentCalls = async () => {

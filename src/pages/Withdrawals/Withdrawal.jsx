@@ -3,7 +3,10 @@ import { Box, Button, Tab, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import WithdrawalTabs from "./Tabs/WithdrawalTabs";
-import { getWithdrawalHistory } from "../../service/allApi";
+import {
+  exportWitrhdrawalData,
+  getWithdrawalHistory,
+} from "../../service/allApi";
 import formatDate from "../../utils/formatdate";
 
 const Withdrawal = () => {
@@ -23,11 +26,28 @@ const Withdrawal = () => {
   };
 
   const fetchWithdrawalHistory = async () => {
-    const response = await getWithdrawalHistory(value);
-    if (response.status === 200) {
-      setWithdrawaldatas(response?.data?.data);
+    try {
+      const response = await getWithdrawalHistory(value);
+      if (response.status === 200) {
+        setWithdrawaldatas(response?.data?.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch withdrawal history:", error);
+      setWithdrawaldatas([]);
     }
-    console.log(response);
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await exportWitrhdrawalData(value);
+      if (response.status === 200) {
+        window.open(response?.data?.fileUrl, "_blank");
+      } else {
+        console.error("Failed to generate file:", response?.data?.message);
+      }
+    } catch (error) {
+      console.error("Error exporting data:", error);
+    }
   };
 
   const formatrows = () => {
@@ -96,6 +116,7 @@ const Withdrawal = () => {
           gap: "5px",
           marginLeft: "auto",
         }}
+        onClick={handleExport}
       >
         Export
       </Button>
