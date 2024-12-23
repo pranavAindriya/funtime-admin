@@ -95,12 +95,16 @@ export const getRecentCalls = async () => {
 
 // Admin
 
-export const getAllRoles = async (id) => {
+export const getAllRoles = async () => {
   return commonRequest("GET", "api/users/getRoles");
 };
 
 export const createNewUserRole = async (body) => {
   return commonRequest("POST", "api/users/createRole", body);
+};
+
+export const createNewAdmin = async (body) => {
+  return commonRequest("POST", "api/users/registerSubAdmin", body);
 };
 
 export const getRoleById = async (id) => {
