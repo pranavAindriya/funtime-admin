@@ -44,7 +44,6 @@ const AddNewUser = () => {
       .required("Date of birth is required")
       .nullable()
       .max(new Date(), "Date of birth cannot be in the future"),
-    location: Yup.string().required("Please provide a valid location"),
     gender: Yup.string()
       .required("Gender is required")
       .oneOf(["Man", "Woman", "Other"], "Invalid gender"),
@@ -69,7 +68,6 @@ const AddNewUser = () => {
                 .toISOString()
                 .split("T")[0]
             : "",
-          location: userDetails.profile?.place || "",
           gender: userDetails.profile?.gender || "",
           coins: userDetails.profile?.coin?.toString() || "",
           email: userDetails.profile?.email || "",
@@ -141,11 +139,13 @@ const AddNewUser = () => {
 
       formData.append("username", values.username);
       formData.append("dateOfBirth", values.dob);
-      formData.append("language", "English");
-      formData.append("place", values.location);
+      if (type !== "edit") {
+        formData.append("language", "English");
+      }
       formData.append("userDescription", "");
       formData.append("gender", values.gender);
       formData.append("email", values.email);
+      formData.append("coin", values.coins);
 
       if (values.icon) {
         formData.append("image", values.icon);
@@ -185,7 +185,6 @@ const AddNewUser = () => {
       username: "",
       phoneNumber: "",
       dob: "",
-      location: "",
       gender: "",
       email: "",
       coins: "",
@@ -320,12 +319,13 @@ const AddNewUser = () => {
 
           <TextField
             fullWidth
-            name="location"
-            label="Location"
-            value={formik.values.location}
+            name="coins"
+            label="Coins"
+            type="number"
+            value={formik.values.coins}
             onChange={formik.handleChange}
-            error={formik.touched.location && Boolean(formik.errors.location)}
-            helperText={formik.touched.location && formik.errors.location}
+            error={formik.touched.coins && Boolean(formik.errors.coins)}
+            helperText={formik.touched.coins && formik.errors.coins}
             disabled={type === "view"}
           />
         </Box>
@@ -405,20 +405,6 @@ const AddNewUser = () => {
               </>
             )}
           </Box>
-
-          <TextField
-            sx={{
-              flexGrow: { xs: 1, md: 0.5 },
-            }}
-            name="coins"
-            label="Coins"
-            type="number"
-            value={formik.values.coins}
-            onChange={formik.handleChange}
-            error={formik.touched.coins && Boolean(formik.errors.coins)}
-            helperText={formik.touched.coins && formik.errors.coins}
-            disabled={type === "view"}
-          />
         </Box>
       </Box>
 
