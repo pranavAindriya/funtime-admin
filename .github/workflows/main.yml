@@ -18,7 +18,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Deploy to DigitalOcean
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@main
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
@@ -26,6 +26,6 @@ jobs:
           debug: true
           script: |
             cd /var/www/4funtalkadminpanel
-            git pull https://${{ secrets.GH_PAT }}@github.com/appricotblue/4funtalkweb.git main
+            git pull https://${{ secrets.GH_PAT }}@github.com/appricotblue/4funtalkadminpanel.git main
             npm install
             npm run build
