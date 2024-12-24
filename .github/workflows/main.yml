@@ -2,7 +2,7 @@ name: Deploy to DigitalOcean
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   deploy:
@@ -25,6 +25,6 @@ jobs:
           password: ${{ secrets.DO_PASSWORD }}
           script: |
             cd /var/www/4funtalkadminpanel
-            git pull https://${{ secrets.GH_PAT }}@github.com/appricotblue/4funtalkweb.git master
+            git pull https://${{ secrets.GH_PAT }}@github.com/appricotblue/4funtalkweb.git main
             npm install
             npm run build
