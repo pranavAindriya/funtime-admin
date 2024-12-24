@@ -23,6 +23,7 @@ jobs:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           password: ${{ secrets.DO_PASSWORD }}
+          debug: true
           script: |
             cd /var/www/4funtalkadminpanel
             git pull https://${{ secrets.GH_PAT }}@github.com/appricotblue/4funtalkweb.git main
