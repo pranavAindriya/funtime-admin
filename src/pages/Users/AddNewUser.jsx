@@ -37,9 +37,12 @@ const AddNewUser = () => {
     username: Yup.string()
       .required("Username is required")
       .min(3, "Username must be at least 3 characters"),
-    phoneNumber: Yup.string()
-      .required("Phone number is required")
-      .matches(/^[0-9]{10}$/, "Phone number must be 10 digits"),
+    phoneNumber:
+      type === "edit"
+        ? Yup.string()
+            .required("Phone number is required")
+            .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
+        : Yup.string().matches(/^[0-9]{10}$/, "Phone number must be 10 digits"),
     dob: Yup.date()
       .required("Date of birth is required")
       .nullable()
