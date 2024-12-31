@@ -168,6 +168,24 @@ const Report = () => {
       ),
     },
     { field: "coins", headerName: "Coins" },
+    {
+      field: "status",
+      headerName: "Status",
+      renderCell: (value) => (
+        <Typography
+          sx={{
+            color:
+              value === "success"
+                ? "success.main"
+                : value === "pending"
+                ? "warning.main"
+                : "error.main",
+          }}
+        >
+          {value}
+        </Typography>
+      ),
+    },
     { field: "description", headerName: "Description" },
     { field: "createdAt", headerName: "Date" },
   ];
@@ -179,6 +197,7 @@ const Report = () => {
       type: transaction?.type,
       amount: { amount: transaction?.amount, type: transaction?.type },
       coins: transaction?.coins,
+      status: transaction?.status,
       description: transaction?.description,
       createdAt: formatDate(transaction?.createdAt),
     }));
