@@ -33,6 +33,61 @@ import {
 
 const drawerWidth = "16%";
 
+const mainItems = [
+  {
+    text: "Dashboard",
+    icon: <SquaresFour size={26} color="white" />,
+    link: "/dashboard",
+  },
+  { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
+  { text: "Calls", icon: <Phone size={26} color="white" />, link: "/calls" },
+  {
+    text: "Coins",
+    icon: <HandCoins size={26} color="white" />,
+    link: "/coins",
+  },
+  {
+    text: "Conversion",
+    icon: <Scales size={26} color="white" />,
+    link: "/conversion",
+  },
+  {
+    text: "Withdrawal",
+    icon: <HandArrowDown size={26} color="white" />,
+    link: "/withdrawals",
+  },
+  {
+    text: "Leader Board",
+    icon: <Trophy size={26} color="white" />,
+    link: "/leaderboard",
+  },
+  {
+    text: "Notifications",
+    icon: <Notification size={26} color="white" />,
+    link: "/notifications",
+  },
+  {
+    text: "Report / Block",
+    icon: <Shield size={26} color="white" />,
+    link: "/reportandblock",
+  },
+  {
+    text: "Reports",
+    icon: <ChartPieSlice size={26} color="white" />,
+    link: "/reports",
+  },
+  {
+    text: "Language",
+    icon: <Translate size={26} color="white" />,
+    link: "/language",
+  },
+  // {
+  //   text: "CMS Page",
+  //   icon: <FileText size={26} color="white" />,
+  //   link: "/cms",
+  // },
+];
+
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
@@ -42,61 +97,6 @@ const Sidebar = () => {
   const handleToggle = () => {
     setOpen(!open);
   };
-
-  const mainItems = [
-    {
-      text: "Dashboard",
-      icon: <SquaresFour size={26} color="white" />,
-      link: "/dashboard",
-    },
-    { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
-    { text: "Calls", icon: <Phone size={26} color="white" />, link: "/calls" },
-    {
-      text: "Coins",
-      icon: <HandCoins size={26} color="white" />,
-      link: "/coins",
-    },
-    {
-      text: "Conversion",
-      icon: <Scales size={26} color="white" />,
-      link: "/conversion",
-    },
-    {
-      text: "Withdrawal",
-      icon: <HandArrowDown size={26} color="white" />,
-      link: "/withdrawals",
-    },
-    {
-      text: "Leader Board",
-      icon: <Trophy size={26} color="white" />,
-      link: "/leaderboard",
-    },
-    {
-      text: "Notifications",
-      icon: <Notification size={26} color="white" />,
-      link: "/notifications",
-    },
-    {
-      text: "Report / Block",
-      icon: <Shield size={26} color="white" />,
-      link: "/reportandblock",
-    },
-    {
-      text: "Reports",
-      icon: <ChartPieSlice size={26} color="white" />,
-      link: "/reports",
-    },
-    {
-      text: "Language",
-      icon: <Translate size={26} color="white" />,
-      link: "/language",
-    },
-    // {
-    //   text: "CMS Page",
-    //   icon: <FileText size={26} color="white" />,
-    //   link: "/cms",
-    // },
-  ];
 
   const getListItemStyle = (link) => {
     return {

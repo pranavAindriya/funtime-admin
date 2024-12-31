@@ -21,44 +21,94 @@ import {
   updateUserRole,
   getRoleById,
 } from "../../../service/allApi";
+import {
+  CaretDown,
+  CaretUp,
+  ChartPieSlice,
+  Circle,
+  FileText,
+  FlagBanner,
+  HandCoins,
+  Notification,
+  Phone,
+  Ranking,
+  Scales,
+  Shield,
+  SquaresFour,
+  Tag,
+  Translate,
+  Trophy,
+  Users,
+  UsersFour,
+  HandArrowDown,
+} from "@phosphor-icons/react";
+
+const mainItems = [
+  {
+    text: "Dashboard",
+    icon: <SquaresFour size={26} color="white" />,
+    link: "/dashboard",
+  },
+  { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
+  { text: "Calls", icon: <Phone size={26} color="white" />, link: "/calls" },
+  {
+    text: "Coins",
+    icon: <HandCoins size={26} color="white" />,
+    link: "/coins",
+  },
+  {
+    text: "Conversion",
+    icon: <Scales size={26} color="white" />,
+    link: "/conversion",
+  },
+  {
+    text: "Withdrawal",
+    icon: <HandArrowDown size={26} color="white" />,
+    link: "/withdrawals",
+  },
+  {
+    text: "Leader Board",
+    icon: <Trophy size={26} color="white" />,
+    link: "/leaderboard",
+  },
+  {
+    text: "Notifications",
+    icon: <Notification size={26} color="white" />,
+    link: "/notifications",
+  },
+  {
+    text: "Report / Block",
+    icon: <Shield size={26} color="white" />,
+    link: "/reportandblock",
+  },
+  {
+    text: "Reports",
+    icon: <ChartPieSlice size={26} color="white" />,
+    link: "/reports",
+  },
+  {
+    text: "Language",
+    icon: <Translate size={26} color="white" />,
+    link: "/language",
+  },
+  // {
+  //   text: "CMS Page",
+  //   icon: <FileText size={26} color="white" />,
+  //   link: "/cms",
+  // },
+];
 
 const AddNewRole = () => {
   const [roleName, setRoleName] = useState("");
   const [status, setStatus] = useState(true);
-  const [accessItems, setAccessItems] = useState([
-    {
-      module: "Users",
-      permissions: { readOnly: true, readAndWrite: false },
-    },
-    {
-      module: "Coin",
-      permissions: { readOnly: true, readAndWrite: false },
-    },
-    {
-      module: "Conversion",
-      permissions: { readOnly: true, readAndWrite: false },
-    },
-    {
-      module: "Report",
-      permissions: { readOnly: true, readAndWrite: false },
-    },
-    {
-      module: "Language",
-      permissions: { readOnly: false, readAndWrite: true },
-    },
-    {
-      module: "CMS Page",
-      permissions: { readOnly: false, readAndWrite: true },
-    },
-    {
-      module: "Notifications",
-      permissions: { readOnly: false, readAndWrite: true },
-    },
-    {
-      module: "Settings",
-      permissions: { readOnly: false, readAndWrite: true },
-    },
-  ]);
+  const [accessItems, setAccessItems] = useState(
+    mainItems
+      .filter((item) => item.text !== "Dashboard")
+      .map((item) => ({
+        module: item.text,
+        permissions: { readOnly: true, readAndWrite: false },
+      }))
+  );
 
   const [newAccessName, setNewAccessName] = useState("");
   const [loading, setLoading] = useState(false);
