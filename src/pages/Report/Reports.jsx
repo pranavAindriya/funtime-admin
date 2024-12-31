@@ -69,28 +69,32 @@ const Report = () => {
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
   const [filter, setFilter] = useState({
-    startDate: getFirstDayOfMonth(),
-    endDate: getLastDayOfMonth(),
+    startDate: null,
+    endDate: null,
     page: 1,
     limit: 10,
     type: null,
+    dateFilter: "all",
   });
 
   useEffect(() => {
     const fetchData = async () => {
+      const params = {
+        page: filter.page,
+        limit: filter.limit,
+        type: filter.type,
+      };
+
+      if (filter.dateFilter !== "all" && filter.startDate && filter.endDate) {
+        params.filter = "custom";
+        params.startDate = filter.startDate;
+        params.endDate = filter.endDate;
+      }
+
       try {
         const response = await axios.get(
           `${BASE_URL}api/users/getCoinPackagePurchases`,
-          {
-            params: {
-              filter: "custom",
-              startDate: filter.startDate,
-              endDate: filter.endDate,
-              page: filter.page,
-              limit: filter.limit,
-              type: filter.type,
-            },
-          }
+          { params }
         );
         setData(response.data);
         setFilteredData(response.data);
@@ -104,6 +108,16 @@ const Report = () => {
 
   const handleQuickFilter = (type) => {
     switch (type) {
+      case "all":
+        setFilter({
+          ...filter,
+          startDate: null,
+          endDate: null,
+          type: null,
+          page: 1,
+          dateFilter: "all",
+        });
+        break;
       case "currentMonth":
         setFilter({
           ...filter,
@@ -220,6 +234,14 @@ const Report = () => {
 
       <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
         <Chip
+          label="All"
+          onClick={() => handleQuickFilter("all")}
+          color={filter.dateFilter === "all" ? "primary" : "default"}
+          sx={{
+            backgroundColor: filter.dateFilter === "all" && "primary.main",
+          }}
+        />
+        <Chip
           label="Current Month"
           onClick={() => handleQuickFilter("currentMonth")}
           color={
@@ -261,11 +283,12 @@ const Report = () => {
           label="Reset Filters"
           onClick={() => {
             setFilter({
-              startDate: getFirstDayOfMonth(),
-              endDate: getLastDayOfMonth(),
+              startDate: null,
+              endDate: null,
               page: 1,
               limit: 10,
               type: null,
+              dateFilter: "all",
             });
           }}
         />
