@@ -144,17 +144,27 @@ const KycRequests = () => {
             View
           </Button>
           {!params.verified ? (
-            <Button
-              size="small"
-              variant="contained"
-              color="success"
-              onClick={() => handleStatusChange(params.id, true)}
-              sx={{
-                color: "white",
-              }}
-            >
-              Approve
-            </Button>
+            <>
+              <Button
+                size="small"
+                variant="contained"
+                color="success"
+                onClick={() => handleStatusChange(params.id, true)}
+                sx={{
+                  color: "white",
+                }}
+              >
+                Approve
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                color="error"
+                onClick={() => handleStatusChange(params.id, false)}
+              >
+                Reject
+              </Button>
+            </>
           ) : (
             <Button
               size="small"
