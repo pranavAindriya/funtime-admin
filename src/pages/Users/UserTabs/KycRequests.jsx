@@ -32,6 +32,7 @@ const KycRequests = () => {
           createdAt: formatDate(item.createdAt),
           verified: {
             verified: item.kycStatus === "approved" ? true : false,
+            pending: item.kycStatus === "pending" ? true : false,
             userId: item.userId,
             id: item._id,
           },
@@ -156,14 +157,16 @@ const KycRequests = () => {
               >
                 Approve
               </Button>
-              <Button
-                size="small"
-                variant="contained"
-                color="error"
-                onClick={() => handleStatusChange(params.id, false)}
-              >
-                Reject
-              </Button>
+              {params.pending && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleStatusChange(params.id, false)}
+                >
+                  Reject
+                </Button>
+              )}
             </>
           ) : (
             <Button
