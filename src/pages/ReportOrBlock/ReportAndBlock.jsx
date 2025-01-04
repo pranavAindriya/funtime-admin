@@ -18,6 +18,8 @@ import {
 import DataTable from "../../components/DataTable";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const ReportAndBlock = () => {
   const [reportReasons, setAllReportReasons] = useState([]);
@@ -86,6 +88,10 @@ const ReportAndBlock = () => {
     }
   };
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Report / Block", "readAndWrite")
+  );
+
   const columns = [
     {
       field: "slno",
@@ -100,7 +106,7 @@ const ReportAndBlock = () => {
       headerName: "Status",
       renderCell: (value) => <TableToggleSwitch value={value} />,
     },
-    {
+    hasAccess && {
       field: "edit",
       headerName: "Actions",
       renderCell: (id) => (
@@ -132,6 +138,7 @@ const ReportAndBlock = () => {
       <TopAddNewBar
         label="Reporting Reason"
         onAddButtonClick={() => setOpenAddModal(true)}
+        hasAccess={hasAccess}
       />
 
       <DataTable columns={columns} rows={formatReportingREasons()} />

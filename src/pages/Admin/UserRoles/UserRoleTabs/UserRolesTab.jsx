@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import DataTable from "../../../../components/DataTable";
 import { getAllRoles } from "../../../../service/allApi";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../../../redux/slices/authSlice";
 
 const UserRolesTab = () => {
   const [roles, setAllRoles] = useState([]);
@@ -11,6 +13,10 @@ const UserRolesTab = () => {
   const theme = useTheme();
 
   const navigate = useNavigate();
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
 
   const columns = [
     { field: "slNo", headerName: "Sl No" },
@@ -46,7 +52,7 @@ const UserRolesTab = () => {
         />
       ),
     },
-    {
+    hasAccess && {
       field: "actions",
       headerName: "Actions",
       renderCell: (value, row) => (

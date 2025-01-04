@@ -20,6 +20,8 @@ import {
   requestOtp,
   verifyOtp,
 } from "../../service/allApi";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const AddNewUser = () => {
   const [iconPreview, setIconPreview] = useState("");
@@ -32,6 +34,10 @@ const AddNewUser = () => {
 
   const { type, id } = useParams();
   const navigate = useNavigate();
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
 
   const validationSchema = Yup.object({
     username: Yup.string()
@@ -198,6 +204,23 @@ const AddNewUser = () => {
   });
 
   console.log(formik.errors);
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box component="form" onSubmit={formik.handleSubmit}>

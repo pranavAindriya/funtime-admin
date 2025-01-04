@@ -7,6 +7,8 @@ import KycRequests from "./UserTabs/KycRequests";
 import BlackLists from "./UserTabs/BlackLists";
 import HostedUsers from "./UserTabs/HostedUsers";
 import { Plus } from "@phosphor-icons/react";
+import { hasPermission, userPermissions } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 const tabs = [
   {
@@ -36,6 +38,12 @@ const Users = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const permissions = useSelector(userPermissions);
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
   const searchParams = new URLSearchParams(location.search);
   const defaultTab = searchParams.get("tab") || "users";
 
@@ -52,18 +60,20 @@ const Users = () => {
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
-      <Button
-        variant="contained"
-        sx={{
-          display: "flex",
-          gap: "5px",
-          marginLeft: "auto",
-        }}
-        onClick={() => navigate("/users/add")}
-      >
-        <Plus size={18} />
-        Add New
-      </Button>
+      {hasAccess && (
+        <Button
+          variant="contained"
+          sx={{
+            display: "flex",
+            gap: "5px",
+            marginLeft: "auto",
+          }}
+          onClick={() => navigate("/users/add")}
+        >
+          <Plus size={18} />
+          Add New
+        </Button>
+      )}
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">

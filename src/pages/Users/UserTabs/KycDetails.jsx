@@ -15,6 +15,8 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import { usePDF } from "react-to-pdf";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../../redux/slices/authSlice";
 
 const ViewButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#00a650",
@@ -225,6 +227,27 @@ export default function KycDetails() {
       console.error(err);
     }
   };
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>

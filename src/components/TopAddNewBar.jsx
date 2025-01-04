@@ -7,6 +7,7 @@ const TopAddNewBar = ({
   onAddButtonClick,
   buttonLabel,
   buttonStyles,
+  hasAccess,
 }) => {
   return (
     <Box
@@ -22,27 +23,29 @@ const TopAddNewBar = ({
         <span style={{ fontWeight: 700, fontSize: "18px" }}>{label}</span>
       </Box>
       <Box>
-        <Button
-          color="error"
-          variant="contained"
-          sx={{
-            ...buttonStyles,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "5px",
-          }}
-          onClick={onAddButtonClick}
-        >
-          {buttonLabel ? (
-            buttonLabel
-          ) : (
-            <>
-              <Plus size={17} />
-              <span>Add new</span>
-            </>
-          )}
-        </Button>
+        {hasAccess && (
+          <Button
+            color="error"
+            variant="contained"
+            sx={{
+              ...buttonStyles,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "5px",
+            }}
+            onClick={onAddButtonClick}
+          >
+            {buttonLabel ? (
+              buttonLabel
+            ) : (
+              <>
+                <Plus size={17} />
+                <span>Add new</span>
+              </>
+            )}
+          </Button>
+        )}
       </Box>
     </Box>
   );

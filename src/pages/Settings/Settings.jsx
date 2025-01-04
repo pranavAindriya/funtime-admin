@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import InputField from "../../components/InputField";
 import { getSettings, updateSettings } from "../../service/allApi";
 import { Slide, toast, ToastContainer } from "react-toastify";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const Settings = () => {
   const [settingDetails, setSettingsDetails] = useState({
@@ -58,9 +60,30 @@ const Settings = () => {
 
   console.log(settingDetails);
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
   useEffect(() => {
     fetchSettings();
   }, []);
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box

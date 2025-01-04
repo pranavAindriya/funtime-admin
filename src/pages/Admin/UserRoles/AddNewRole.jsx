@@ -42,6 +42,8 @@ import {
   UsersFour,
   HandArrowDown,
 } from "@phosphor-icons/react";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../../redux/slices/authSlice";
 
 const mainItems = [
   {
@@ -52,7 +54,7 @@ const mainItems = [
   { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
   { text: "Calls", icon: <Phone size={26} color="white" />, link: "/calls" },
   {
-    text: "Coins",
+    text: "Coin",
     icon: <HandCoins size={26} color="white" />,
     link: "/coins",
   },
@@ -118,6 +120,10 @@ const AddNewRole = () => {
 
   const navigate = useNavigate();
   const { id, type } = useParams();
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
 
   useEffect(() => {
     const determineMode = () => {
@@ -309,6 +315,7 @@ const AddNewRole = () => {
           mode === "view" ? () => navigate("/user-roles") : handleSubmit
         }
         disabled={loading || mode === "view"}
+        hasAccess={hasAccess}
       />
 
       <Box
@@ -364,18 +371,20 @@ const AddNewRole = () => {
                 : ""
             }
           />
-          <Button
-            variant="outlined"
-            startIcon={<Plus size={20} />}
-            onClick={handleAddAccessItem}
-            sx={{ height: "fit-content", marginLeft: 5 }}
-            disabled={
-              !newAccessName.trim() ||
-              accessItems.some((item) => item.module === newAccessName.trim())
-            }
-          >
-            Add New
-          </Button>
+          {hasAccess && (
+            <Button
+              variant="outlined"
+              startIcon={<Plus size={20} />}
+              onClick={handleAddAccessItem}
+              sx={{ height: "fit-content", marginLeft: 5 }}
+              disabled={
+                !newAccessName.trim() ||
+                accessItems.some((item) => item.module === newAccessName.trim())
+              }
+            >
+              Add New
+            </Button>
+          )}
         </Box>
       )}
 
@@ -426,7 +435,8 @@ const AddNewRole = () => {
                   disabled={mode === "view"}
                 />
               </RadioGroup>
-              {mode !== "view" && (
+
+              {hasAccess && mode !== "view" && (
                 <Box display="flex">
                   <IconButton
                     color="error"

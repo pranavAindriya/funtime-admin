@@ -5,6 +5,8 @@ import {
 } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
 import { Box, Button, Snackbar, Alert } from "@mui/material";
+import { hasPermission } from "../../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 const HostedUsers = () => {
   const [hostedUsers, setHostedUsers] = useState([]);
@@ -87,12 +89,16 @@ const HostedUsers = () => {
     }));
   };
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
   const columns = [
     { field: "userId", headerName: "User Id" },
     { field: "username", headerName: "Username" },
     { field: "phone", headerName: "Phone" },
     { field: "status", headerName: "Status" },
-    {
+    hasAccess && {
       field: "action",
       headerName: "Action",
       renderCell: (params) => {

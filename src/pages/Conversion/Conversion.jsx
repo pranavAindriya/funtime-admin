@@ -6,6 +6,8 @@ import SmallCoin from "../../assets/SmallCoin.svg";
 import SmallDiamond from "../../assets/SmallHeart.svg";
 import { conversionsEdit, getConversionFactors } from "../../service/allApi";
 import { Slide, ToastContainer, toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const Conversion = () => {
   const [isEditable, setIsEditable] = useState(false);
@@ -81,7 +83,9 @@ const Conversion = () => {
     }
   };
 
-  console.log(conversionData);
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Conversion", "readAndWrite")
+  );
 
   return (
     <Box>
@@ -92,6 +96,7 @@ const Conversion = () => {
           minWidth: "150px",
         }}
         onAddButtonClick={handleTopBarButtonClick}
+        hasAccess={hasAccess}
       />
       <Box display={"flex"} alignItems={"center"} gap={2} mb={3}>
         <Typography fontWeight={600} fontSize={18}>

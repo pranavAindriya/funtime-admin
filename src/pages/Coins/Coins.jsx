@@ -26,6 +26,8 @@ import InputField from "../../components/InputField";
 import { Slide, ToastContainer, toast } from "react-toastify";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const Coins = () => {
   const [coinList, setCoinList] = useState();
@@ -119,6 +121,10 @@ const Coins = () => {
     fetchFreeCoinData();
   }, []);
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Coin", "readAndWrite")
+  );
+
   const columns = [
     { field: "slno", headerName: "Sl No" },
     { field: "coin", headerName: "Coin" },
@@ -136,7 +142,7 @@ const Coins = () => {
       headerName: "Status",
       renderCell: (value) => <TableToggleSwitch value={value} />,
     },
-    {
+    hasAccess && {
       field: "edit",
       headerName: "Edit",
       renderCell: (params) => (
@@ -231,17 +237,20 @@ const Coins = () => {
           />
         </Box>
 
-        <Button
-          sx={{ paddingInline: "30px" }}
-          onClick={handleFreeCoinDetailsUpdate}
-          variant="contained"
-        >
-          Update
-        </Button>
+        {hasAccess && (
+          <Button
+            sx={{ paddingInline: "30px" }}
+            onClick={handleFreeCoinDetailsUpdate}
+            variant="contained"
+          >
+            Update
+          </Button>
+        )}
       </Box>
       <TopAddNewBar
         label={"Coin Purchase Packages"}
         onAddButtonClick={() => navigate("/coins/add")}
+        hasAccess={hasAccess}
       />
       <ToastContainer position="top-center" transition={"Slide"} />
       <DataTable columns={columns} rows={formattedCoinRows} />

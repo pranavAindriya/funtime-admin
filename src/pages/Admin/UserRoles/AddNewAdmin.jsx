@@ -4,6 +4,8 @@ import { Box, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { getAllRoles, createNewAdmin } from "../../../service/allApi";
 import { Slide, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { hasPermission } from "../../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 const AddNewAdmin = () => {
   const [adminData, setAdminData] = useState({
@@ -92,15 +94,37 @@ const AddNewAdmin = () => {
     }
   };
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
   useEffect(() => {
     fetchAllRoles();
   }, []);
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <div>
       <TopAddNewBar
         label={"Add New Admin"}
         onAddButtonClick={handleAddNewAdmin}
+        hasAccess={hasAccess}
       />
 
       <Box display={"flex"} flexDirection={"column"} gap={3}>

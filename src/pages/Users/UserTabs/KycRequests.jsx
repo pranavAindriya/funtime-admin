@@ -4,6 +4,8 @@ import { getAllKyc, changeKycStatus } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
 import formatDate from "../../../utils/formatdate";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../../redux/slices/authSlice";
 
 const KycRequests = () => {
   const [kycData, setKycData] = useState([]);
@@ -102,6 +104,10 @@ const KycRequests = () => {
     }
   };
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
   const columns = [
     { field: "slno", headerName: "SlNo" },
     {
@@ -132,7 +138,7 @@ const KycRequests = () => {
       ),
     },
     { field: "createdAt", headerName: "Created Date" },
-    {
+    hasAccess && {
       field: "verified",
       headerName: "Actions",
       renderCell: (params) => (

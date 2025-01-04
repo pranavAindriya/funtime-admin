@@ -25,12 +25,12 @@ import Notifications from "./pages/notifications/Notifications";
 import AddNewNotification from "./pages/notifications/AddNewNotification";
 import AddNewAdmin from "./pages/Admin/UserRoles/AddNewAdmin";
 import AddNewRole from "./pages/Admin/UserRoles/AddNewRole";
-import "react-toastify/dist/ReactToastify.css";
 import Reports from "./pages/Report/Reports";
 import ReportAndBlock from "./pages/ReportOrBlock/ReportAndBlock";
 import KycDetails from "./pages/Users/UserTabs/KycDetails";
 import CallsList from "./pages/Calls/CallsList";
 import Withdrawal from "./pages/Withdrawals/Withdrawal";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   const mediaQuery800px = useMediaQuery("(min-width:800px)");

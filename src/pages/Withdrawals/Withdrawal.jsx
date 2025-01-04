@@ -8,6 +8,8 @@ import {
   getWithdrawalHistory,
 } from "../../service/allApi";
 import formatDate from "../../utils/formatdate";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const Withdrawal = () => {
   const theme = useTheme();
@@ -102,6 +104,10 @@ const Withdrawal = () => {
     },
   ];
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Withdrawal", "readAndWrite")
+  );
+
   useEffect(() => {
     setValue(defaultTab);
     fetchWithdrawalHistory();
@@ -109,17 +115,19 @@ const Withdrawal = () => {
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
-      <Button
-        variant="contained"
-        sx={{
-          display: "flex",
-          gap: "5px",
-          marginLeft: "auto",
-        }}
-        onClick={handleExport}
-      >
-        Export
-      </Button>
+      {hasAccess && (
+        <Button
+          variant="contained"
+          sx={{
+            display: "flex",
+            gap: "5px",
+            marginLeft: "auto",
+          }}
+          onClick={handleExport}
+        >
+          Export
+        </Button>
+      )}
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">

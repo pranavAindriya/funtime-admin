@@ -9,6 +9,8 @@ import {
 } from "../../service/allApi";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const AddNewNotification = () => {
   const [image, setImage] = useState(null);
@@ -90,6 +92,27 @@ const AddNewNotification = () => {
     setImage(file);
     setImagePreview(URL.createObjectURL(file));
   };
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Notifications", "readAndWrite")
+  );
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box display={"grid"} gap={4}>

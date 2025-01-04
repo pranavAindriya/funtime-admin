@@ -16,6 +16,8 @@ import {
   sendPushNotification,
 } from "../../service/allApi";
 import { Pencil, Trash } from "@phosphor-icons/react";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const Notifications = () => {
   const [notifications, setAllNotifications] = useState([]);
@@ -54,6 +56,10 @@ const Notifications = () => {
     console.log(response);
   };
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Notifications", "readAndWrite")
+  );
+
   const columns = [
     { field: "slno", headerName: "#" },
     { field: "title", headerName: "Title" },
@@ -65,7 +71,7 @@ const Notifications = () => {
         <img src={value} alt="img unavilable" style={{ width: "50px" }} />
       ),
     },
-    {
+    hasAccess && {
       field: "actions",
       headerName: "Actions",
       renderCell: (value) => (
@@ -138,6 +144,7 @@ const Notifications = () => {
       <TopAddNewBar
         label={"Push Notification List"}
         onAddButtonClick={() => navigte("/notifications/addnew")}
+        hasAccess={hasAccess}
       />
       <DataTable columns={columns} rows={formattedRows} />
       <Snackbar

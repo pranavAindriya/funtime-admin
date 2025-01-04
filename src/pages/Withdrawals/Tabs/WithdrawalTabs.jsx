@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import { changeWithdrawalStatus } from "../../../service/allApi"; // Import your API function
 import { Slide, toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../../redux/slices/authSlice";
 
 const WithdrawalTabs = ({ type, rows, data, setRows }) => {
   const theme = useTheme();
@@ -38,13 +40,17 @@ const WithdrawalTabs = ({ type, rows, data, setRows }) => {
     }
   };
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Withdrawal", "readAndWrite")
+  );
+
   const columns = [
     { field: "slno", headerName: "SlNo" },
     { field: "userId", headerName: "User ID" },
     { field: "username", headerName: "Username" },
     { field: "time", headerName: "Time" },
     { field: "amount", headerName: "Amount" },
-    {
+    hasAccess && {
       field: "status",
       headerName: "Status",
       renderCell: (row) => (

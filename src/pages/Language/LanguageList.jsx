@@ -20,6 +20,8 @@ import TableToggleSwitch from "../../components/TableToggleSwitch";
 import ConfirmationPopover from "../../components/ConfirmationPopover";
 import InputField from "../../components/InputField";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../redux/slices/authSlice";
 
 const style = {
   position: "absolute",
@@ -71,11 +73,15 @@ const LanguageList = () => {
     setAnchorEl(null);
   };
 
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Language", "readAndWrite")
+  );
+
   const columns = [
     { field: "slno", headerName: "#" },
     { field: "language", headerName: "Language" },
     { field: "users", headerName: "Users" },
-    {
+    hasAccess && {
       field: "actions",
       headerName: "Actions",
       renderCell: (value) => (
@@ -124,6 +130,7 @@ const LanguageList = () => {
       <TopAddNewBar
         label={"Language List"}
         onAddButtonClick={() => navigate("/language/add")}
+        hasAccess={hasAccess}
       />
       <DataTable columns={columns} rows={formattedLanguageData} />
       <ConfirmationPopover

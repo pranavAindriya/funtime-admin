@@ -36,7 +36,7 @@ const Login = () => {
   const handleLogin = async (loginData) => {
     const response = await login(loginData);
     if (response.status === 200) {
-      dispatch(setLogin());
+      dispatch(setLogin(response?.data));
     } else {
       console.error("Login failed:", response.message);
     }

@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Typography,
 } from "@mui/material";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
 import coin from "../../assets/CoinImage.png";
@@ -21,6 +22,8 @@ import {
 import { Slide, toast } from "react-toastify";
 import LabeldInputField from "../../components/LabeldInputField";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
+import { hasPermission } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 const AddNewCoin = () => {
   const [coinData, setCoinData] = useState({
@@ -196,6 +199,27 @@ const AddNewCoin = () => {
     setDeleteConfirmationOpen(false);
     setCoinToDelete(null);
   };
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Coin", "readAndWrite")
+  );
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <div>

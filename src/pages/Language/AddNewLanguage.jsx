@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import CreateNewTopBar from "../../components/CreateNewTopBar";
 import InputField from "../../components/InputField";
 import LabeldInputField from "../../components/LabeldInputField";
@@ -9,6 +9,8 @@ import {
   updateLanguage,
 } from "../../service/allApi";
 import { useNavigate, useParams } from "react-router-dom";
+import { hasPermission } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 const AddNewLanguage = () => {
   const [languageData, setLanguageData] = useState({
@@ -70,6 +72,27 @@ const AddNewLanguage = () => {
       console.error("Error creating language:", error);
     }
   };
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Language", "readAndWrite")
+  );
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <div>
