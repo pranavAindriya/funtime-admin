@@ -90,6 +90,7 @@ const App = () => {
 
             {/* Admin */}
             <Route path="/admin/addnewadmin" element={<AddNewAdmin />} />
+            <Route path="/admin/:type/:id" element={<AddNewAdmin />} />
             <Route path="/admin/addnewrole" element={<AddNewRole />} />
             <Route path="/admin/role/:type/:id" element={<AddNewRole />} />
 

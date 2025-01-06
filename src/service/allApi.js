@@ -105,6 +105,22 @@ export const getAllRoles = async () => {
   return commonRequest("GET", "api/users/getRoles");
 };
 
+export const getAllAdmins = async () => {
+  return commonRequest("GET", "api/users/getAllAdmins");
+};
+
+export const getAdminById = async (id) => {
+  return commonRequest("GET", `api/users/getAdminById/${id}`);
+};
+
+export const updateAdmin = async (id, body) => {
+  return commonRequest("PUT", `api/users/updateSubAdmin/${id}`, body);
+};
+
+export const deleteAdmin = async (id) => {
+  return commonRequest("DELETE", `api/users/deleteAdmin/${id}`);
+};
+
 export const createNewUserRole = async (body) => {
   return commonRequest("POST", "api/users/createRole", body);
 };

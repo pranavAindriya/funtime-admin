@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import TopAddNewBar from "../../../components/TopAddNewBar";
 import { Box, MenuItem, Select, TextField, Typography } from "@mui/material";
-import { getAllRoles, createNewAdmin } from "../../../service/allApi";
+import {
+  getAllRoles,
+  createNewAdmin,
+  getAdminById,
+  updateAdmin,
+} from "../../../service/allApi";
 import { Slide, toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { hasPermission } from "../../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
 
@@ -17,6 +22,8 @@ const AddNewAdmin = () => {
   const [allRoles, setAllRoles] = useState([]);
 
   const navigate = useNavigate();
+
+  const { type, id } = useParams();
 
   const fetchAllRoles = async () => {
     try {
@@ -71,6 +78,23 @@ const AddNewAdmin = () => {
     if (!validateInput()) return;
 
     try {
+      if (type === "edit") {
+        const response = await updateAdmin(id, adminData);
+        if (response.status === 200) {
+          toast.success("Admin updated successfully.", {
+            autoClose: 1000,
+            transition: Slide,
+          });
+          navigate("/user-roles");
+          setAdminData({ name: "", email: "", password: "", role: "" });
+        } else {
+          toast.error("Failed to update admin. Please try again.", {
+            autoClose: 1000,
+            transition: Slide,
+          });
+        }
+        return;
+      }
       const response = await createNewAdmin(adminData);
       if (response.status === 200) {
         toast.success("Admin created successfully.", {
@@ -98,9 +122,19 @@ const AddNewAdmin = () => {
     hasPermission(state, "Users", "readAndWrite")
   );
 
+  const fetchAdminById = async (id) => {
+    const response = await getAdminById(id);
+    if (response?.status === 200) {
+      setAdminData(response?.data?.data);
+    }
+  };
+
   useEffect(() => {
     fetchAllRoles();
-  }, []);
+    if (type) {
+      fetchAdminById(id);
+    }
+  }, [type, id]);
 
   if (!hasAccess) {
     return (
@@ -125,6 +159,7 @@ const AddNewAdmin = () => {
         label={"Add New Admin"}
         onAddButtonClick={handleAddNewAdmin}
         hasAccess={hasAccess}
+        buttonLabel={type === "edit" && "Update Admin "}
       />
 
       <Box display={"flex"} flexDirection={"column"} gap={3}>
@@ -146,16 +181,18 @@ const AddNewAdmin = () => {
             onChange={onInputChange}
           />
         </Box>
-        <Box display={"flex"} flexWrap={"wrap"} gap={2}>
-          <Typography minWidth={"200px"}>Password</Typography>
-          <TextField
-            size="small"
-            name="password"
-            type="password"
-            value={adminData.password}
-            onChange={onInputChange}
-          />
-        </Box>
+        {!type && (
+          <Box display={"flex"} flexWrap={"wrap"} gap={2}>
+            <Typography minWidth={"200px"}>Password</Typography>
+            <TextField
+              size="small"
+              name="password"
+              type="password"
+              value={adminData.password}
+              onChange={onInputChange}
+            />
+          </Box>
+        )}
         <Box display={"flex"} flexWrap={"wrap"} gap={2}>
           <Typography minWidth={"200px"}>Title</Typography>
           <Select
