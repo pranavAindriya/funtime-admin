@@ -258,7 +258,10 @@ const AddNewRole = () => {
       if (mode === "create") {
         response = await createNewUserRole(payload);
       } else if (mode === "edit") {
-        response = await updateUserRole(id, { access: payload.access });
+        response = await updateUserRole(id, {
+          name: payload.name,
+          access: payload.access,
+        });
       }
 
       setSuccess(response.data.message || "Role saved successfully");
