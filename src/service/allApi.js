@@ -18,8 +18,8 @@ export const updateSettings = (data) => {
 
 // User
 
-export const getAllUsers = async () => {
-  return commonRequest("GET", "api/users/getUsers");
+export const getAllUsers = async (page, limit = 10) => {
+  return commonRequest("GET", `api/users/getUsers?page=${page}&limit=${limit}`);
 };
 
 export const getUserById = async (id) => {
@@ -52,8 +52,11 @@ export const createUser = async (body, id) => {
   );
 };
 
-export const getAllKyc = async () => {
-  return commonRequest("GET", "api/users/getAllKYCDetails");
+export const getAllKyc = async (page, limit = 10) => {
+  return commonRequest(
+    "GET",
+    `api/users/getAllKYCDetails?page=${page}&limit=${limit}`
+  );
 };
 
 export const getKycById = async (id) => {
@@ -89,8 +92,11 @@ export const exportWitrhdrawalData = async (status) => {
 
 // Calls
 
-export const getRecentCalls = async () => {
-  return commonRequest("GET", "api/users/CallTransactionHistory");
+export const getRecentCalls = async (page, limit = 10) => {
+  return commonRequest(
+    "GET",
+    `api/users/CallTransactionHistory?filter=custom&page=${page}&limit=${limit}`
+  );
 };
 
 // Admin
@@ -180,8 +186,11 @@ export const sendPushNotification = async (id) => {
 
 // Hosted Users
 
-export const getAllHostedUsers = async () => {
-  return commonRequest("GET", "api/users/getHostedUsers");
+export const getAllHostedUsers = async (page, limit = 10) => {
+  return commonRequest(
+    "GET",
+    `api/users/getHostedUsers?page=${page}&limit=${limit}`
+  );
 };
 
 export const updateHostedUserStatus = async (body) => {

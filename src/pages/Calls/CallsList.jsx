@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { TextField, Box, Button, Typography } from "@mui/material";
+import { TextField, Box, Button, Typography, Pagination } from "@mui/material";
 import { getRecentCalls } from "../../service/allApi";
 import formatDate from "../../utils/formatdate";
+import DataTable from "../../components/DataTable";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const CallsList = () => {
   const [recentCalls, setRecentCalls] = useState([]);
@@ -10,22 +12,29 @@ const CallsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [page, setPage] = useState(1);
+  const [paginationDetails, setPaginationDetails] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchCallHistory = async () => {
+    setIsLoading(true);
     try {
-      const response = await getRecentCalls();
+      const response = await getRecentCalls(page, 100);
       if (response.status === 200) {
         setRecentCalls(response.data.data);
         setFilteredCalls(response.data.data);
+        setPaginationDetails(response.data.pagination);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error fetching call history:", error);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCallHistory();
-  }, []);
+  }, [page]);
 
   const handleSearch = () => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -79,7 +88,7 @@ const CallsList = () => {
   const rows = formattedRecentCalls();
 
   return (
-    <Box>
+    <LoadingBackdrop open={isLoading}>
       <Typography fontSize={22} fontWeight={600} mb={3}>
         Recent Calls List
       </Typography>
@@ -115,20 +124,35 @@ const CallsList = () => {
           Filter by Date
         </Button>
       </Box>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10, 20, 50]}
-        // initialState={{
-        //   pagination: {
-        //     paginationModel: { pageSize: 25, page: 0 },
-        //   },
-        // }}
-        disableColumnMenu
-        disableColumnSorting
+      <Pagination
+        count={paginationDetails?.totalPages}
+        page={page}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 4,
+          mt: 4,
+        }}
+        onChange={(e, page) => setPage(page)}
       />
-    </Box>
+      <DataTable columns={columns} rows={rows} />
+      <Pagination
+        count={paginationDetails?.totalPages}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 2,
+          mt: 4,
+        }}
+        onChange={(e, page) => setPage(page)}
+      />
+    </LoadingBackdrop>
   );
 };
 

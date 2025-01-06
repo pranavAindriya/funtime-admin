@@ -7,26 +7,36 @@ import {
   ButtonGroup,
   Checkbox,
   IconButton,
+  Pagination,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllUsers } from "../../../service/allApi";
 import theme from "../../../../theme";
 import { Eye, Pencil } from "@phosphor-icons/react";
 import formatDate from "../../../utils/formatdate";
+import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 const Userlist = () => {
-  const [users, setUsers] = useState();
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [paginationDetails, setPaginationDetails] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const fetchAllUsers = async () => {
-    const response = await getAllUsers();
-    setUsers(response?.data);
+    setIsLoading(true);
+    const response = await getAllUsers(page, 100);
+    if (response.status === 200) {
+      setUsers(response?.data?.users);
+      setPaginationDetails(response?.data?.pagination);
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchAllUsers();
-  }, []);
+  }, [page]);
 
   const columns = [
     { field: "userId", headerName: "User ID" },
@@ -111,9 +121,36 @@ const Userlist = () => {
   const formattedUsers = formatUsersForDataTable();
 
   return (
-    <div>
+    <LoadingBackdrop open={isLoading}>
+      <Pagination
+        count={paginationDetails?.totalPages}
+        page={page}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 4,
+          mt: 2,
+        }}
+        onChange={(e, page) => setPage(page)}
+      />
       <DataTable columns={columns} rows={formattedUsers} />
-    </div>
+      <Pagination
+        count={paginationDetails?.totalPages}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 2,
+          mt: 4,
+        }}
+        onChange={(e, page) => setPage(page)}
+      />
+    </LoadingBackdrop>
   );
 };
 

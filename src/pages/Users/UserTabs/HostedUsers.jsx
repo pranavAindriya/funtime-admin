@@ -4,9 +4,10 @@ import {
   updateHostedUserStatus,
 } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
-import { Box, Button, Snackbar, Alert } from "@mui/material";
+import { Box, Button, Snackbar, Alert, Pagination } from "@mui/material";
 import { hasPermission } from "../../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
+import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 const HostedUsers = () => {
   const [hostedUsers, setHostedUsers] = useState([]);
@@ -15,15 +16,22 @@ const HostedUsers = () => {
     message: "",
     severity: "success",
   });
+  const [page, setPage] = useState(1);
+  const [paginationDetails, setPaginationDetails] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchAllHostedUsers = async () => {
+    setIsLoading(true);
     try {
-      const response = await getAllHostedUsers();
+      const response = await getAllHostedUsers(page, 100);
       if (response.status === 200) {
-        setHostedUsers(response.data);
+        setHostedUsers(response?.data?.users);
+        setPaginationDetails(response?.data?.pagination);
+        setIsLoading(false);
       }
     } catch (error) {
       handleErrorNotification("Failed to fetch hosted users");
+      setIsLoading(false);
     }
   };
 
@@ -156,12 +164,38 @@ const HostedUsers = () => {
 
   useEffect(() => {
     fetchAllHostedUsers();
-  }, []);
+  }, [page]);
 
   return (
-    <>
+    <LoadingBackdrop open={isLoading}>
+      <Pagination
+        count={paginationDetails?.totalPages}
+        page={page}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 4,
+          mt: 2,
+        }}
+        onChange={(e, page) => setPage(page)}
+      />
       <DataTable columns={columns} rows={formatUsersForDataTable()} />
-
+      <Pagination
+        count={paginationDetails?.totalPages}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 2,
+          mt: 4,
+        }}
+        onChange={(e, page) => setPage(page)}
+      />
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
@@ -176,7 +210,7 @@ const HostedUsers = () => {
           {notification.message}
         </Alert>
       </Snackbar>
-    </>
+    </LoadingBackdrop>
   );
 };
 

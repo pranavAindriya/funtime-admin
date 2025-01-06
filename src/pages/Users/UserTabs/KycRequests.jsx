@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Alert, Avatar } from "@mui/material";
+import { Box, Button, Alert, Avatar, Pagination } from "@mui/material";
 import { getAllKyc, changeKycStatus } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
 import formatDate from "../../../utils/formatdate";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../../redux/slices/authSlice";
+import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 const KycRequests = () => {
   const [kycData, setKycData] = useState([]);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [paginationDetails, setPaginationDetails] = useState({});
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -17,7 +20,7 @@ const KycRequests = () => {
   const fetchAllKycRequests = async () => {
     try {
       setLoading(true);
-      const response = await getAllKyc();
+      const response = await getAllKyc(page, 100);
       console.log(response);
 
       if (response.data.data) {
@@ -40,6 +43,7 @@ const KycRequests = () => {
           },
         }));
         setKycData(transformedData);
+        setPaginationDetails(response?.data?.pagination);
       }
       setError(null);
     } catch (err) {
@@ -190,15 +194,41 @@ const KycRequests = () => {
   ];
 
   return (
-    <Box>
+    <LoadingBackdrop open={loading}>
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
         </Alert>
       )}
-
+      <Pagination
+        count={paginationDetails?.totalPages}
+        page={page}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 4,
+          mt: 2,
+        }}
+        onChange={(e, page) => setPage(page)}
+      />
       <DataTable columns={columns} rows={kycData} />
-    </Box>
+      <Pagination
+        count={paginationDetails?.totalPages}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 2,
+          mt: 4,
+        }}
+        onChange={(e, page) => setPage(page)}
+      />
+    </LoadingBackdrop>
   );
 };
 
