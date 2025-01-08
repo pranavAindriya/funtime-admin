@@ -35,6 +35,14 @@ export const editUser = async (id, body) => {
   );
 };
 
+export const blockUser = async (userId, blockedUserId, blockFlag) => {
+  return commonRequest("POST", "api/users/adminBlockUser", {
+    userId,
+    blockedUserId,
+    blockFlag,
+  });
+};
+
 export const requestOtp = async (body) => {
   return commonRequest("POST", "api/users/userRequestOTP", body);
 };

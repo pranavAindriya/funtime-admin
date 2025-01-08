@@ -9,9 +9,8 @@ const BlackLists = () => {
   const fetchAllBlockedUSers = async () => {
     const response = await getAllBlockedUsers();
     if (response.status === 200) {
-      setAllBlockedUsers(response.data.userReports);
+      setAllBlockedUsers(response.data.data);
     }
-    console.log(response);
   };
 
   const columns = [

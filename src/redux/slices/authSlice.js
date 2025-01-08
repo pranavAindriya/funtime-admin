@@ -19,6 +19,7 @@ const authSlice = createSlice({
         acc[item.module] = item.permissions;
         return acc;
       }, {});
+      state.userId = role.id;
     },
     setLogout: (state) => {
       state.isLoggedIn = false;
@@ -31,6 +32,7 @@ const authSlice = createSlice({
 
 export const isLoggedIn = (state) => state.auth.isLoggedIn;
 export const userRole = (state) => state.auth.role;
+export const userId = (state) => state.auth.userId;
 export const userPermissions = (state) => state.auth.permissions;
 
 export const hasPermission = (

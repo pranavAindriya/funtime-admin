@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "../../../components/DataTable";
-import {
-  Avatar,
-  Box,
-  Button,
-  ButtonGroup,
-  Checkbox,
-  IconButton,
-  Pagination,
-} from "@mui/material";
+import { Avatar, Box, Checkbox, IconButton, Pagination } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { getAllUsers } from "../../../service/allApi";
-import theme from "../../../../theme";
+import { blockUser, getAllUsers } from "../../../service/allApi";
 import { Eye, Pencil } from "@phosphor-icons/react";
 import formatDate from "../../../utils/formatdate";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
+import { useSelector } from "react-redux";
+import { userId } from "../../../redux/slices/authSlice";
+import { Slide, toast } from "react-toastify";
 
 const Userlist = () => {
   const [users, setUsers] = useState([]);
@@ -23,6 +17,8 @@ const Userlist = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  const adminUserId = useSelector(userId);
 
   const fetchAllUsers = async () => {
     setIsLoading(true);
@@ -37,6 +33,50 @@ const Userlist = () => {
   useEffect(() => {
     fetchAllUsers();
   }, [page]);
+
+  const handleBlockUser = async (userId, currentBlockedStatus) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === userId ? { ...user, blocked: !currentBlockedStatus } : user
+      )
+    );
+
+    try {
+      const response = await blockUser(
+        adminUserId,
+        userId,
+        !currentBlockedStatus
+      );
+
+      const isSuccess = currentBlockedStatus
+        ? response.status === 200
+        : response.status === 201;
+
+      if (!isSuccess) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === userId
+              ? { ...user, blocked: currentBlockedStatus }
+              : user
+          )
+        );
+        throw new Error("Failed to update user block status");
+      }
+
+      toast.success(
+        `User successfully ${!currentBlockedStatus ? "Blocked" : "Unblocked"}`,
+        {
+          autoClose: 1000,
+          transition: Slide,
+        }
+      );
+    } catch (error) {
+      toast.error("Failed to update user block status", {
+        autoClose: 1000,
+        transition: Slide,
+      });
+    }
+  };
 
   const columns = [
     { field: "userId", headerName: "User ID" },
@@ -57,11 +97,16 @@ const Userlist = () => {
     { field: "about", headerName: "About" },
     { field: "gender", headerName: "Gender" },
     { field: "coin", headerName: "Coin" },
-    // {
-    //   field: "blacklist",
-    //   headerName: "Blacklist",
-    //   renderCell: (value) => <Checkbox checked={value} disabled />,
-    // },
+    {
+      field: "blacklist",
+      headerName: "Blacklist",
+      renderCell: (params) => (
+        <Checkbox
+          checked={params.value}
+          onChange={() => handleBlockUser(params.userId, params.value)}
+        />
+      ),
+    },
     // {
     //   field: "kyc",
     //   headerName: "KYC",
@@ -112,10 +157,14 @@ const Userlist = () => {
       gender: user?.profile?.gender,
       coin: user?.profile?.coin,
       about: user?.profile?.userDescription,
-      blacklist: user?.blacklist,
+      blacklist: { value: user?.blocked, userId: user?._id },
       kyc: user?.kyc,
       actions: user?._id,
     }));
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   const formattedUsers = formatUsersForDataTable();
@@ -140,6 +189,7 @@ const Userlist = () => {
       <Pagination
         count={paginationDetails?.totalPages}
         color="primary"
+        page={page}
         variant="outlined"
         sx={{
           display: "flex",
