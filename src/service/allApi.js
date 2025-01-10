@@ -81,11 +81,8 @@ export const getAllBlockedUsers = async () => {
 
 // Withdrawal
 
-export const getWithdrawalHistory = async (status) => {
-  return commonRequest(
-    "GET",
-    `api/users/getAllWithdrawHistory?status=${status}`
-  );
+export const getWithdrawalHistory = async (queryParams) => {
+  return commonRequest("GET", `api/users/getAllWithdrawHistory?${queryParams}`);
 };
 
 export const changeWithdrawalStatus = async (id, status) => {

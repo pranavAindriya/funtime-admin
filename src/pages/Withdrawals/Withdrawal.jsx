@@ -1,5 +1,5 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Button, Tab, useTheme } from "@mui/material";
+import { Box, Button, Tab, TextField, Stack, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import WithdrawalTabs from "./Tabs/WithdrawalTabs";
@@ -21,6 +21,8 @@ const Withdrawal = () => {
 
   const [value, setValue] = useState(defaultTab);
   const [withdrawalDatas, setWithdrawaldatas] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -29,7 +31,15 @@ const Withdrawal = () => {
 
   const fetchWithdrawalHistory = async () => {
     try {
-      const response = await getWithdrawalHistory(value);
+      let queryParams = `status=${value}`;
+      if (startDate) {
+        queryParams += `&startDate=${startDate}`;
+      }
+      if (endDate) {
+        queryParams += `&endDate=${endDate}`;
+      }
+
+      const response = await getWithdrawalHistory(queryParams);
       if (response.status === 200) {
         setWithdrawaldatas(response?.data?.data || []);
       }
@@ -49,6 +59,14 @@ const Withdrawal = () => {
       }
     } catch (error) {
       console.error("Error exporting data:", error);
+    }
+  };
+
+  const handleDateChange = (e, type) => {
+    if (type === "start") {
+      setStartDate(e.target.value);
+    } else {
+      setEndDate(e.target.value);
     }
   };
 
@@ -111,23 +129,56 @@ const Withdrawal = () => {
   useEffect(() => {
     setValue(defaultTab);
     fetchWithdrawalHistory();
-  }, [defaultTab]);
+  }, [defaultTab, startDate, endDate]);
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
-      {hasAccess && (
-        <Button
-          variant="contained"
-          sx={{
-            display: "flex",
-            gap: "5px",
-            marginLeft: "auto",
-          }}
-          onClick={handleExport}
-        >
-          Export
-        </Button>
-      )}
+      <Box
+        display={"flex"}
+        alignItems={"center"}
+        justifyContent={"space-between"}
+        mb={2}
+      >
+        <Box display={"flex"} gap={2}>
+          <TextField
+            type="date"
+            label="Start Date"
+            value={startDate}
+            size="small"
+            onChange={(e) => handleDateChange(e, "start")}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            inputProps={{
+              max: endDate || undefined,
+            }}
+          />
+          <TextField
+            type="date"
+            label="End Date"
+            size="small"
+            value={endDate}
+            onChange={(e) => handleDateChange(e, "end")}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            inputProps={{
+              min: startDate || undefined,
+            }}
+          />
+        </Box>
+        {hasAccess && (
+          <Button
+            variant="contained"
+            sx={{
+              marginLeft: "auto",
+            }}
+            onClick={handleExport}
+          >
+            Export
+          </Button>
+        )}
+      </Box>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
