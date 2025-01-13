@@ -26,6 +26,24 @@ export const getUserById = async (id) => {
   return commonRequest("GET", `api/users/getUserDataByUserId/${id}`);
 };
 
+export const getProfileDataById = async (id) => {
+  return commonRequest("GET", `api/users/getProfile/${id}`);
+};
+
+export const getCallHistory = async (id, page, limit = 10) => {
+  return commonRequest(
+    "GET",
+    `api/users/callHistory/${id}?page=${page}&limit=${limit}`
+  );
+};
+
+export const getTransactionHistory = async (id, page, limit = 10) => {
+  return commonRequest(
+    "GET",
+    `api/users/getTransactionHistory/${id}?page=${page}&limit=${limit}`
+  );
+};
+
 export const editUser = async (id, body) => {
   return commonRequest(
     "PUT",

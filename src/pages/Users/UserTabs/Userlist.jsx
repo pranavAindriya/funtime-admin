@@ -142,6 +142,14 @@ const Userlist = () => {
         </>
       ),
     },
+    {
+      field: "overview",
+      renderCell: (params) => (
+        <Link style={{ textDecoration: "underline" }} to={`overview/${params}`}>
+          Overview
+        </Link>
+      ),
+    },
   ];
 
   const formatUsersForDataTable = () => {
@@ -160,6 +168,7 @@ const Userlist = () => {
       blacklist: { value: user?.blocked, userId: user?._id },
       kyc: user?.kyc,
       actions: user?._id,
+      overview: user?._id,
     }));
   };
 

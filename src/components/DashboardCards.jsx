@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, ButtonBase } from "@mui/material";
 
-const DashboardCards = ({ label, icon, amount }) => {
+const DashboardCards = ({ label, icon, amount, renderIcon }) => {
   return (
     <Box>
       <ButtonBase
@@ -17,7 +17,8 @@ const DashboardCards = ({ label, icon, amount }) => {
           minWidth: "220px",
         }}
       >
-        <img src={icon} />
+        {renderIcon}
+        {icon && <img src={icon} />}
         <Box
           sx={{
             display: "flex",
