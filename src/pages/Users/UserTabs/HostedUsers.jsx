@@ -88,13 +88,15 @@ const HostedUsers = () => {
   };
 
   const formatUsersForDataTable = () => {
-    return hostedUsers?.map((user) => ({
-      userId: user?._id,
-      username: user?.username,
-      phone: user?.mobileNumber,
-      status: user?.status,
-      action: { userId: user?._id, status: user?.status },
-    }));
+    return hostedUsers
+      ?.filter((user) => user.status !== "declined")
+      .map((user) => ({
+        userId: user?._id,
+        username: user?.username,
+        phone: user?.mobileNumber,
+        status: user?.status,
+        action: { userId: user?._id, status: user?.status },
+      }));
   };
 
   const hasAccess = useSelector((state) =>
