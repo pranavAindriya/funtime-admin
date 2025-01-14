@@ -91,8 +91,8 @@ export default function UserOverview() {
     slno: index + 1,
     date: formatDate(call.createdAt),
     time: formatTime(call.createdAt),
-    userId: call.toUserId.username,
-    userName: call.toUserId.username,
+    userId: call.fromUserId.username,
+    userName: call.fromUserId.username,
     duration: `${call.callDurationMinutes} min`,
     diamondsEarned: call.heartsTransferred,
   }));
@@ -296,7 +296,7 @@ export default function UserOverview() {
           >
             <Tab label="Recharge History" />
             <Tab label="Call History" />
-            <Tab label="Withdrawal History" />
+            {/* <Tab label="Withdrawal History" /> */}
           </Tabs>
 
           <TabPanel value={tabValue} index={0}>
