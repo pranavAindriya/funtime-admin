@@ -44,7 +44,7 @@ function TabPanel(props) {
 }
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
+  return new Date(dateString)?.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -52,7 +52,7 @@ const formatDate = (dateString) => {
 };
 
 const formatTime = (dateString) => {
-  return new Date(dateString).toLocaleTimeString("en-US", {
+  return new Date(dateString)?.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -74,37 +74,37 @@ export default function UserOverview() {
     setTabValue(newValue);
   };
 
-  const totalRecharge = transactionHistory.reduce(
-    (sum, transaction) => sum + transaction.amount,
+  const totalRecharge = transactionHistory?.reduce(
+    (sum, transaction) => sum + transaction?.amount,
     0
   );
-  const totalCoins = transactionHistory.reduce(
-    (sum, transaction) => sum + transaction.coins,
+  const totalCoins = transactionHistory?.reduce(
+    (sum, transaction) => sum + transaction?.coins,
     0
   );
-  const totalDiamondsSpent = callHistory.reduce(
-    (sum, call) => sum + call.heartsTransferred,
+  const totalDiamondsSpent = callHistory?.reduce(
+    (sum, call) => sum + call?.heartsTransferred,
     0
   );
 
   const processedCallHistory = callHistory?.map((call, index) => ({
     slno: index + 1,
-    date: formatDate(call.createdAt),
-    time: formatTime(call.createdAt),
-    userId: call.fromUserId.username,
-    userName: call.fromUserId.username,
-    duration: `${call.callDurationMinutes} min`,
-    diamondsEarned: call.heartsTransferred,
+    date: formatDate(call?.createdAt),
+    time: formatTime(call?.createdAt),
+    userId: call?.fromUserId?.username,
+    userName: call?.fromUserId?.username,
+    duration: `${call?.callDurationMinutes} min`,
+    diamondsEarned: call?.heartsTransferred,
   }));
 
   const processedTransactionHistory = transactionHistory?.map(
     (transaction, index) => ({
       slno: index + 1,
-      date: formatDate(transaction.createdAt),
-      time: formatTime(transaction.createdAt),
-      transactionId: transaction._id,
-      rechargeAmount: `₹${transaction.amount}`,
-      balanceCoins: transaction.coins,
+      date: formatDate(transaction?.createdAt),
+      time: formatTime(transaction?.createdAt),
+      transactionId: transaction?._id,
+      rechargeAmount: `₹${transaction?.amount}`,
+      balanceCoins: transaction?.coins,
     })
   );
 
@@ -123,11 +123,11 @@ export default function UserOverview() {
               getTransactionHistory(id, 1, 50),
             ]);
 
-          if (profileResponse.status === 200)
-            setProfileData(profileResponse.data);
-          if (callResponse.status === 200) setCallHistory(callResponse.data);
-          if (transactionResponse.status === 200)
-            setTransactionHistory(transactionResponse.data);
+          if (profileResponse?.status === 200)
+            setProfileData(profileResponse?.data);
+          if (callResponse.status === 200) setCallHistory(callResponse?.data);
+          if (transactionResponse?.status === 200)
+            setTransactionHistory(transactionResponse?.data);
         } catch (error) {
           console.error("Error fetching data:", error);
         }
