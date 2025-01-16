@@ -8,6 +8,7 @@ import Sidebar from "./components/Sidebar";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/login";
 import DashboardMain from "./pages/dashboard";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Lazy load all route components
 const AdminProfile = lazy(() => import("./pages/profile/AdminProfile"));
@@ -109,6 +110,16 @@ const App = () => {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const navigate = useNavigate();
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 20 * 60 * 1000,
+        cacheTime: 30 * 60 * 1000,
+        keepPreviousData: true,
+      },
+    },
+  });
+
   React.useEffect(() => {
     if (!isLoggedIn) {
       navigate("/");
@@ -128,42 +139,50 @@ const App = () => {
   }
 
   return (
-    <Box sx={{ display: "flex", width: "100%" }}>
-      <Box sx={{ display: !isWideScreen ? "none" : "block" }}>
-        <Sidebar />
-      </Box>
+    <QueryClientProvider client={queryClient}>
+      <Box sx={{ display: "flex", width: "100%" }}>
+        <Box sx={{ display: !isWideScreen ? "none" : "block" }}>
+          <Sidebar />
+        </Box>
 
-      <Box
-        sx={{
-          flexGrow: 1,
-          width: isWideScreen ? "84%" : "100%",
-          marginLeft: isWideScreen ? "16%" : 0,
-        }}
-      >
-        <Header />
+        <Box
+          sx={{
+            flexGrow: 1,
+            width: isWideScreen ? "84%" : "100%",
+            marginLeft: isWideScreen ? "16%" : 0,
+          }}
+        >
+          <Header />
 
-        <Box sx={{ padding: theme.spacing(4) }}>
-          <ToastContainer position="top-center" transition="Slide" />
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              {routes.map(({ path, component: Component }) => (
+          <Box sx={{ padding: theme.spacing(4) }}>
+            <ToastContainer position="top-center" transition="Slide" />
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
                 <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <ProtectedRoute>
-                      <Component />
-                    </ProtectedRoute>
-                  }
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
                 />
-              ))}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-          </Suspense>
+                {routes.map(({ path, component: Component }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <ProtectedRoute>
+                        <Component />
+                      </ProtectedRoute>
+                    }
+                  />
+                ))}
+                <Route
+                  path="*"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+              </Routes>
+            </Suspense>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </QueryClientProvider>
   );
 };
 

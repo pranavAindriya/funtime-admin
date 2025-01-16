@@ -16,12 +16,25 @@ export const updateSettings = (data) => {
   return commonRequest("PUT", "api/users/settingUpdate", data);
 };
 
-// User
-
-export const getAllUsers = async (page, limit = 10) => {
-  return commonRequest("GET", `api/users/getUsers?page=${page}&limit=${limit}`);
+export const getVersionById = (id) => {
+  return commonRequest("GET", `api/users/getVersionById/${id}`);
 };
 
+export const updateVersion = (id, data) => {
+  return commonRequest("PUT", `api/users/updateVersion/${id}`, data);
+};
+
+// User
+
+export const getAllUsers = async (pageOrSearch, limit = 10) => {
+  let url;
+  if (typeof pageOrSearch === "string") {
+    url = `api/users/getUsersTest?username=${pageOrSearch}`;
+  } else {
+    url = `api/users/getUsersTest?page=${pageOrSearch}&limit=${limit}`;
+  }
+  return commonRequest("GET", url);
+};
 export const getUserById = async (id) => {
   return commonRequest("GET", `api/users/getUserDataByUserId/${id}`);
 };

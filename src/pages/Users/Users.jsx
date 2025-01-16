@@ -88,7 +88,7 @@ const Users = () => {
           </TabList>
         </Box>
         {tabs.map((tab) => (
-          <TabPanel key={tab.value} value={tab.value}>
+          <TabPanel keepMounted key={tab.value} value={tab.value}>
             {tab.component}
           </TabPanel>
         ))}
