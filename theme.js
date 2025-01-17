@@ -90,9 +90,6 @@ const theme = createTheme({
           borderRadius: "6px",
           fontWeight: 500,
         },
-        filled: {
-          backgroundColor: "#FFE7F9",
-        },
       },
     },
   },

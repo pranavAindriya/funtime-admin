@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { TextField, Box, Button, Typography, Pagination } from "@mui/material";
 import { getRecentCalls } from "../../service/allApi";
 import formatDate from "../../utils/formatdate";
@@ -7,73 +7,99 @@ import DataTable from "../../components/DataTable";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const CallsList = () => {
-  const [recentCalls, setRecentCalls] = useState([]);
-  const [filteredCalls, setFilteredCalls] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);
-  const [paginationDetails, setPaginationDetails] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [limit, setLimit] = useState(100);
+  const [isDateFilterApplied, setIsDateFilterApplied] = useState(false);
+  const [filteredRows, setFilteredRows] = useState([]); // New state for filtered results
 
-  const fetchCallHistory = async () => {
-    setIsLoading(true);
-    try {
-      const response = await getRecentCalls(page, 100);
-      if (response.status === 200) {
-        setRecentCalls(response.data.data);
-        setFilteredCalls(response.data.data);
-        setPaginationDetails(response.data.pagination);
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error("Error fetching call history:", error);
-      setIsLoading(false);
-    }
-  };
+  const {
+    data: callData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: [
+      "recentCalls",
+      page,
+      limit,
+      isDateFilterApplied ? fromDate : "",
+      isDateFilterApplied ? toDate : "",
+    ],
+    queryFn: () =>
+      getRecentCalls(
+        page,
+        limit,
+        isDateFilterApplied ? fromDate : "",
+        isDateFilterApplied ? toDate : ""
+      ),
+    keepPreviousData: true,
+  });
 
-  useEffect(() => {
-    fetchCallHistory();
-  }, [page]);
-
-  const handleSearch = () => {
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    const filteredData = recentCalls.filter((call) => {
-      return (
-        call?.caller?.username?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        call?.host?.username?.toLowerCase().includes(lowerCaseSearchTerm)
-      );
-    });
-    console.log(filteredData);
-
-    setFilteredCalls(filteredData);
-  };
-
-  const handleDateFilter = () => {
-    const filteredData = recentCalls.filter((call) => {
-      const callTime = new Date(call?.time);
-      return (
-        (!fromDate || callTime >= new Date(fromDate)) &&
-        (!toDate || callTime <= new Date(toDate))
-      );
-    });
-    setFilteredCalls(filteredData);
-  };
-
+  // Format data for the table
   const formattedRecentCalls = () => {
-    return filteredCalls?.map((call, ind) => ({
-      id: ind + 1,
-      caller: call?.caller?.username,
-      callerId: call?.caller?.userId,
-      host: call?.host?.username,
-      hostId: call?.host?.userId,
-      time: formatDate(call?.time),
-      duration: call?.duration,
-      coinDeducted: call?.coinDeducted,
-      diamond: call?.heartsTransferred,
-    }));
+    return (
+      callData?.data?.data?.map((call, ind) => ({
+        id: ind + 1,
+        caller: call?.caller?.username,
+        callerId: call?.caller?.userId,
+        host: call?.host?.username,
+        hostId: call?.host?.userId,
+        time: formatDate(call?.time),
+        duration: call?.duration,
+        coinDeducted: call?.coinDeducted,
+        diamond: call?.heartsTransferred,
+      })) || []
+    );
   };
 
+  // Update filtered rows whenever the data changes
+  useEffect(() => {
+    setFilteredRows(formattedRecentCalls());
+  }, [callData]);
+
+  // Handle search (frontend filtering)
+  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      setFilteredRows(formattedRecentCalls());
+      return;
+    }
+
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const filtered = formattedRecentCalls().filter((row) => {
+      return (
+        (row.caller?.toLowerCase() || "").includes(lowerCaseSearchTerm) ||
+        (row.host?.toLowerCase() || "").includes(lowerCaseSearchTerm)
+      );
+    });
+    setFilteredRows(filtered);
+  };
+
+  // Handle date filter
+  const handleDateFilter = () => {
+    setIsDateFilterApplied(true);
+    setPage(1);
+    refetch();
+  };
+
+  // Handle reset filter
+  const handleResetFilter = () => {
+    setIsDateFilterApplied(false);
+    setFromDate("");
+    setToDate("");
+    setPage(1);
+    setSearchTerm("");
+    setFilteredRows(formattedRecentCalls());
+    refetch();
+  };
+
+  // Handle pagination change
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  // Table columns
   const columns = [
     { field: "caller", headerName: "Caller", flex: 1 },
     { field: "callerId", headerName: "Caller ID", flex: 1 },
@@ -85,8 +111,6 @@ const CallsList = () => {
     { field: "diamond", headerName: "Diamond", flex: 1 },
   ];
 
-  const rows = formattedRecentCalls();
-
   return (
     <LoadingBackdrop open={isLoading}>
       <Typography fontSize={22} fontWeight={600} mb={3}>
@@ -97,7 +121,12 @@ const CallsList = () => {
           label="Search by Username"
           variant="outlined"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            if (!e.target.value.trim()) {
+              setFilteredRows(formattedRecentCalls());
+            }
+          }}
           size="small"
         />
         <Button variant="contained" onClick={handleSearch} size="small">
@@ -119,13 +148,26 @@ const CallsList = () => {
           onChange={(e) => setToDate(e.target.value)}
           size="small"
         />
-
-        <Button variant="contained" onClick={handleDateFilter} size="small">
+        <Button
+          variant="contained"
+          onClick={handleDateFilter}
+          size="small"
+          disabled={!fromDate || !toDate}
+        >
           Filter by Date
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleResetFilter}
+          size="small"
+          color="primary"
+          disabled={!isDateFilterApplied}
+        >
+          Reset Filter
         </Button>
       </Box>
       <Pagination
-        count={paginationDetails?.totalPages}
+        count={callData?.data?.pagination?.totalPages || 1}
         page={page}
         color="primary"
         variant="outlined"
@@ -136,11 +178,12 @@ const CallsList = () => {
           mb: 4,
           mt: 4,
         }}
-        onChange={(e, page) => setPage(page)}
+        onChange={handlePageChange}
       />
-      <DataTable columns={columns} rows={rows} />
+      <DataTable columns={columns} rows={filteredRows} />
       <Pagination
-        count={paginationDetails?.totalPages}
+        count={callData?.data?.pagination?.totalPages || 1}
+        page={page}
         color="primary"
         variant="outlined"
         sx={{
@@ -150,7 +193,7 @@ const CallsList = () => {
           mb: 2,
           mt: 4,
         }}
-        onChange={(e, page) => setPage(page)}
+        onChange={handlePageChange}
       />
     </LoadingBackdrop>
   );

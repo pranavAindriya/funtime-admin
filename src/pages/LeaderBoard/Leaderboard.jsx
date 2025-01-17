@@ -23,6 +23,7 @@ const Leaderboard = () => {
   const columns = [
     { field: "rank", headerName: "Rank" },
     { field: "username", headerName: "Username" },
+    { field: "diamonds", headerName: "Diamonds" },
   ];
 
   const formatedLeaderboard = () => {
@@ -30,6 +31,7 @@ const Leaderboard = () => {
       userId: user?._id,
       rank: user?.rank,
       username: user?.username,
+      diamonds: user?.heartBalance,
     }));
   };
 

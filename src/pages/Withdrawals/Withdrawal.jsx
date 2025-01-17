@@ -1,5 +1,13 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Button, Tab, TextField, Stack, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Tab,
+  TextField,
+  Stack,
+  useTheme,
+  Pagination,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import WithdrawalTabs from "./Tabs/WithdrawalTabs";
@@ -10,6 +18,7 @@ import {
 import formatDate from "../../utils/formatdate";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
+import LoadingBackdrop from "../../components/LoadingBackdrop"; // Import the LoadingBackdrop component
 
 const Withdrawal = () => {
   const theme = useTheme();
@@ -23,25 +32,39 @@ const Withdrawal = () => {
   const [withdrawalDatas, setWithdrawaldatas] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(50);
+  const [paginationDetails, setPaginationDetails] = useState({
+    totalRecords: 0,
+    currentPage: 1,
+    totalPages: 1,
+  });
+  const [loading, setLoading] = useState(false); // Loading state
+  const [isFilterApplied, setIsFilterApplied] = useState(false); // Track if filter is applied
 
-  const handleChange = (event, newValue) => {
+  const handleChange = async (event, newValue) => {
     setValue(newValue);
     navigate(`?tab=${newValue}`);
+    setLoading(true); // Show loading when changing tabs
+    await fetchWithdrawalHistory();
+    setLoading(false); // Hide loading after fetching data
   };
 
   const fetchWithdrawalHistory = async () => {
     try {
-      let queryParams = `status=${value}`;
-      if (startDate) {
-        queryParams += `&startDate=${startDate}`;
-      }
-      if (endDate) {
-        queryParams += `&endDate=${endDate}`;
+      let queryParams = `status=${value}&page=${page}&limit=${limit}`;
+      if (isFilterApplied && startDate && endDate) {
+        queryParams += `&fromDate=${startDate}&toDate=${endDate}`;
       }
 
       const response = await getWithdrawalHistory(queryParams);
       if (response.status === 200) {
         setWithdrawaldatas(response?.data?.data || []);
+        setPaginationDetails({
+          totalRecords: response?.data?.totalRecords,
+          currentPage: response?.data?.currentPage,
+          totalPages: response?.data?.totalPages,
+        });
       }
     } catch (error) {
       console.error("Failed to fetch withdrawal history:", error);
@@ -70,10 +93,32 @@ const Withdrawal = () => {
     }
   };
 
+  const handleApplyFilter = () => {
+    if (startDate && endDate) {
+      setIsFilterApplied(true);
+      setPage(1); // Reset to the first page when applying a new filter
+      fetchWithdrawalHistory();
+    } else {
+      alert("Please select both start and end dates.");
+    }
+  };
+
+  const handleClearFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    setIsFilterApplied(false);
+    setPage(1); // Reset to the first page when clearing the filter
+    fetchWithdrawalHistory();
+  };
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
   const formatrows = () => {
     return withdrawalDatas?.map((item, ind) => ({
       slno: ind + 1,
-      userId: item?.userId,
+      userId: item?.userId?._id,
       username: item?.userName,
       time: formatDate(item?.time),
       amount: item?.amount,
@@ -129,76 +174,105 @@ const Withdrawal = () => {
   useEffect(() => {
     setValue(defaultTab);
     fetchWithdrawalHistory();
-  }, [defaultTab, startDate, endDate]);
+  }, [defaultTab, page, limit, isFilterApplied]);
 
   return (
-    <Box sx={{ width: "100%", typography: "body1" }}>
-      <Box
-        display={"flex"}
-        alignItems={"center"}
-        justifyContent={"space-between"}
-        mb={2}
-      >
-        <Box display={"flex"} gap={2}>
-          <TextField
-            type="date"
-            label="Start Date"
-            value={startDate}
-            size="small"
-            onChange={(e) => handleDateChange(e, "start")}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputProps={{
-              max: endDate || undefined,
-            }}
-          />
-          <TextField
-            type="date"
-            label="End Date"
-            size="small"
-            value={endDate}
-            onChange={(e) => handleDateChange(e, "end")}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputProps={{
-              min: startDate || undefined,
-            }}
-          />
+    <LoadingBackdrop open={loading}>
+      <Box sx={{ width: "100%", typography: "body1" }}>
+        <Box
+          display={"flex"}
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          mb={2}
+        >
+          <Box display={"flex"} gap={2}>
+            <TextField
+              type="date"
+              label="Start Date"
+              value={startDate}
+              size="small"
+              onChange={(e) => handleDateChange(e, "start")}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              inputProps={{
+                max: endDate || undefined,
+              }}
+            />
+            <TextField
+              type="date"
+              label="End Date"
+              size="small"
+              value={endDate}
+              onChange={(e) => handleDateChange(e, "end")}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              inputProps={{
+                min: startDate || undefined,
+              }}
+            />
+            <Button
+              variant="contained"
+              onClick={handleApplyFilter}
+              disabled={!startDate || !endDate}
+            >
+              Apply Filter
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleClearFilter}
+              disabled={!isFilterApplied}
+            >
+              Clear Filter
+            </Button>
+          </Box>
+          {hasAccess && (
+            <Button
+              variant="contained"
+              sx={{
+                marginLeft: "auto",
+              }}
+              onClick={handleExport}
+            >
+              Export
+            </Button>
+          )}
         </Box>
-        {hasAccess && (
-          <Button
-            variant="contained"
-            sx={{
-              marginLeft: "auto",
-            }}
-            onClick={handleExport}
-          >
-            Export
-          </Button>
-        )}
+        <TabContext value={value}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <TabList onChange={handleChange} aria-label="lab API tabs example">
+              {tabs.map((tab) => (
+                <Tab
+                  key={tab.value}
+                  label={tab.label}
+                  value={tab.value}
+                  disableRipple
+                />
+              ))}
+            </TabList>
+          </Box>
+          {tabs.map((tab) => (
+            <TabPanel keepMounted key={tab.value} value={tab.value}>
+              {tab.component}
+            </TabPanel>
+          ))}
+        </TabContext>
+        <Pagination
+          count={paginationDetails?.totalPages}
+          page={page}
+          color="primary"
+          variant="outlined"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 4,
+          }}
+          onChange={handlePageChange}
+        />
       </Box>
-      <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
-            {tabs.map((tab) => (
-              <Tab
-                key={tab.value}
-                label={tab.label}
-                value={tab.value}
-                disableRipple
-              />
-            ))}
-          </TabList>
-        </Box>
-        {tabs.map((tab) => (
-          <TabPanel key={tab.value} value={tab.value}>
-            {tab.component}
-          </TabPanel>
-        ))}
-      </TabContext>
-    </Box>
+    </LoadingBackdrop>
   );
 };
 

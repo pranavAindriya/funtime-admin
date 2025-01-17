@@ -91,11 +91,8 @@ export const createUser = async (body, id) => {
   );
 };
 
-export const getAllKyc = async (page, limit = 10) => {
-  return commonRequest(
-    "GET",
-    `api/users/getAllKYCDetails?page=${page}&limit=${limit}`
-  );
+export const getAllKyc = async (queryString) => {
+  return commonRequest("GET", `api/users/getAllKYCDetails?${queryString}`);
 };
 
 export const getKycById = async (id) => {
@@ -128,11 +125,20 @@ export const exportWitrhdrawalData = async (status) => {
 
 // Calls
 
-export const getRecentCalls = async (page, limit = 10) => {
-  return commonRequest(
-    "GET",
-    `api/users/CallTransactionHistory?filter=custom&page=${page}&limit=${limit}`
-  );
+export const getRecentCalls = async (
+  page,
+  limit = 10,
+  fromDate = "",
+  toDate = ""
+) => {
+  let url = `api/users/CallTransactionHistory?page=${page}&limit=${limit}`;
+  if (fromDate) {
+    url += `&fromDate=${fromDate}`;
+  }
+  if (toDate) {
+    url += `&toDate=${toDate}`;
+  }
+  return commonRequest("GET", url);
 };
 
 // Admin
@@ -186,7 +192,7 @@ export const createNewLanguage = async (body) => {
 };
 
 export const getAllLanguages = async () => {
-  return commonRequest("GET", "api/users/getAllLanguages");
+  return commonRequest("GET", "api/users/getAllLanguagesUserCount");
 };
 
 export const getLanguageById = async (id) => {
@@ -238,11 +244,8 @@ export const sendPushNotification = async (id) => {
 
 // Hosted Users
 
-export const getAllHostedUsers = async (page, limit = 10) => {
-  return commonRequest(
-    "GET",
-    `api/users/getHostedUsers?page=${page}&limit=${limit}`
-  );
+export const getAllHostedUsers = async (queryString) => {
+  return commonRequest("GET", `api/users/getHostedUsers?${queryString}`);
 };
 
 export const updateHostedUserStatus = async (body) => {

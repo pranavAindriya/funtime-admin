@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Alert, Avatar, Pagination } from "@mui/material";
+import {
+  Box,
+  Button,
+  Alert,
+  Avatar,
+  Pagination,
+  TextField,
+  IconButton,
+} from "@mui/material";
 import { getAllKyc, changeKycStatus } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
 import formatDate from "../../../utils/formatdate";
@@ -7,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../../redux/slices/authSlice";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
+import { X, MagnifyingGlass } from "@phosphor-icons/react";
 
 const KycRequests = () => {
   const [kycData, setKycData] = useState([]);
@@ -14,14 +23,24 @@ const KycRequests = () => {
   const [page, setPage] = useState(1);
   const [paginationDetails, setPaginationDetails] = useState({});
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const navigate = useNavigate();
 
-  const fetchAllKycRequests = async () => {
+  const fetchAllKycRequests = async (currentPage, searchQuery = "") => {
     try {
       setLoading(true);
-      const response = await getAllKyc(page, 100);
-      console.log(response);
+      let url;
+      if (searchQuery) {
+        url = `userName=${searchQuery}`;
+        setIsSearching(true);
+      } else {
+        url = `page=${currentPage}&limit=100`;
+        setIsSearching(false);
+      }
+
+      const response = await getAllKyc(url);
 
       if (response.data.data) {
         const transformedData = response?.data?.data.map((item, ind) => ({
@@ -54,9 +73,27 @@ const KycRequests = () => {
     }
   };
 
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      setPage(1);
+      fetchAllKycRequests(1, searchTerm.trim());
+    }
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setIsSearching(false);
+    setPage(1);
+    fetchAllKycRequests(1, "");
+  };
+
   useEffect(() => {
-    fetchAllKycRequests();
-  }, []);
+    fetchAllKycRequests(page);
+  }, [page]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -195,6 +232,43 @@ const KycRequests = () => {
 
   return (
     <LoadingBackdrop open={loading}>
+      <Box
+        sx={{
+          display: "flex",
+          mb: isSearching ? 2 : 3,
+          mt: 2,
+          gap: 2,
+        }}
+      >
+        <TextField
+          label="Search by username"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+          InputProps={{
+            endAdornment: searchTerm && (
+              <IconButton size="small" onClick={handleClearSearch}>
+                <X size={16} />
+              </IconButton>
+            ),
+          }}
+        />
+        <Button
+          onClick={handleSearch}
+          variant="contained"
+          color="primary"
+          disabled={!searchTerm.trim()}
+        >
+          <MagnifyingGlass size={20} />
+        </Button>
+      </Box>
+
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
@@ -210,13 +284,20 @@ const KycRequests = () => {
           alignItems: "center",
           justifyContent: "center",
           mb: 4,
-          mt: 2,
         }}
-        onChange={(e, page) => setPage(page)}
+        onChange={(e, page) => {
+          setPage(page);
+          if (isSearching) {
+            fetchAllKycRequests(page, searchTerm);
+          } else {
+            fetchAllKycRequests(page);
+          }
+        }}
       />
       <DataTable columns={columns} rows={kycData} />
       <Pagination
         count={paginationDetails?.totalPages}
+        page={page}
         color="primary"
         variant="outlined"
         sx={{
@@ -226,7 +307,14 @@ const KycRequests = () => {
           mb: 2,
           mt: 4,
         }}
-        onChange={(e, page) => setPage(page)}
+        onChange={(e, page) => {
+          setPage(page);
+          if (isSearching) {
+            fetchAllKycRequests(page, searchTerm);
+          } else {
+            fetchAllKycRequests(page);
+          }
+        }}
       />
     </LoadingBackdrop>
   );

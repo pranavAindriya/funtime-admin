@@ -4,10 +4,19 @@ import {
   updateHostedUserStatus,
 } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
-import { Box, Button, Snackbar, Alert, Pagination } from "@mui/material";
+import {
+  Box,
+  Button,
+  Snackbar,
+  Alert,
+  Pagination,
+  TextField,
+  IconButton,
+} from "@mui/material";
 import { hasPermission } from "../../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
+import { X, MagnifyingGlass } from "@phosphor-icons/react";
 
 const HostedUsers = () => {
   const [hostedUsers, setHostedUsers] = useState([]);
@@ -19,20 +28,48 @@ const HostedUsers = () => {
   const [page, setPage] = useState(1);
   const [paginationDetails, setPaginationDetails] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
-  const fetchAllHostedUsers = async () => {
+  const fetchAllHostedUsers = async (currentPage, searchQuery = "") => {
     setIsLoading(true);
     try {
-      const response = await getAllHostedUsers(page, 100);
+      let url = `page=${currentPage}&limit=100`;
+      if (searchQuery) {
+        url = `userName=${searchQuery}`;
+        setIsSearching(true);
+      } else {
+        setIsSearching(false);
+      }
+
+      const response = await getAllHostedUsers(url);
       if (response.status === 200) {
         setHostedUsers(response?.data?.users);
         setPaginationDetails(response?.data?.pagination);
-        setIsLoading(false);
       }
     } catch (error) {
       handleErrorNotification("Failed to fetch hosted users");
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      setPage(1);
+      fetchAllHostedUsers(1, searchTerm.trim());
+    }
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setIsSearching(false);
+    setPage(1);
+    fetchAllHostedUsers(1, "");
   };
 
   const handleStatusChange = async (userId, newStatus) => {
@@ -85,6 +122,15 @@ const HostedUsers = () => {
 
   const handleCloseNotification = () => {
     setNotification((prev) => ({ ...prev, open: false }));
+  };
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+    if (isSearching) {
+      fetchAllHostedUsers(newPage, searchTerm);
+    } else {
+      fetchAllHostedUsers(newPage);
+    }
   };
 
   const formatUsersForDataTable = () => {
@@ -165,11 +211,48 @@ const HostedUsers = () => {
   ];
 
   useEffect(() => {
-    fetchAllHostedUsers();
-  }, [page]);
+    fetchAllHostedUsers(page);
+  }, []); // Initial load only
 
   return (
     <LoadingBackdrop open={isLoading}>
+      <Box
+        sx={{
+          display: "flex",
+          mb: isSearching ? 2 : 3,
+          mt: 2,
+          gap: 2,
+        }}
+      >
+        <TextField
+          label="Search by username"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+          InputProps={{
+            endAdornment: searchTerm && (
+              <IconButton size="small" onClick={handleClearSearch}>
+                <X size={16} />
+              </IconButton>
+            ),
+          }}
+        />
+        <Button
+          onClick={handleSearch}
+          variant="contained"
+          color="primary"
+          disabled={!searchTerm.trim()}
+        >
+          <MagnifyingGlass size={20} />
+        </Button>
+      </Box>
+
       <Pagination
         count={paginationDetails?.totalPages}
         page={page}
@@ -180,13 +263,15 @@ const HostedUsers = () => {
           alignItems: "center",
           justifyContent: "center",
           mb: 4,
-          mt: 2,
         }}
-        onChange={(e, page) => setPage(page)}
+        onChange={handlePageChange}
       />
+
       <DataTable columns={columns} rows={formatUsersForDataTable()} />
+
       <Pagination
         count={paginationDetails?.totalPages}
+        page={page}
         color="primary"
         variant="outlined"
         sx={{
@@ -196,8 +281,9 @@ const HostedUsers = () => {
           mb: 2,
           mt: 4,
         }}
-        onChange={(e, page) => setPage(page)}
+        onChange={handlePageChange}
       />
+
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}

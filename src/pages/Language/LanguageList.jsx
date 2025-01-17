@@ -54,8 +54,9 @@ const LanguageList = () => {
   const fetchAllLanguages = async () => {
     const response = await getAllLanguages();
     console.log(response.data);
-
-    setLanguages(response.data);
+    if (response.status === 200) {
+      setLanguages(response.data.languages);
+    }
   };
 
   const deleteLanguage = async () => {
@@ -102,11 +103,11 @@ const LanguageList = () => {
 
   const formatLanguagesForDataTable = () => {
     return languages?.map((language, ind) => ({
-      id: language._id,
+      id: language?._id,
       slno: ind + 1,
-      language: language.language,
-      users: language.user,
-      actions: language._id,
+      language: language?.language,
+      users: language?.count,
+      actions: language?._id,
     }));
   };
 

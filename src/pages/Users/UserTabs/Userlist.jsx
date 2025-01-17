@@ -223,6 +223,11 @@ const Userlist = () => {
           size="small"
           value={searchTerm}
           onChange={handleSearchChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
           slotProps={{
             input: {
               endAdornment: (
@@ -237,7 +242,12 @@ const Userlist = () => {
             },
           }}
         />
-        <Button onClick={handleSearch} variant="contained" color="primary">
+        <Button
+          onClick={handleSearch}
+          variant="contained"
+          color="primary"
+          disabled={!searchTerm.trim()}
+        >
           <MagnifyingGlass />
         </Button>
       </Box>

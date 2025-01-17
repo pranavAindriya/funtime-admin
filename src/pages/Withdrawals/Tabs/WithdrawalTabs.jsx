@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { changeWithdrawalStatus } from "../../../service/allApi"; // Import your API function
+import { changeWithdrawalStatus } from "../../../service/allApi";
 import { Slide, toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../../redux/slices/authSlice";

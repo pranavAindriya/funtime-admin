@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  Grid2,
+  Grid,
   Button,
   Chip,
   Dialog,
@@ -12,6 +14,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Pagination,
 } from "@mui/material";
 import {
   LineChart,
@@ -23,10 +26,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import axios from "axios";
 import DataTable from "../../components/DataTable";
 import { BASE_URL } from "../../service/environment";
 import formatDate from "../../utils/formatdate";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const getFirstDayOfMonth = () => {
   const date = new Date();
@@ -62,105 +65,137 @@ const getLastDayOfLastMonth = () => {
   )}-${new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()}`;
 };
 
+const fetchSalesData = async ({
+  page,
+  limit,
+  filter,
+  startDate,
+  endDate,
+  type,
+}) => {
+  const params = { page, limit };
+
+  if (filter === "week") {
+    params.filter = "week";
+  } else if (startDate && endDate) {
+    params.fromDate = startDate;
+    params.toDate = endDate;
+  }
+
+  if (type) {
+    params.type = type;
+  }
+
+  const response = await axios.get(
+    `${BASE_URL}api/users/getCoinPackagePurchases`,
+    { params }
+  );
+  return response.data;
+};
+
+const exportTransactionHistory = async (startDate, endDate) => {
+  const response = await axios.get(
+    `${BASE_URL}api/users/transactionHistoryExport`,
+    {
+      params: { fromDate: startDate, toDate: endDate },
+    }
+  );
+  return response.data;
+};
+
 const Report = () => {
-  const [data, setData] = useState(null);
-  const [filteredData, setFilteredData] = useState(null);
   const [openDateDialog, setOpenDateDialog] = useState(false);
+  const [openExportDialog, setOpenExportDialog] = useState(false);
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
+  const [exportStartDate, setExportStartDate] = useState("");
+  const [exportEndDate, setExportEndDate] = useState("");
   const [filter, setFilter] = useState({
-    startDate: null,
-    endDate: null,
     page: 1,
     limit: 10,
     type: null,
     dateFilter: "all",
+    startDate: null,
+    endDate: null,
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const params = {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["salesData", filter],
+    queryFn: () =>
+      fetchSalesData({
         page: filter.page,
         limit: filter.limit,
+        filter: filter.dateFilter === "week" ? "week" : undefined,
+        startDate: filter.startDate,
+        endDate: filter.endDate,
         type: filter.type,
-      };
+      }),
+  });
 
-      if (filter.dateFilter !== "all" && filter.startDate && filter.endDate) {
-        params.filter = "custom";
-        params.startDate = filter.startDate;
-        params.endDate = filter.endDate;
-      }
-
-      try {
-        const response = await axios.get(
-          `${BASE_URL}api/users/getCoinPackagePurchases`,
-          { params }
-        );
-        setData(response.data);
-        setFilteredData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [filter]);
+  const handlePageChange = (event, newPage) => {
+    setFilter((prev) => ({ ...prev, page: newPage }));
+  };
 
   const handleQuickFilter = (type) => {
+    const newFilter = { ...filter, page: 1 };
+
     switch (type) {
       case "all":
-        setFilter({
-          ...filter,
-          startDate: null,
-          endDate: null,
-          type: null,
-          page: 1,
-          dateFilter: "all",
-        });
+        newFilter.dateFilter = "all";
+        newFilter.startDate = null;
+        newFilter.endDate = null;
+        newFilter.type = null;
+        break;
+      case "week":
+        newFilter.dateFilter = "week";
+        newFilter.startDate = null;
+        newFilter.endDate = null;
         break;
       case "currentMonth":
-        setFilter({
-          ...filter,
-          startDate: getFirstDayOfMonth(),
-          endDate: getLastDayOfMonth(),
-          type: null,
-          page: 1,
-        });
+        newFilter.dateFilter = "custom";
+        newFilter.startDate = getFirstDayOfMonth();
+        newFilter.endDate = getLastDayOfMonth();
         break;
       case "lastMonth":
-        setFilter({
-          ...filter,
-          startDate: getFirstDayOfLastMonth(),
-          endDate: getLastDayOfLastMonth(),
-          type: null,
-          page: 1,
-        });
+        newFilter.dateFilter = "custom";
+        newFilter.startDate = getFirstDayOfLastMonth();
+        newFilter.endDate = getLastDayOfLastMonth();
         break;
       case "purchaseOnly":
-        setFilter({
-          ...filter,
-          type: "Purchase",
-          page: 1,
-        });
+        newFilter.type = "Purchase";
         break;
       default:
-        setFilter({
-          ...filter,
-          type: null,
-          page: 1,
-        });
+        newFilter.type = null;
     }
+
+    setFilter(newFilter);
   };
 
   const handleCustomDateApply = () => {
     if (customStartDate && customEndDate) {
-      setFilter({
-        ...filter,
+      setFilter((prev) => ({
+        ...prev,
+        dateFilter: "custom",
         startDate: customStartDate,
         endDate: customEndDate,
         page: 1,
-      });
+      }));
       setOpenDateDialog(false);
+    }
+  };
+
+  const handleExport = async () => {
+    if (exportStartDate && exportEndDate) {
+      try {
+        const response = await exportTransactionHistory(
+          exportStartDate,
+          exportEndDate
+        );
+        window.open(response.fileUrl, "_blank");
+        setOpenExportDialog(false);
+      } catch (error) {
+        console.error("Error exporting transaction history:", error);
+      }
     }
   };
 
@@ -182,6 +217,8 @@ const Report = () => {
       ),
     },
     { field: "coins", headerName: "Coins" },
+    { field: "orderId", headerName: "Order ID" },
+    { field: "paymentId", headerName: "Payment ID" },
     {
       field: "status",
       headerName: "Status",
@@ -204,30 +241,32 @@ const Report = () => {
     { field: "createdAt", headerName: "Date" },
   ];
 
-  const formatedTransactions = () => {
-    return filteredData?.transactions?.map((transaction, ind) => ({
+  const formattedRows =
+    data?.transactions.map((transaction) => ({
       _id: transaction?._id,
       username: transaction?.userId?.username,
       type: transaction?.type,
       amount: { amount: transaction?.amount, type: transaction?.type },
       coins: transaction?.coins,
+      orderId: transaction?.orderId,
+      paymentId: transaction?.paymentId,
       status: transaction?.status,
       description: transaction?.description,
       createdAt: formatDate(transaction?.createdAt),
-    }));
-  };
+    })) || [];
 
-  const formattedRows = formatedTransactions();
+  const chartData =
+    data?.transactions.map((transaction) => ({
+      name: formatDate(transaction.createdAt).split(" ")[0],
+      value: transaction.amount,
+    })) || [];
 
-  const chartData = filteredData
-    ? filteredData.transactions.map((transaction) => ({
-        name: formatDate(transaction.createdAt).split(" ")[0],
-        value: transaction.amount,
-      }))
-    : [];
+  if (isError) {
+    return <Typography color="error">Error loading sales data</Typography>;
+  }
 
   return (
-    <Box>
+    <LoadingBackdrop open={isLoading}>
       <Typography variant="h4" mb={4}>
         Sales Report
       </Typography>
@@ -237,61 +276,45 @@ const Report = () => {
           label="All"
           onClick={() => handleQuickFilter("all")}
           color={filter.dateFilter === "all" ? "primary" : "default"}
-          sx={{
-            backgroundColor: filter.dateFilter === "all" && "primary.main",
-          }}
+        />
+        <Chip
+          label="This Week"
+          onClick={() => handleQuickFilter("week")}
+          color={filter.dateFilter === "week" ? "primary" : "default"}
         />
         <Chip
           label="Current Month"
           onClick={() => handleQuickFilter("currentMonth")}
           color={
-            filter.startDate === getFirstDayOfMonth() ? "primary" : "default"
+            filter.dateFilter === "custom" &&
+            filter.startDate === getFirstDayOfMonth()
+              ? "primary"
+              : "default"
           }
-          sx={{
-            backgroundColor:
-              filter.startDate === getFirstDayOfMonth() && "primary.main",
-          }}
         />
         <Chip
           label="Last Month"
           onClick={() => handleQuickFilter("lastMonth")}
           color={
+            filter.dateFilter === "custom" &&
             filter.startDate === getFirstDayOfLastMonth()
               ? "primary"
               : "default"
           }
-          sx={{
-            backgroundColor:
-              filter.startDate === getFirstDayOfLastMonth() && "primary.main",
-          }}
         />
         <Chip
-          label="Purchases Only"
-          onClick={() => handleQuickFilter("purchaseOnly")}
-          color={filter.type === "Purchase" ? "primary" : "default"}
-          sx={{
-            backgroundColor: filter.type === "Purchase" && "primary.main",
-          }}
-        />
-
-        <Chip
-          label={`${filter.startDate} to ${filter.endDate}`}
+          label="Custom Date Range"
           onClick={() => setOpenDateDialog(true)}
+          color={filter.dateFilter === "custom" ? "primary" : "default"}
         />
-
-        <Chip
-          label="Reset Filters"
-          onClick={() => {
-            setFilter({
-              startDate: null,
-              endDate: null,
-              page: 1,
-              limit: 10,
-              type: null,
-              dateFilter: "all",
-            });
-          }}
-        />
+        <Button
+          sx={{ ml: "auto" }}
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenExportDialog(true)}
+        >
+          Export Transaction History
+        </Button>
       </Box>
 
       <Dialog open={openDateDialog} onClose={() => setOpenDateDialog(false)}>
@@ -331,12 +354,52 @@ const Report = () => {
         </DialogActions>
       </Dialog>
 
+      <Dialog
+        open={openExportDialog}
+        onClose={() => setOpenExportDialog(false)}
+      >
+        <DialogTitle>Export Transaction History</DialogTitle>
+        <DialogContent>
+          <Box display="flex" gap={2} mt={2}>
+            <TextField
+              label="Start Date"
+              type="date"
+              value={exportStartDate}
+              onChange={(e) => setExportStartDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              fullWidth
+            />
+            <TextField
+              label="End Date"
+              type="date"
+              value={exportEndDate}
+              onChange={(e) => setExportEndDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              fullWidth
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenExportDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleExport}
+            disabled={!exportStartDate || !exportEndDate}
+          >
+            Download
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Typography variant="h5" mb={4} mt={3} fontWeight={500} fontSize={26}>
         Sales Overview
       </Typography>
 
-      <Grid2 container spacing={5} alignItems={"center"}>
-        <Grid2 size={{ xs: 12, md: 8 }}>
+      <Grid container spacing={5} alignItems="center">
+        <Grid item xs={12} md={8}>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={chartData}>
               <XAxis dataKey="name" />
@@ -347,60 +410,75 @@ const Report = () => {
               <Line type="monotone" dataKey="value" stroke="#8884d8" />
             </LineChart>
           </ResponsiveContainer>
-        </Grid2>
+        </Grid>
 
-        <Grid2
-          size={{ xs: 12, md: 4 }}
-          textAlign={"center"}
-          display={"flex"}
-          flexDirection={"column"}
-          gap={1}
-          sx={{
-            backgroundColor: "#F5F5F5",
-            p: 2,
-            borderRadius: "20px",
-          }}
-        >
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Total Income
-              </Typography>
-              <Typography variant="h4" color="primary">
-                ₹{filteredData?.totalAmount || 0}
-              </Typography>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Total Expense
-              </Typography>
-              <Typography variant="h4" color="error">
-                ₹{filteredData?.totalExpense || 0}
-              </Typography>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Total Profit
-              </Typography>
-              <Typography variant="h4" color="success">
-                ₹{filteredData?.totalProfit || 0}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid2>
-      </Grid2>
+        <Grid item xs={12} md={4}>
+          <Box
+            sx={{
+              backgroundColor: "#F5F5F5",
+              p: 2,
+              borderRadius: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
+          >
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Total Income
+                </Typography>
+                <Typography variant="h4" color="primary">
+                  ₹{data?.totalAmount || 0}
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Total Expense
+                </Typography>
+                <Typography variant="h4" color="error">
+                  ₹{data?.totalExpense || 0}
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Total Profit
+                </Typography>
+                <Typography variant="h4" color="success">
+                  ₹{data?.totalProfit || 0}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        </Grid>
+      </Grid>
 
       <Box mt={4}>
         <Typography variant="h5" mb={2}>
           Transactions
         </Typography>
         <DataTable rows={formattedRows} columns={columns} />
+
+        <Pagination
+          count={data?.pagination?.totalPages || 1}
+          page={filter.page}
+          color="primary"
+          variant="outlined"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mt: 4,
+            mb: 2,
+          }}
+          onChange={handlePageChange}
+        />
       </Box>
-    </Box>
+    </LoadingBackdrop>
   );
 };
 
