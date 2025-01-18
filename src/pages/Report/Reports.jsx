@@ -146,6 +146,10 @@ const Report = () => {
         newFilter.endDate = null;
         newFilter.type = null;
         break;
+      case "today":
+        newFilter.dateFilter = "today";
+        newFilter.startDate = null;
+        newFilter.endDate = null;
       case "week":
         newFilter.dateFilter = "week";
         newFilter.startDate = null;
@@ -276,6 +280,11 @@ const Report = () => {
           label="All"
           onClick={() => handleQuickFilter("all")}
           color={filter.dateFilter === "all" ? "primary" : "default"}
+        />
+        <Chip
+          label="Today"
+          onClick={() => handleQuickFilter("today")}
+          color={filter.dateFilter === "week" ? "primary" : "default"}
         />
         <Chip
           label="This Week"

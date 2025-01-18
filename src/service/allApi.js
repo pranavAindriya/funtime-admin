@@ -119,8 +119,16 @@ export const changeWithdrawalStatus = async (id, status) => {
   });
 };
 
-export const exportWitrhdrawalData = async (status) => {
-  return commonRequest("GET", `api/users/exportWithdrawals?status=${status}`);
+export const exportWitrhdrawalData = async (
+  status,
+  startDate = "",
+  endDate = ""
+) => {
+  let url = `api/users/exportWithdrawals?status=${status}`;
+  if (startDate && endDate) {
+    url += `&fromDate=${startDate}&toDate=${endDate}`;
+  }
+  return commonRequest("GET", url);
 };
 
 // Calls
