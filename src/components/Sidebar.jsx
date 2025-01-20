@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   List,
   ListItem,
   ListItemText,
-  Collapse,
   Drawer,
   Toolbar,
   useTheme,
@@ -30,88 +30,102 @@ import {
   UsersFour,
   HandArrowDown,
 } from "@phosphor-icons/react";
+import sidebarItems, { MODULES } from "../utils/sidebarItems";
+import { isModuleBlocked } from "../redux/slices/authSlice";
 
 const drawerWidth = "16%";
 
-const mainItems = [
-  {
-    text: "Dashboard",
-    icon: <SquaresFour size={26} color="white" />,
-    link: "/dashboard",
-  },
-  { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
-  { text: "Calls", icon: <Phone size={26} color="white" />, link: "/calls" },
-  {
-    text: "Coins",
-    icon: <HandCoins size={26} color="white" />,
-    link: "/coins",
-  },
-  {
-    text: "Conversion",
-    icon: <Scales size={26} color="white" />,
-    link: "/conversion",
-  },
-  {
-    text: "Withdrawal",
-    icon: <HandArrowDown size={26} color="white" />,
-    link: "/withdrawals",
-  },
-  {
-    text: "Leader Board",
-    icon: <Trophy size={26} color="white" />,
-    link: "/leaderboard",
-  },
-  {
-    text: "Notifications",
-    icon: <Notification size={26} color="white" />,
-    link: "/notifications",
-  },
-  {
-    text: "Report / Block",
-    icon: <Shield size={26} color="white" />,
-    link: "/reportandblock",
-  },
-  {
-    text: "Reports",
-    icon: <ChartPieSlice size={26} color="white" />,
-    link: "/reports",
-  },
-  {
-    text: "Language",
-    icon: <Translate size={26} color="white" />,
-    link: "/language",
-  },
-  // {
-  //   text: "CMS Page",
-  //   icon: <FileText size={26} color="white" />,
-  //   link: "/cms",
-  // },
-];
+// const mainItems = [
+//   {
+//     text: "Dashboard",
+//     icon: <SquaresFour size={26} color="white" />,
+//     link: "/dashboard",
+//     module: "Dashboard", // Dashboard will always be shown
+//   },
+//   {
+//     text: "Users",
+//     icon: <Users size={26} color="white" />,
+//     link: "/users",
+//     module: "Users",
+//   },
+//   {
+//     text: "Calls",
+//     icon: <Phone size={26} color="white" />,
+//     link: "/calls",
+//     module: "Calls",
+//   },
+//   {
+//     text: "Coins",
+//     icon: <HandCoins size={26} color="white" />,
+//     link: "/coins",
+//     module: "Coins",
+//   },
+//   {
+//     text: "Conversion",
+//     icon: <Scales size={26} color="white" />,
+//     link: "/conversion",
+//     module: "Conversion",
+//   },
+//   {
+//     text: "Withdrawal",
+//     icon: <HandArrowDown size={26} color="white" />,
+//     link: "/withdrawals",
+//     module: "Withdrawal",
+//   },
+//   {
+//     text: "Leader Board",
+//     icon: <Trophy size={26} color="white" />,
+//     link: "/leaderboard",
+//     module: "Leaderboard",
+//   },
+//   {
+//     text: "Notifications",
+//     icon: <Notification size={26} color="white" />,
+//     link: "/notifications",
+//     module: "Notifications",
+//   },
+//   {
+//     text: "Report / Block",
+//     icon: <Shield size={26} color="white" />,
+//     link: "/reportandblock",
+//     module: "ReportBlock",
+//   },
+//   {
+//     text: "Reports",
+//     icon: <ChartPieSlice size={26} color="white" />,
+//     link: "/reports",
+//     module: "Reports",
+//   },
+//   {
+//     text: "Language",
+//     icon: <Translate size={26} color="white" />,
+//     link: "/language",
+//     module: "Language",
+//   },
+// ];
 
 const Sidebar = () => {
-  const [open, setOpen] = useState(false);
   const location = useLocation();
-
   const theme = useTheme();
+  const permissions = useSelector((state) => state.auth.permissions);
 
-  const handleToggle = () => {
-    setOpen(!open);
-  };
-
-  const getListItemStyle = (link) => {
-    return {
+  const getListItemStyle = (link) => ({
+    backgroundColor:
+      location.pathname === link ? theme.palette.error.main : "inherit",
+    transition: "background-color 0.3s ease",
+    "&:hover": {
       backgroundColor:
         location.pathname === link ? theme.palette.error.main : "inherit",
-      transition: "background-color 0.3s ease",
-      "&:hover": {
-        backgroundColor:
-          location.pathname === link ? theme.palette.error.main : "inherit",
-      },
-      display: "flex",
-      gap: "20px",
-      alignItems: "center",
-    };
-  };
+    },
+    display: "flex",
+    gap: "20px",
+    alignItems: "center",
+  });
+
+  const visibleItems = sidebarItems.filter((item) => {
+    if (item.module === MODULES.DASHBOARD) return true;
+    return !useSelector((state) => isModuleBlocked(state, item.module));
+  });
 
   return (
     <Drawer
@@ -137,7 +151,7 @@ const Sidebar = () => {
         />
       </Toolbar>
       <List>
-        {mainItems.slice(0, 5).map((item) => (
+        {visibleItems.map((item) => (
           <ListItem
             button
             component={Link}
@@ -145,46 +159,7 @@ const Sidebar = () => {
             key={item.text}
             sx={getListItemStyle(item.link)}
           >
-            <>{item.icon}</>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
-        {/* <ListItem
-          button
-          onClick={handleToggle}
-          sx={getListItemStyle("/coins-and-gifts")}
-        >
-          <>
-            <HandCoins size={26} color="white" />
-          </>
-          <ListItemText primary="Coins and Gifts" />
-          {open ? <CaretUp /> : <CaretDown />}
-        </ListItem>
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {coinsAndGiftsItems.map((item) => (
-              <ListItem
-                button
-                sx={{ pl: 4, ...getListItemStyle(item.link) }}
-                component={Link}
-                to={item.link}
-                key={item.text}
-              >
-                <>{item.icon}</>
-                <ListItemText primary={item.text} />
-              </ListItem>
-            ))}
-          </List>
-        </Collapse> */}
-        {mainItems.slice(5).map((item) => (
-          <ListItem
-            button
-            component={Link}
-            to={item.link}
-            key={item.text}
-            sx={getListItemStyle(item.link)}
-          >
-            <>{item.icon}</>
+            <item.icon size={26} color="white" />
             <ListItemText primary={item.text} />
           </ListItem>
         ))}

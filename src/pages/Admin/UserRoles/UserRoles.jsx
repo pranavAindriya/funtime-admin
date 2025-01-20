@@ -1,10 +1,12 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Button, Tab, useTheme } from "@mui/material";
+import { Box, Button, Tab, Typography, useTheme } from "@mui/material";
 import { Plus } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import UserListTab from "./UserRoleTabs/UserListTab";
 import UserRolesTab from "./UserRoleTabs/UserRolesTab";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../../redux/slices/authSlice";
 
 const UserRoles = () => {
   const navigate = useNavigate();
@@ -27,6 +29,27 @@ const UserRoles = () => {
       component: <UserRolesTab />,
     },
   ];
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
@@ -100,7 +123,7 @@ const UserRoles = () => {
           </Box>
         </Box>
         {tabs.map((tab, ind) => (
-          <TabPanel key={ind} value={(ind + 1).toString()}>
+          <TabPanel keepMounted key={ind} value={(ind + 1).toString()}>
             {tab.component}
           </TabPanel>
         ))}

@@ -118,10 +118,6 @@ const AddNewAdmin = () => {
     }
   };
 
-  const hasAccess = useSelector((state) =>
-    hasPermission(state, "Users", "readAndWrite")
-  );
-
   const fetchAdminById = async (id) => {
     const response = await getAdminById(id);
     if (response?.status === 200) {
@@ -135,6 +131,10 @@ const AddNewAdmin = () => {
       fetchAdminById(id);
     }
   }, [type, id]);
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
 
   if (!hasAccess) {
     return (

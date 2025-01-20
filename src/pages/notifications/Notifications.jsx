@@ -4,6 +4,7 @@ import {
   Button,
   IconButton,
   Snackbar,
+  Typography,
   useTheme,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
@@ -17,7 +18,7 @@ import {
 } from "../../service/allApi";
 import { Pencil, Trash } from "@phosphor-icons/react";
 import { useSelector } from "react-redux";
-import { hasPermission } from "../../redux/slices/authSlice";
+import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const Notifications = () => {
@@ -114,6 +115,27 @@ const Notifications = () => {
   useEffect(() => {
     fetchAllNotifications();
   }, []);
+
+  const isBlocked = useSelector((state) =>
+    isModuleBlocked(state, "Notifications")
+  );
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <LoadingBackdrop open={loading}>

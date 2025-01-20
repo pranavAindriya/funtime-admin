@@ -121,10 +121,6 @@ const AddNewRole = () => {
   const navigate = useNavigate();
   const { id, type } = useParams();
 
-  const hasAccess = useSelector((state) =>
-    hasPermission(state, "Users", "readAndWrite")
-  );
-
   useEffect(() => {
     const determineMode = () => {
       if (type === "edit") {
@@ -281,6 +277,27 @@ const AddNewRole = () => {
     setError(null);
     setSuccess(null);
   };
+
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
+  if (!hasAccess) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>

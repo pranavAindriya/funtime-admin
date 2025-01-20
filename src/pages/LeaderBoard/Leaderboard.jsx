@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../../service/allApi";
 import DataTable from "../../components/DataTable";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
+import { isModuleBlocked } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -40,6 +42,27 @@ const Leaderboard = () => {
   };
 
   const formattedRows = formatedLeaderboard();
+
+  const isBlocked = useSelector((state) =>
+    isModuleBlocked(state, "Leaderboard")
+  );
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <LoadingBackdrop open={isLoading}>

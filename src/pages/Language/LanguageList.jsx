@@ -21,7 +21,7 @@ import ConfirmationPopover from "../../components/ConfirmationPopover";
 import InputField from "../../components/InputField";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { hasPermission } from "../../redux/slices/authSlice";
+import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const style = {
@@ -129,6 +129,25 @@ const LanguageList = () => {
   useEffect(() => {
     fetchAllLanguages();
   }, []);
+
+  const isBlocked = useSelector((state) => isModuleBlocked(state, "Language"));
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <LoadingBackdrop open={isLoading}>

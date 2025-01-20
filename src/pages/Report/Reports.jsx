@@ -30,6 +30,8 @@ import DataTable from "../../components/DataTable";
 import { BASE_URL } from "../../service/environment";
 import formatDate from "../../utils/formatdate";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
+import { isModuleBlocked } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 const getFirstDayOfMonth = () => {
   const date = new Date();
@@ -264,6 +266,25 @@ const Report = () => {
       name: formatDate(transaction.createdAt).split(" ")[0],
       value: transaction.amount,
     })) || [];
+
+  const isBlocked = useSelector((state) => isModuleBlocked(state, "Reports"));
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   if (isError) {
     return <Typography color="error">Error loading sales data</Typography>;

@@ -7,6 +7,7 @@ import {
   Stack,
   useTheme,
   Pagination,
+  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -17,7 +18,7 @@ import {
 } from "../../service/allApi";
 import formatDate from "../../utils/formatdate";
 import { useSelector } from "react-redux";
-import { hasPermission } from "../../redux/slices/authSlice";
+import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const Withdrawal = () => {
@@ -212,6 +213,27 @@ const Withdrawal = () => {
     setValue(defaultTab);
     fetchWithdrawalHistory(defaultTab);
   }, [defaultTab, page, limit, isFilterApplied]);
+
+  const isBlocked = useSelector((state) =>
+    isModuleBlocked(state, "Withdrawal")
+  );
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <LoadingBackdrop open={loading}>

@@ -9,6 +9,7 @@ import {
   IconButton,
   InputAdornment,
   Switch,
+  Typography,
 } from "@mui/material";
 import { Pencil, Trash } from "@phosphor-icons/react";
 import React, { useEffect, useState } from "react";
@@ -27,7 +28,7 @@ import { Slide, ToastContainer, toast } from "react-toastify";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { hasPermission } from "../../redux/slices/authSlice";
+import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const Coins = () => {
@@ -177,7 +178,24 @@ const Coins = () => {
 
   const formattedCoinRows = formatedCoinsForDataTable();
 
-  console.log(freeCoinDetails);
+  const isBlocked = useSelector((state) => isModuleBlocked(state, "Coins"));
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <LoadingBackdrop>

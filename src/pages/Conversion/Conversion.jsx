@@ -7,7 +7,7 @@ import SmallDiamond from "../../assets/SmallHeart.svg";
 import { conversionsEdit, getConversionFactors } from "../../service/allApi";
 import { Slide, ToastContainer, toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { hasPermission } from "../../redux/slices/authSlice";
+import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 
 const Conversion = () => {
   const [isEditable, setIsEditable] = useState(false);
@@ -86,6 +86,27 @@ const Conversion = () => {
   const hasAccess = useSelector((state) =>
     hasPermission(state, "Conversion", "readAndWrite")
   );
+
+  const isBlocked = useSelector((state) =>
+    isModuleBlocked(state, "Conversion")
+  );
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>

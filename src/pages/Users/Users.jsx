@@ -1,5 +1,5 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Button, Tab, useTheme } from "@mui/material";
+import { Box, Button, Tab, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Userlist from "./UserTabs/Userlist";
@@ -7,7 +7,11 @@ import KycRequests from "./UserTabs/KycRequests";
 import BlackLists from "./UserTabs/BlackLists";
 import HostedUsers from "./UserTabs/HostedUsers";
 import { Plus } from "@phosphor-icons/react";
-import { hasPermission, userPermissions } from "../../redux/slices/authSlice";
+import {
+  hasPermission,
+  isModuleBlocked,
+  userPermissions,
+} from "../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
 
 const tabs = [
@@ -57,6 +61,25 @@ const Users = () => {
   useEffect(() => {
     setValue(defaultTab);
   }, [defaultTab]);
+
+  const isBlocked = useSelector((state) => isModuleBlocked(state, "Users"));
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>

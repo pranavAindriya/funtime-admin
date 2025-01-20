@@ -5,6 +5,8 @@ import { getRecentCalls } from "../../service/allApi";
 import formatDate from "../../utils/formatdate";
 import DataTable from "../../components/DataTable";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
+import { useSelector } from "react-redux";
+import { isModuleBlocked } from "../../redux/slices/authSlice";
 
 const CallsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -110,6 +112,25 @@ const CallsList = () => {
     { field: "coinDeducted", headerName: "Coin Reduced", flex: 1 },
     { field: "diamond", headerName: "Diamond", flex: 1 },
   ];
+
+  const isBlocked = useSelector((state) => isModuleBlocked(state, "Calls"));
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <LoadingBackdrop open={isLoading}>

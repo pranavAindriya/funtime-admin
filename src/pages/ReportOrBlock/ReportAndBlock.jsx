@@ -8,6 +8,8 @@ import {
   TextField,
   Alert,
   Snackbar,
+  Typography,
+  Box,
 } from "@mui/material";
 import { Trash, X } from "@phosphor-icons/react";
 import {
@@ -19,7 +21,7 @@ import DataTable from "../../components/DataTable";
 import TopAddNewBar from "../../components/TopAddNewBar";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
 import { useSelector } from "react-redux";
-import { hasPermission } from "../../redux/slices/authSlice";
+import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const ReportAndBlock = () => {
@@ -137,6 +139,27 @@ const ReportAndBlock = () => {
       edit: reason._id,
     }));
   };
+
+  const isBlocked = useSelector((state) =>
+    isModuleBlocked(state, "ReportBlock")
+  );
+
+  if (isBlocked) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        <Typography variant="h4">
+          You do not have access to this page
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <LoadingBackdrop open={loading}>
