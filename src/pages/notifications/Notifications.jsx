@@ -18,22 +18,25 @@ import {
 import { Pencil, Trash } from "@phosphor-icons/react";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const Notifications = () => {
   const [notifications, setAllNotifications] = useState([]);
   const [validationErrors, setValidationErrors] = useState();
   const [message, setMessage] = useState({ text: "", severity: "success" });
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [loading, isloading] = useState(false);
 
   const theme = useTheme();
   const navigte = useNavigate();
 
   const fetchAllNotifications = async () => {
+    isloading(true);
     const response = await getAllNotifications();
-    console.log(response);
     if (response.status === 200) {
       setAllNotifications(response?.data?.data);
     }
+    isloading(false);
   };
 
   const handleSuccess = (text) => {
@@ -113,7 +116,7 @@ const Notifications = () => {
   }, []);
 
   return (
-    <>
+    <LoadingBackdrop open={loading}>
       {/* <Box
         sx={{
           padding: "25px",
@@ -161,7 +164,7 @@ const Notifications = () => {
           {message.text}
         </Alert>
       </Snackbar>
-    </>
+    </LoadingBackdrop>
   );
 };
 

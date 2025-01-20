@@ -3,17 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../../service/allApi";
 import DataTable from "../../components/DataTable";
 import { Typography } from "@mui/material";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const fetchLeaderboardData = async () => {
+    setIsLoading(true);
     const response = await getLeaderboard();
     if (response.status === 200) {
       setLeaderboardData(response.data.data);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -38,12 +42,12 @@ const Leaderboard = () => {
   const formattedRows = formatedLeaderboard();
 
   return (
-    <div>
+    <LoadingBackdrop open={isLoading}>
       <Typography fontSize={21} fontWeight={600} mb={2}>
         Leaderboard
       </Typography>
       <DataTable columns={columns} rows={formattedRows} />
-    </div>
+    </LoadingBackdrop>
   );
 };
 

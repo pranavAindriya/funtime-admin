@@ -22,6 +22,7 @@ import InputField from "../../components/InputField";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const style = {
   position: "absolute",
@@ -45,6 +46,7 @@ const LanguageList = () => {
     languageCode: "",
     status: true,
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -52,11 +54,13 @@ const LanguageList = () => {
   const handleModalClose = () => setModalOpen(false);
 
   const fetchAllLanguages = async () => {
+    setIsLoading(true);
     const response = await getAllLanguages();
     console.log(response.data);
     if (response.status === 200) {
       setLanguages(response.data.languages);
     }
+    setIsLoading(false);
   };
 
   const deleteLanguage = async () => {
@@ -127,7 +131,7 @@ const LanguageList = () => {
   }, []);
 
   return (
-    <div>
+    <LoadingBackdrop open={isLoading}>
       <TopAddNewBar
         label={"Language List"}
         onAddButtonClick={() => navigate("/language/add")}
@@ -224,7 +228,7 @@ const LanguageList = () => {
           <Button>Save</Button>
         </Box>
       </Modal>
-    </div>
+    </LoadingBackdrop>
   );
 };
 

@@ -28,6 +28,7 @@ import TopAddNewBar from "../../components/TopAddNewBar";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const Coins = () => {
   const [coinList, setCoinList] = useState();
@@ -40,12 +41,17 @@ const Coins = () => {
   const [validationErrors, setValidationErrors] = useState();
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [coinToDelete, setCoinToDelete] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const fetchCoinList = async () => {
+    setLoading(true);
     const response = await getCoinList();
-    setCoinList(response.data);
+    if (response.status === 200) {
+      setCoinList(response.data);
+    }
+    setLoading(false);
   };
 
   const handleInputChange = (e) => {
@@ -174,7 +180,7 @@ const Coins = () => {
   console.log(freeCoinDetails);
 
   return (
-    <>
+    <LoadingBackdrop>
       <Box
         sx={{
           padding: "25px",
@@ -296,7 +302,7 @@ const Coins = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </LoadingBackdrop>
   );
 };
 

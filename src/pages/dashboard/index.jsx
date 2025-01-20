@@ -9,6 +9,7 @@ import DashboardLinechart from "../../components/DashboardLinechart";
 import TopSellingPackages from "../../components/TopSellingPackages";
 import { getDashboardData } from "../../service/allApi";
 import DataTable from "../../components/DataTable";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const DashboardMain = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -21,12 +22,13 @@ const DashboardMain = () => {
   const [ApiSuccess, setApiSuccess] = useState(false);
 
   const fetchDashboardData = async () => {
+    setApiSuccess(false);
     const response = await getDashboardData();
     console.log(response);
     if (response.status === 200) {
-      setApiSuccess(true);
       setDashboardData(response.data);
     }
+    setApiSuccess(true);
   };
 
   useEffect(() => {
@@ -78,7 +80,10 @@ const DashboardMain = () => {
   ];
 
   return (
-    <div style={{ width: "100%", marginInline: "auto" }}>
+    <LoadingBackdrop
+      open={!ApiSuccess}
+      style={{ width: "100%", marginInline: "auto" }}
+    >
       <p style={{ fontWeight: 600, fontSize: "20px" }}>Quick View</p>
       <Box
         sx={{
@@ -141,7 +146,7 @@ const DashboardMain = () => {
         </Box>
       </Box>
       {/* <DataTable columns={columns} /> */}
-    </div>
+    </LoadingBackdrop>
   );
 };
 

@@ -18,7 +18,7 @@ import {
 import formatDate from "../../utils/formatdate";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
-import LoadingBackdrop from "../../components/LoadingBackdrop"; // Import the LoadingBackdrop component
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const Withdrawal = () => {
   const theme = useTheme();
@@ -28,8 +28,12 @@ const Withdrawal = () => {
   const searchParams = new URLSearchParams(location.search);
   const defaultTab = searchParams.get("tab") || "pending";
 
+  // Separate states for each status
+  const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
+  const [approvedWithdrawals, setApprovedWithdrawals] = useState([]);
+  const [rejectedWithdrawals, setRejectedWithdrawals] = useState([]);
+
   const [value, setValue] = useState(defaultTab);
-  const [withdrawalDatas, setWithdrawaldatas] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
@@ -39,27 +43,54 @@ const Withdrawal = () => {
     currentPage: 1,
     totalPages: 1,
   });
-  const [loading, setLoading] = useState(false); // Loading state
-  const [isFilterApplied, setIsFilterApplied] = useState(false); // Track if filter is applied
+  const [loading, setLoading] = useState(false);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+
+  // Helper function to get the appropriate setState function based on status
+  const getSetStateFunction = (status) => {
+    switch (status) {
+      case "pending":
+        return setPendingWithdrawals;
+      case "approved":
+        return setApprovedWithdrawals;
+      case "rejected":
+        return setRejectedWithdrawals;
+      default:
+        return setPendingWithdrawals;
+    }
+  };
+
+  // Helper function to get the appropriate state data based on status
+  const getStateData = (status) => {
+    switch (status) {
+      case "pending":
+        return pendingWithdrawals;
+      case "approved":
+        return approvedWithdrawals;
+      case "rejected":
+        return rejectedWithdrawals;
+      default:
+        return pendingWithdrawals;
+    }
+  };
 
   const handleChange = async (event, newValue) => {
     setValue(newValue);
     navigate(`?tab=${newValue}`);
-    setLoading(true); // Show loading when changing tabs
-    await fetchWithdrawalHistory();
-    setLoading(false); // Hide loading after fetching data
+    await fetchWithdrawalHistory(newValue);
   };
 
-  const fetchWithdrawalHistory = async () => {
+  const fetchWithdrawalHistory = async (status = value) => {
+    setLoading(true);
     try {
-      let queryParams = `status=${value}&page=${page}&limit=${limit}`;
+      let queryParams = `status=${status}&page=${page}&limit=${limit}`;
       if (isFilterApplied && startDate && endDate) {
         queryParams += `&fromDate=${startDate}&toDate=${endDate}`;
       }
-
       const response = await getWithdrawalHistory(queryParams);
       if (response.status === 200) {
-        setWithdrawaldatas(response?.data?.data || []);
+        const setStateFunction = getSetStateFunction(status);
+        setStateFunction(response?.data?.data || []);
         setPaginationDetails({
           totalRecords: response?.data?.totalRecords,
           currentPage: response?.data?.currentPage,
@@ -68,7 +99,10 @@ const Withdrawal = () => {
       }
     } catch (error) {
       console.error("Failed to fetch withdrawal history:", error);
-      setWithdrawaldatas([]);
+      const setStateFunction = getSetStateFunction(status);
+      setStateFunction([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,7 +135,7 @@ const Withdrawal = () => {
   const handleApplyFilter = () => {
     if (startDate && endDate) {
       setIsFilterApplied(true);
-      setPage(1); // Reset to the first page when applying a new filter
+      setPage(1);
       fetchWithdrawalHistory();
     } else {
       alert("Please select both start and end dates.");
@@ -112,7 +146,7 @@ const Withdrawal = () => {
     setStartDate("");
     setEndDate("");
     setIsFilterApplied(false);
-    setPage(1); // Reset to the first page when clearing the filter
+    setPage(1);
     fetchWithdrawalHistory();
   };
 
@@ -120,8 +154,8 @@ const Withdrawal = () => {
     setPage(newPage);
   };
 
-  const formatrows = () => {
-    return withdrawalDatas?.map((item, ind) => ({
+  const formatrows = (data) => {
+    return data?.map((item, ind) => ({
       slno: ind + 1,
       userId: item?.userId?._id,
       username: item?.userName,
@@ -131,18 +165,16 @@ const Withdrawal = () => {
     }));
   };
 
-  const rows = formatrows();
-
   const tabs = [
     {
       label: "Pending",
       value: "pending",
       component: (
         <WithdrawalTabs
-          type={"pending"}
-          rows={rows}
-          data={withdrawalDatas}
-          setRows={setWithdrawaldatas}
+          type="pending"
+          rows={formatrows(pendingWithdrawals)}
+          data={pendingWithdrawals}
+          setRows={setPendingWithdrawals}
         />
       ),
     },
@@ -151,10 +183,10 @@ const Withdrawal = () => {
       value: "approved",
       component: (
         <WithdrawalTabs
-          type={"approved"}
-          rows={rows}
-          data={withdrawalDatas}
-          setRows={setWithdrawaldatas}
+          type="approved"
+          rows={formatrows(approvedWithdrawals)}
+          data={approvedWithdrawals}
+          setRows={setApprovedWithdrawals}
         />
       ),
     },
@@ -163,10 +195,10 @@ const Withdrawal = () => {
       value: "rejected",
       component: (
         <WithdrawalTabs
-          type={"rejected"}
-          rows={rows}
-          data={withdrawalDatas}
-          setRows={setWithdrawaldatas}
+          type="rejected"
+          rows={formatrows(rejectedWithdrawals)}
+          data={rejectedWithdrawals}
+          setRows={setRejectedWithdrawals}
         />
       ),
     },
@@ -178,19 +210,19 @@ const Withdrawal = () => {
 
   useEffect(() => {
     setValue(defaultTab);
-    fetchWithdrawalHistory();
+    fetchWithdrawalHistory(defaultTab);
   }, [defaultTab, page, limit, isFilterApplied]);
 
   return (
     <LoadingBackdrop open={loading}>
       <Box sx={{ width: "100%", typography: "body1" }}>
         <Box
-          display={"flex"}
-          alignItems={"center"}
-          justifyContent={"space-between"}
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
           mb={2}
         >
-          <Box display={"flex"} gap={2}>
+          <Box display="flex" gap={2}>
             <TextField
               type="date"
               label="Start Date"

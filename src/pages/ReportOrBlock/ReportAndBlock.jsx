@@ -20,6 +20,7 @@ import TopAddNewBar from "../../components/TopAddNewBar";
 import TableToggleSwitch from "../../components/TableToggleSwitch";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
+import LoadingBackdrop from "../../components/LoadingBackdrop";
 
 const ReportAndBlock = () => {
   const [reportReasons, setAllReportReasons] = useState([]);
@@ -32,15 +33,19 @@ const ReportAndBlock = () => {
     message: "",
     severity: "success",
   });
+  const [loading, setIsLoading] = useState(false);
 
   const fetchAllReportReasons = async () => {
     try {
+      setIsLoading(true);
       const response = await getAllReportReasons();
       if (response?.status === 200) {
         setAllReportReasons(response?.data?.data);
       }
     } catch (err) {
       showSnackbar("Failed to fetch report reasons", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -134,7 +139,7 @@ const ReportAndBlock = () => {
   };
 
   return (
-    <div>
+    <LoadingBackdrop open={loading}>
       <TopAddNewBar
         label="Reporting Reason"
         onAddButtonClick={() => setOpenAddModal(true)}
@@ -268,7 +273,7 @@ const ReportAndBlock = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </div>
+    </LoadingBackdrop>
   );
 };
 

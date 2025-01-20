@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { blockUser, getAllUsers } from "../../../service/allApi";
-import { Eye, Pencil, MagnifyingGlass, X } from "@phosphor-icons/react"; // Import icons
+import { Eye, Pencil, MagnifyingGlass, X } from "@phosphor-icons/react";
 import formatDate from "../../../utils/formatdate";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
 import { useSelector } from "react-redux";
