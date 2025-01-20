@@ -34,7 +34,7 @@ const HostedUsers = () => {
   const fetchAllHostedUsers = async (currentPage, searchQuery = "") => {
     setIsLoading(true);
     try {
-      let url = `page=${currentPage}&limit=100`;
+      let url = `page=${currentPage}&limit=50`;
       if (searchQuery) {
         url = `userName=${searchQuery}`;
         setIsSearching(true);

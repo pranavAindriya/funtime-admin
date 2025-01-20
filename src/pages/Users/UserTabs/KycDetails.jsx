@@ -260,7 +260,7 @@ export default function KycDetails() {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton sx={{ mr: 1 }} onClick={() => navigate("/users")}>
+          <IconButton sx={{ mr: 1 }} onClick={() => navigate(-1)}>
             <ArrowLeft />
           </IconButton>
           <Typography variant="h6" fontWeight={600}>

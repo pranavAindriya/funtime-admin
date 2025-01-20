@@ -238,7 +238,7 @@ const AddNewUser = () => {
         <Box>
           <Button
             variant="outlined"
-            onClick={() => navigate("/users")}
+            onClick={() => navigate(-1)}
             sx={{ mr: 2 }}
           >
             Cancel

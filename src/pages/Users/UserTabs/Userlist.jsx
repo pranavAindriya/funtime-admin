@@ -25,7 +25,7 @@ const Userlist = () => {
   const [paginationDetails, setPaginationDetails] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSearching, setIsSearching] = useState(false); // Track if we're in search mode
+  const [isSearching, setIsSearching] = useState(false);
 
   const navigate = useNavigate();
   const adminUserId = useSelector(userId);
@@ -37,7 +37,7 @@ const Userlist = () => {
       response = await getAllUsers(searchTerm);
       console.log(response);
     } else {
-      response = await getAllUsers(page, 100);
+      response = await getAllUsers(page, 50);
     }
     if (response.status === 200) {
       setUsers(response?.data?.users || response?.data || []);
@@ -48,7 +48,7 @@ const Userlist = () => {
 
   useEffect(() => {
     fetchAllUsers();
-  }, [page, isSearching]); // Re-fetch when page or search mode changes
+  }, [page, isSearching]);
 
   const handleBlockUser = async (userId, currentBlockedStatus) => {
     setUsers((prevUsers) =>
@@ -121,7 +121,7 @@ const Userlist = () => {
       headerName: "Username",
       renderCell: (params) => (
         <Box display={"flex"} alignItems={"center"} gap={2}>
-          <Avatar src={params.image} />
+          <Avatar src={params.image} slotProps={{ img: { loading: "lazy" } }} />
           <span>{params.username}</span>
         </Box>
       ),

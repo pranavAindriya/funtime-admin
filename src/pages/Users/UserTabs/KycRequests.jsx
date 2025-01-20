@@ -36,7 +36,7 @@ const KycRequests = () => {
         url = `userName=${searchQuery}`;
         setIsSearching(true);
       } else {
-        url = `page=${currentPage}&limit=100`;
+        url = `page=${currentPage}&limit=50`;
         setIsSearching(false);
       }
 
