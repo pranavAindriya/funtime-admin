@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { getAllBlockedUsers } from "../../../service/allApi";
 import { Avatar, Box, Button } from "@mui/material";
 import DataTable from "../../../components/DataTable";
+import { useQuery } from "@tanstack/react-query";
+import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 const BlackLists = () => {
-  const [blockedUsers, setAllBlockedUsers] = useState([]);
-
-  const fetchAllBlockedUSers = async () => {
-    const response = await getAllBlockedUsers();
-    if (response.status === 200) {
-      setAllBlockedUsers(response.data.data);
-    }
-  };
+  const {
+    data: blockedUsers,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["blockedUsers"],
+    queryFn: getAllBlockedUsers,
+    select: (response) => response.data.data,
+  });
 
   const columns = [
     { field: "userId", headerName: "User ID" },
@@ -38,25 +41,26 @@ const BlackLists = () => {
     // },
   ];
 
-  const formatedBlockedUsers = () => {
-    return blockedUsers?.map((user) => ({
+  // Format the blocked users data for the DataTable
+  const formattedRows =
+    blockedUsers?.map((user) => ({
       userId: user?.reportedUserId,
       username: { username: user?.username, image: user?.profileImage },
       phone: user?.phoneNumber,
       warnings: user?.warning,
       actions: user?._id,
-    }));
-  };
+    })) || [];
 
-  const formattedRows = formatedBlockedUsers();
+  if (isError) {
+    return <div>Error fetching blocked users. Please try again later.</div>; // Display an error state
+  }
 
-  useEffect(() => {
-    fetchAllBlockedUSers();
-  }, []);
   return (
-    <div>
-      <DataTable columns={columns} rows={formattedRows} />
-    </div>
+    <LoadingBackdrop open={isLoading}>
+      <div>
+        <DataTable columns={columns} rows={formattedRows} />
+      </div>
+    </LoadingBackdrop>
   );
 };
 

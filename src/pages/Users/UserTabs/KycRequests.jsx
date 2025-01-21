@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Box,
   Button,
@@ -18,65 +19,123 @@ import LoadingBackdrop from "../../../components/LoadingBackdrop";
 import { X, MagnifyingGlass } from "@phosphor-icons/react";
 
 const KycRequests = () => {
-  const [kycData, setKycData] = useState([]);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [paginationDetails, setPaginationDetails] = useState({});
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const fetchAllKycRequests = async (currentPage, searchQuery = "") => {
-    try {
-      setLoading(true);
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
+  // Query keys
+  const kycQueryKeys = {
+    all: ["kyc"],
+    list: (page, searchTerm) => [...kycQueryKeys.all, { page, searchTerm }],
+  };
+
+  // Fetch KYC requests query
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: kycQueryKeys.list(page, activeSearchTerm),
+    queryFn: async () => {
       let url;
-      if (searchQuery) {
-        url = `userName=${searchQuery}`;
-        setIsSearching(true);
+      if (isSearching) {
+        url = `userName=${activeSearchTerm}`;
       } else {
-        url = `page=${currentPage}&limit=50`;
-        setIsSearching(false);
+        url = `page=${page}&limit=50`;
       }
+      return getAllKyc(url);
+    },
+  });
 
-      const response = await getAllKyc(url);
+  // Transform response data
+  const kycData =
+    response?.data?.data?.map((item, ind) => ({
+      slno: ind + 1,
+      id: item._id,
+      username: {
+        username: item.userDetails.username,
+        image: item.userDetails.profileImage,
+      },
+      panNumber: item.panDetails?.panNumber,
+      aadhaarNumber: item.aadhaarDetails?.aadhaarNumber,
+      status: item.kycStatus,
+      createdAt: formatDate(item.createdAt),
+      verified: {
+        verified: item.kycStatus === "approved" ? true : false,
+        pending: item.kycStatus === "pending" ? true : false,
+        userId: item.userId,
+        id: item._id,
+      },
+    })) || [];
 
-      if (response.data.data) {
-        const transformedData = response?.data?.data.map((item, ind) => ({
-          slno: ind + 1,
-          id: item._id,
-          username: {
-            username: item.userDetails.username,
-            image: item.userDetails.profileImage,
+  const paginationDetails = response?.data?.pagination || {};
+
+  // KYC status mutation
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => changeKycStatus(id, status),
+    onMutate: async ({ id, newStatus }) => {
+      await queryClient.cancelQueries(
+        kycQueryKeys.list(page, activeSearchTerm)
+      );
+
+      const previousData = queryClient.getQueryData(
+        kycQueryKeys.list(page, activeSearchTerm)
+      );
+
+      queryClient.setQueryData(
+        kycQueryKeys.list(page, activeSearchTerm),
+        (old) => ({
+          ...old,
+          data: {
+            ...old.data,
+            data: old.data.data.map((item) =>
+              item._id === id
+                ? {
+                    ...item,
+                    kycStatus: newStatus ? "approved" : "rejected",
+                  }
+                : item
+            ),
           },
-          panNumber: item.panDetails?.panNumber,
-          aadhaarNumber: item.aadhaarDetails?.aadhaarNumber,
-          status: item.kycStatus,
-          createdAt: formatDate(item.createdAt),
-          verified: {
-            verified: item.kycStatus === "approved" ? true : false,
-            pending: item.kycStatus === "pending" ? true : false,
-            userId: item.userId,
-            id: item._id,
-          },
-        }));
-        setKycData(transformedData);
-        setPaginationDetails(response?.data?.pagination);
-      }
+        })
+      );
+
+      return { previousData };
+    },
+    onError: (err, { id }, context) => {
+      queryClient.setQueryData(
+        kycQueryKeys.list(page, activeSearchTerm),
+        context.previousData
+      );
+      setError("Failed to update KYC status");
+    },
+    onSuccess: () => {
       setError(null);
-    } catch (err) {
-      setError("Failed to fetch KYC requests");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const handleStatusChange = (id, newStatus) => {
+    statusMutation.mutate({
+      id,
+      status: newStatus ? "approved" : "rejected",
+      newStatus, // for onMutate
+    });
   };
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
+      setIsSearching(true);
       setPage(1);
-      fetchAllKycRequests(1, searchTerm.trim());
+      setActiveSearchTerm(searchTerm.trim());
     }
   };
 
@@ -86,68 +145,10 @@ const KycRequests = () => {
 
   const handleClearSearch = () => {
     setSearchTerm("");
+    setActiveSearchTerm("");
     setIsSearching(false);
     setPage(1);
-    fetchAllKycRequests(1, "");
   };
-
-  useEffect(() => {
-    fetchAllKycRequests(page);
-  }, [page]);
-
-  const handleStatusChange = async (id, newStatus) => {
-    try {
-      setKycData((prevData) =>
-        prevData.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                verified: { verified: newStatus, id },
-                status: newStatus ? "approved" : "rejected",
-              }
-            : item
-        )
-      );
-
-      const response = await changeKycStatus(
-        id,
-        newStatus === true ? "approved" : "rejected"
-      );
-
-      if (!response.status === 200) {
-        setKycData((prevData) =>
-          prevData.map((item) =>
-            item.id === id
-              ? {
-                  ...item,
-                  verified: { verified: !newStatus, id },
-                  status: !newStatus ? "approved" : "rejected",
-                }
-              : item
-          )
-        );
-        setError("Failed to update KYC status");
-      }
-    } catch (err) {
-      setKycData((prevData) =>
-        prevData.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                verified: { verified: !newStatus, id },
-                status: !newStatus ? "approved" : "rejected",
-              }
-            : item
-        )
-      );
-      setError("Failed to update KYC status");
-      console.error(err);
-    }
-  };
-
-  const hasAccess = useSelector((state) =>
-    hasPermission(state, "Users", "readAndWrite")
-  );
 
   const columns = [
     { field: "slno", headerName: "SlNo" },
@@ -156,7 +157,7 @@ const KycRequests = () => {
       headerName: "Username",
       renderCell: (params) => (
         <Box display={"flex"} alignItems={"center"} gap={2}>
-          <Avatar src={params.image} />
+          <Avatar src={params.image} slotProps={{ img: { loading: "lazy" } }} />
           <span>{params.username}</span>
         </Box>
       ),
@@ -198,9 +199,7 @@ const KycRequests = () => {
                 variant="contained"
                 color="success"
                 onClick={() => handleStatusChange(params.id, true)}
-                sx={{
-                  color: "white",
-                }}
+                sx={{ color: "white" }}
               >
                 Approve
               </Button>
@@ -231,7 +230,7 @@ const KycRequests = () => {
   ];
 
   return (
-    <LoadingBackdrop open={loading}>
+    <LoadingBackdrop open={isLoading || isFetching}>
       <Box
         sx={{
           display: "flex",
@@ -246,7 +245,7 @@ const KycRequests = () => {
           size="small"
           value={searchTerm}
           onChange={handleSearchChange}
-          onKeyPress={(e) => {
+          onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleSearch();
             }
@@ -274,48 +273,41 @@ const KycRequests = () => {
           {error}
         </Alert>
       )}
-      <Pagination
-        count={paginationDetails?.totalPages}
-        page={page}
-        color="primary"
-        variant="outlined"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 4,
-        }}
-        onChange={(e, page) => {
-          setPage(page);
-          if (isSearching) {
-            fetchAllKycRequests(page, searchTerm);
-          } else {
-            fetchAllKycRequests(page);
-          }
-        }}
-      />
+
+      {!isSearching && (
+        <Pagination
+          count={paginationDetails?.totalPages}
+          page={page}
+          color="primary"
+          variant="outlined"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 4,
+          }}
+          onChange={(e, newPage) => setPage(newPage)}
+        />
+      )}
+
       <DataTable columns={columns} rows={kycData} />
-      <Pagination
-        count={paginationDetails?.totalPages}
-        page={page}
-        color="primary"
-        variant="outlined"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 2,
-          mt: 4,
-        }}
-        onChange={(e, page) => {
-          setPage(page);
-          if (isSearching) {
-            fetchAllKycRequests(page, searchTerm);
-          } else {
-            fetchAllKycRequests(page);
-          }
-        }}
-      />
+
+      {!isSearching && (
+        <Pagination
+          count={paginationDetails?.totalPages}
+          page={page}
+          color="primary"
+          variant="outlined"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 2,
+            mt: 4,
+          }}
+          onChange={(e, newPage) => setPage(newPage)}
+        />
+      )}
     </LoadingBackdrop>
   );
 };

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import DataTable from "../../../components/DataTable";
 import {
   Avatar,
@@ -7,7 +8,6 @@ import {
   IconButton,
   Pagination,
   TextField,
-  InputAdornment,
   Button,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,98 +20,119 @@ import { userId } from "../../../redux/slices/authSlice";
 import { Slide, toast } from "react-toastify";
 
 const Userlist = () => {
-  const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
-  const [paginationDetails, setPaginationDetails] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState(""); // New state for active search
   const [isSearching, setIsSearching] = useState(false);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const adminUserId = useSelector(userId);
 
-  const fetchAllUsers = async () => {
-    setIsLoading(true);
-    let response;
-    if (isSearching) {
-      response = await getAllUsers(searchTerm);
-      console.log(response);
-    } else {
-      response = await getAllUsers(page, 50);
-    }
-    if (response.status === 200) {
-      setUsers(response?.data?.users || response?.data || []);
-      setPaginationDetails(response?.data?.pagination || {});
-      setIsLoading(false);
-    }
+  // Define query key factory
+  const userQueryKeys = {
+    all: ["users"],
+    list: (page, searchTerm) => [...userQueryKeys.all, { page, searchTerm }],
   };
 
-  useEffect(() => {
-    fetchAllUsers();
-  }, [page, isSearching]);
+  // Main query for fetching users
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: userQueryKeys.list(page, activeSearchTerm), // Use activeSearchTerm instead of searchTerm
+    queryFn: () =>
+      isSearching ? getAllUsers(activeSearchTerm) : getAllUsers(page, 50),
+  });
 
-  const handleBlockUser = async (userId, currentBlockedStatus) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user._id === userId ? { ...user, blocked: !currentBlockedStatus } : user
-      )
-    );
+  // Extract data from response
+  const users = response?.data?.users || response?.data || [];
+  const paginationDetails = response?.data?.pagination || {};
 
-    try {
-      const response = await blockUser(
-        adminUserId,
-        userId,
-        !currentBlockedStatus
+  // Block user mutation
+  const blockUserMutation = useMutation({
+    mutationFn: ({ userId, blocked }) =>
+      blockUser(adminUserId, userId, blocked),
+    onMutate: async ({ userId, blocked }) => {
+      await queryClient.cancelQueries(
+        userQueryKeys.list(page, activeSearchTerm)
+      );
+      const previousUsers = queryClient.getQueryData(
+        userQueryKeys.list(page, activeSearchTerm)
       );
 
-      const isSuccess = currentBlockedStatus
-        ? response.status === 200
-        : response.status === 201;
-
-      if (!isSuccess) {
-        setUsers((prevUsers) =>
-          prevUsers.map((user) =>
-            user._id === userId
-              ? { ...user, blocked: currentBlockedStatus }
-              : user
-          )
-        );
-        throw new Error("Failed to update user block status");
-      }
-
-      toast.success(
-        `User successfully ${!currentBlockedStatus ? "Blocked" : "Unblocked"}`,
-        {
-          autoClose: 1000,
-          transition: Slide,
-        }
+      queryClient.setQueryData(
+        userQueryKeys.list(page, activeSearchTerm),
+        (old) => ({
+          ...old,
+          data: {
+            ...old.data,
+            users: old.data.users.map((user) =>
+              user._id === userId ? { ...user, blocked } : user
+            ),
+          },
+        })
       );
-    } catch (error) {
+
+      return { previousUsers };
+    },
+    onError: (err, { userId, blocked }, context) => {
+      queryClient.setQueryData(
+        userQueryKeys.list(page, activeSearchTerm),
+        context.previousUsers
+      );
       toast.error("Failed to update user block status", {
         autoClose: 1000,
         transition: Slide,
       });
-    }
+    },
+    onSuccess: (response, { blocked }) => {
+      const isSuccess = !blocked
+        ? response.status === 200
+        : response.status === 201;
+      if (isSuccess) {
+        toast.success(
+          `User successfully ${blocked ? "Blocked" : "Unblocked"}`,
+          {
+            autoClose: 1000,
+            transition: Slide,
+          }
+        );
+      }
+    },
+  });
+
+  const handleBlockUser = (userId, currentBlockedStatus) => {
+    blockUserMutation.mutate({
+      userId,
+      blocked: !currentBlockedStatus,
+    });
   };
 
   const handleSearch = () => {
-    if (searchTerm) {
-      setIsSearching(true); // Enable search mode
-      setPage(1); // Reset to the first page when searching
-    } else {
-      setIsSearching(false); // Disable search mode if search term is empty
+    if (searchTerm.trim()) {
+      setIsSearching(true);
+      setPage(1);
+      setActiveSearchTerm(searchTerm.trim()); // Update activeSearchTerm only when search is triggered
     }
   };
 
   const handleClearSearch = () => {
     setSearchTerm("");
+    setActiveSearchTerm("");
     setIsSearching(false);
     setPage(1);
   };
 
   const handleSearchChange = (e) => {
-    e.preventDefault();
     setSearchTerm(e.target.value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && searchTerm.trim()) {
+      handleSearch();
+    }
   };
 
   const columns = [
@@ -132,27 +153,6 @@ const Userlist = () => {
     { field: "about", headerName: "About" },
     { field: "gender", headerName: "Gender" },
     { field: "coin", headerName: "Coin" },
-    // {
-    //   field: "kyc",
-    //   headerName: "KYC",
-    //   renderCell: (value) => {
-    //     let color;
-    //     switch (value) {
-    //       case "approved":
-    //         color = theme.palette.success.main;
-    //         break;
-    //       case "requested":
-    //         color = theme.palette.warning.main;
-    //         break;
-    //       case "declined":
-    //         color = theme.palette.error.main;
-    //         break;
-    //       default:
-    //         color = "inherit";
-    //     }
-    //     return <span style={{ color }}>{value}</span>;
-    //   },
-    // },
     {
       field: "blacklist",
       headerName: "Blacklist",
@@ -208,7 +208,7 @@ const Userlist = () => {
   const formattedUsers = formatUsersForDataTable();
 
   return (
-    <LoadingBackdrop open={isLoading}>
+    <LoadingBackdrop open={isLoading || isFetching}>
       <Box
         sx={{
           display: "flex",
@@ -223,11 +223,7 @@ const Userlist = () => {
           size="small"
           value={searchTerm}
           onChange={handleSearchChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
+          onKeyDown={handleKeyDown}
           slotProps={{
             input: {
               endAdornment: (
@@ -251,7 +247,7 @@ const Userlist = () => {
           <MagnifyingGlass />
         </Button>
       </Box>
-      {!isSearching && ( // Only show pagination if not in search mode
+      {!isSearching && (
         <Pagination
           count={paginationDetails?.totalPages}
           page={page}
@@ -268,7 +264,7 @@ const Userlist = () => {
         />
       )}
       <DataTable columns={columns} rows={formattedUsers} />
-      {!isSearching && ( // Only show pagination if not in search mode
+      {!isSearching && (
         <Pagination
           count={paginationDetails?.totalPages}
           color="primary"

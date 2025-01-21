@@ -8,7 +8,11 @@ import Sidebar from "./components/Sidebar";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/login";
 import DashboardMain from "./pages/dashboard";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
 // Lazy load all route components
 const AdminProfile = lazy(() => import("./pages/profile/AdminProfile"));
@@ -110,15 +114,14 @@ const App = () => {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const navigate = useNavigate();
 
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 20 * 60 * 1000,
-        cacheTime: 30 * 60 * 1000,
-        keepPreviousData: true,
-      },
-    },
-  });
+  // const queryClient = new QueryClient({
+  //   defaultOptions: {
+  //     queries: {
+  //       refetchOnWindowFocus: false,
+  //       refetchOnMount: false,
+  //     },
+  //   },
+  // });
 
   React.useEffect(() => {
     if (!isLoggedIn) {
@@ -139,7 +142,7 @@ const App = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <Box sx={{ display: "flex", width: "100%" }}>
         <Box sx={{ display: !isWideScreen ? "none" : "block" }}>
           <Sidebar />
@@ -182,7 +185,7 @@ const App = () => {
           </Box>
         </Box>
       </Box>
-    </QueryClientProvider>
+    </>
   );
 };
 

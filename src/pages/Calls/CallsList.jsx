@@ -36,7 +36,6 @@ const CallsList = () => {
         isDateFilterApplied ? fromDate : "",
         isDateFilterApplied ? toDate : ""
       ),
-    keepPreviousData: true,
   });
 
   // Format data for the table

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getAllHostedUsers,
   updateHostedUserStatus,
@@ -19,45 +20,114 @@ import LoadingBackdrop from "../../../components/LoadingBackdrop";
 import { X, MagnifyingGlass } from "@phosphor-icons/react";
 
 const HostedUsers = () => {
-  const [hostedUsers, setHostedUsers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     severity: "success",
   });
-  const [page, setPage] = useState(1);
-  const [paginationDetails, setPaginationDetails] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
 
-  const fetchAllHostedUsers = async (currentPage, searchQuery = "") => {
-    setIsLoading(true);
-    try {
-      let url = `page=${currentPage}&limit=50`;
-      if (searchQuery) {
-        url = `userName=${searchQuery}`;
-        setIsSearching(true);
+  const queryClient = useQueryClient();
+  const hasAccess = useSelector((state) =>
+    hasPermission(state, "Users", "readAndWrite")
+  );
+
+  // Query keys
+  const hostedUsersKeys = {
+    all: ["hostedUsers"],
+    list: (page, searchTerm) => [...hostedUsersKeys.all, { page, searchTerm }],
+  };
+
+  // Main query for fetching hosted users
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: hostedUsersKeys.list(page, activeSearchTerm),
+    queryFn: async () => {
+      let url;
+      if (isSearching) {
+        url = `userName=${activeSearchTerm}`;
       } else {
-        setIsSearching(false);
+        url = `page=${page}&limit=50`;
       }
+      return getAllHostedUsers(url);
+    },
+    onError: () => handleNotification("Failed to fetch hosted users", "error"),
+  });
 
-      const response = await getAllHostedUsers(url);
-      if (response.status === 200) {
-        setHostedUsers(response?.data?.users);
-        setPaginationDetails(response?.data?.pagination);
-      }
-    } catch (error) {
-      handleErrorNotification("Failed to fetch hosted users");
-    } finally {
-      setIsLoading(false);
-    }
+  const hostedUsers = response?.data?.users || [];
+  const paginationDetails = response?.data?.pagination || {};
+
+  // Status update mutation
+  const statusMutation = useMutation({
+    mutationFn: ({ hostedUserId, status }) =>
+      updateHostedUserStatus({ hostedUserId, status }),
+    onMutate: async ({ hostedUserId, status }) => {
+      await queryClient.cancelQueries(
+        hostedUsersKeys.list(page, activeSearchTerm)
+      );
+
+      const previousData = queryClient.getQueryData(
+        hostedUsersKeys.list(page, activeSearchTerm)
+      );
+
+      // Optimistically update
+      queryClient.setQueryData(
+        hostedUsersKeys.list(page, activeSearchTerm),
+        (old) => ({
+          ...old,
+          data: {
+            ...old.data,
+            users: old.data.users.map((user) =>
+              user._id === hostedUserId ? { ...user, status } : user
+            ),
+          },
+        })
+      );
+
+      return { previousData };
+    },
+    onError: (error, variables, context) => {
+      queryClient.setQueryData(
+        hostedUsersKeys.list(page, activeSearchTerm),
+        context.previousData
+      );
+      handleNotification("Failed to update user status", "error");
+    },
+    onSuccess: (data, { status }) => {
+      handleNotification(`User ${status} successfully`, "success");
+    },
+  });
+
+  const handleNotification = (message, severity) => {
+    setNotification({
+      open: true,
+      message,
+      severity,
+    });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleStatusChange = (userId, newStatus) => {
+    statusMutation.mutate({
+      hostedUserId: userId,
+      status: newStatus,
+    });
   };
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
+      setIsSearching(true);
       setPage(1);
-      fetchAllHostedUsers(1, searchTerm.trim());
+      setActiveSearchTerm(searchTerm.trim());
     }
   };
 
@@ -67,87 +137,20 @@ const HostedUsers = () => {
 
   const handleClearSearch = () => {
     setSearchTerm("");
+    setActiveSearchTerm("");
     setIsSearching(false);
     setPage(1);
-    fetchAllHostedUsers(1, "");
-  };
-
-  const handleStatusChange = async (userId, newStatus) => {
-    const currentUser = hostedUsers.find((user) => user._id === userId);
-    const originalStatus = currentUser.status;
-
-    setHostedUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user._id === userId ? { ...user, status: newStatus } : user
-      )
-    );
-
-    try {
-      const response = await updateHostedUserStatus({
-        hostedUserId: userId,
-        status: newStatus,
-      });
-
-      if (response.status !== 200) {
-        throw new Error("Status update failed");
-      }
-
-      handleSuccessNotification(`User ${newStatus} successfully`);
-    } catch (error) {
-      setHostedUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user._id === userId ? { ...user, status: originalStatus } : user
-        )
-      );
-
-      handleErrorNotification("Failed to update user status");
-    }
-  };
-
-  const handleSuccessNotification = (message) => {
-    setNotification({
-      open: true,
-      message,
-      severity: "success",
-    });
-  };
-
-  const handleErrorNotification = (message) => {
-    setNotification({
-      open: true,
-      message,
-      severity: "error",
-    });
-  };
-
-  const handleCloseNotification = () => {
-    setNotification((prev) => ({ ...prev, open: false }));
-  };
-
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-    if (isSearching) {
-      fetchAllHostedUsers(newPage, searchTerm);
-    } else {
-      fetchAllHostedUsers(newPage);
-    }
   };
 
   const formatUsersForDataTable = () => {
-    return hostedUsers
-      ?.filter((user) => user.status !== "declined")
-      .map((user) => ({
-        userId: user?._id,
-        username: user?.username,
-        phone: user?.mobileNumber,
-        status: user?.status,
-        action: { userId: user?._id, status: user?.status },
-      }));
+    return hostedUsers?.map((user) => ({
+      userId: user?._id,
+      username: user?.username,
+      phone: user?.mobileNumber,
+      status: user?.status,
+      action: { userId: user?._id, status: user?.status },
+    }));
   };
-
-  const hasAccess = useSelector((state) =>
-    hasPermission(state, "Users", "readAndWrite")
-  );
 
   const columns = [
     { field: "userId", headerName: "User Id" },
@@ -210,12 +213,8 @@ const HostedUsers = () => {
     },
   ];
 
-  useEffect(() => {
-    fetchAllHostedUsers(page);
-  }, []); // Initial load only
-
   return (
-    <LoadingBackdrop open={isLoading}>
+    <LoadingBackdrop open={isLoading || isFetching}>
       <Box
         sx={{
           display: "flex",
@@ -230,7 +229,7 @@ const HostedUsers = () => {
           size="small"
           value={searchTerm}
           onChange={handleSearchChange}
-          onKeyPress={(e) => {
+          onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleSearch();
             }
@@ -253,36 +252,40 @@ const HostedUsers = () => {
         </Button>
       </Box>
 
-      <Pagination
-        count={paginationDetails?.totalPages}
-        page={page}
-        color="primary"
-        variant="outlined"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 4,
-        }}
-        onChange={handlePageChange}
-      />
+      {!isSearching && (
+        <Pagination
+          count={paginationDetails?.totalPages}
+          page={page}
+          color="primary"
+          variant="outlined"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 4,
+          }}
+          onChange={(e, newPage) => setPage(newPage)}
+        />
+      )}
 
       <DataTable columns={columns} rows={formatUsersForDataTable()} />
 
-      <Pagination
-        count={paginationDetails?.totalPages}
-        page={page}
-        color="primary"
-        variant="outlined"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 2,
-          mt: 4,
-        }}
-        onChange={handlePageChange}
-      />
+      {!isSearching && (
+        <Pagination
+          count={paginationDetails?.totalPages}
+          page={page}
+          color="primary"
+          variant="outlined"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 2,
+            mt: 4,
+          }}
+          onChange={(e, newPage) => setPage(newPage)}
+        />
+      )}
 
       <Snackbar
         open={notification.open}

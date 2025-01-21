@@ -1,6 +1,6 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Button, Tab, Typography, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Userlist from "./UserTabs/Userlist";
 import KycRequests from "./UserTabs/KycRequests";
@@ -18,22 +18,22 @@ const tabs = [
   {
     label: "User List",
     value: "users",
-    component: <Userlist />,
+    component: Userlist,
   },
   {
     label: "Host Requests",
     value: "hosts",
-    component: <HostedUsers />,
+    component: HostedUsers,
   },
   {
     label: "KYC Requests",
     value: "kyc",
-    component: <KycRequests />,
+    component: KycRequests,
   },
   {
     label: "Black List",
     value: "blacklist",
-    component: <BlackLists />,
+    component: BlackLists,
   },
 ];
 
@@ -57,10 +57,6 @@ const Users = () => {
     setValue(newValue);
     navigate(`?tab=${newValue}`);
   };
-
-  useEffect(() => {
-    setValue(defaultTab);
-  }, [defaultTab]);
 
   const isBlocked = useSelector((state) => isModuleBlocked(state, "Users"));
 
@@ -111,8 +107,8 @@ const Users = () => {
           </TabList>
         </Box>
         {tabs.map((tab) => (
-          <TabPanel keepMounted key={tab.value} value={tab.value}>
-            {tab.component}
+          <TabPanel key={tab.value} value={tab.value}>
+            <tab.component key={tab.value} />
           </TabPanel>
         ))}
       </TabContext>

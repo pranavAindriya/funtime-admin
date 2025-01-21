@@ -10,30 +10,23 @@ import TopSellingPackages from "../../components/TopSellingPackages";
 import { getDashboardData } from "../../service/allApi";
 import DataTable from "../../components/DataTable";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
+import {
+  useQuery,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
 const DashboardMain = () => {
-  const [dashboardData, setDashboardData] = useState({
-    totalRevenue: 0,
-    totalExpense: 0,
-    totalTransactions: 0,
-    totalProfit: 0,
-    transactions: [],
+  const {
+    data: dashboardData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["dashboardData"],
+    queryFn: getDashboardData,
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 15 * 60 * 1000,
   });
-  const [ApiSuccess, setApiSuccess] = useState(false);
-
-  const fetchDashboardData = async () => {
-    setApiSuccess(false);
-    const response = await getDashboardData();
-    console.log(response);
-    if (response.status === 200) {
-      setDashboardData(response.data);
-    }
-    setApiSuccess(true);
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
 
   const columns = [
     { field: "userId", headerName: "User ID" },
@@ -60,30 +53,35 @@ const DashboardMain = () => {
     {
       icon: Rupee,
       label: "Total Revenue",
-      amount: dashboardData?.totalRevenue,
+      amount: dashboardData?.data?.totalRevenue || 0,
     },
     {
       icon: TotalSales,
       label: "Total Users",
-      amount: dashboardData?.totalExpense,
+      amount: dashboardData?.data?.totalExpense || 0,
     },
     {
       icon: TotalReturn,
       label: "Total Withdrawal",
-      amount: dashboardData?.totalTransactions,
+      amount: dashboardData?.data?.totalTransactions || 0,
     },
     {
       icon: TotalShops,
       label: "Total Profits",
-      amount: dashboardData?.totalProfit,
+      amount: dashboardData?.data?.totalProfit || 0,
     },
   ];
 
+  if (isError) {
+    return (
+      <Typography>Error fetching data. Please try again later.</Typography>
+    );
+  }
+
+  console.log(dashboardData);
+
   return (
-    <LoadingBackdrop
-      open={!ApiSuccess}
-      style={{ width: "100%", marginInline: "auto" }}
-    >
+    <LoadingBackdrop open={isLoading}>
       <p style={{ fontWeight: 600, fontSize: "20px" }}>Quick View</p>
       <Box
         sx={{
@@ -121,7 +119,7 @@ const DashboardMain = () => {
           }}
         >
           <DashboardLinechart
-            transactions={dashboardData.transactions.slice(0, 10)}
+            transactions={dashboardData?.data?.transactions?.slice(0, 10) || []}
           />
         </Box>
 
@@ -140,7 +138,9 @@ const DashboardMain = () => {
           </p>
           <Box height={"100%"}>
             <TopSellingPackages
-              transactions={dashboardData.transactions.slice(0, 5)}
+              transactions={
+                dashboardData?.data?.transactions?.slice(0, 5) || []
+              }
             />
           </Box>
         </Box>
