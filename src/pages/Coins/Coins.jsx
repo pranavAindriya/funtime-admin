@@ -178,7 +178,7 @@ const Coins = () => {
 
   const formattedCoinRows = formatedCoinsForDataTable();
 
-  const isBlocked = useSelector((state) => isModuleBlocked(state, "Coins"));
+  const isBlocked = useSelector((state) => isModuleBlocked(state, "Coin"));
 
   if (isBlocked) {
     return (
