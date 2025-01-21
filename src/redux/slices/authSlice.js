@@ -63,9 +63,14 @@ export const hasPermission = (
   return permissions.readOnly || permissions.readAndWrite;
 };
 
-export const isModuleBlocked = (state, module) => {
+export const isModuleBlocked = (store) => (state, module) => {
   if (module === "Dashboard") return false;
-  return state?.auth?.blockedModules[module] || false;
+  // return state?.auth?.blockedModules[module] || false;
+  if (state?.auth?.blockedModules) {
+    return state.auth.blockedModules[module] || false;
+  }
+  store.dispatch(setLogout());
+  return false;
 };
 
 export const { setLogin, setLogout } = authSlice.actions;
