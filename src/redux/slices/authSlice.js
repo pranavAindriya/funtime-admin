@@ -6,6 +6,7 @@ const initialState = {
   role: null,
   permissions: {},
   userId: null,
+  blockedModules: {},
 };
 
 const authSlice = createSlice({
@@ -63,14 +64,13 @@ export const hasPermission = (
   return permissions.readOnly || permissions.readAndWrite;
 };
 
-export const isModuleBlocked = (store) => (state, module) => {
+export const isModuleBlocked = (state, module) => {
   if (module === "Dashboard") return false;
   // return state?.auth?.blockedModules[module] || false;
   if (state?.auth?.blockedModules) {
     return state.auth.blockedModules[module] || false;
   }
-  store.dispatch(setLogout());
-  return false;
+  return true;
 };
 
 export const { setLogin, setLogout } = authSlice.actions;
