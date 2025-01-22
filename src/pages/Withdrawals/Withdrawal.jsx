@@ -29,6 +29,9 @@ const Withdrawal = () => {
   const searchParams = new URLSearchParams(location.search);
   const defaultTab = searchParams.get("tab") || "pending";
 
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split("T")[0];
+
   // Separate states for each status
   const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
   const [approvedWithdrawals, setApprovedWithdrawals] = useState([]);
@@ -46,6 +49,10 @@ const Withdrawal = () => {
   });
   const [loading, setLoading] = useState(false);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [filterParams, setFilterParams] = useState({
+    startDate: "",
+    endDate: "",
+  });
 
   // Helper function to get the appropriate setState function based on status
   const getSetStateFunction = (status) => {
@@ -61,20 +68,6 @@ const Withdrawal = () => {
     }
   };
 
-  // Helper function to get the appropriate state data based on status
-  const getStateData = (status) => {
-    switch (status) {
-      case "pending":
-        return pendingWithdrawals;
-      case "approved":
-        return approvedWithdrawals;
-      case "rejected":
-        return rejectedWithdrawals;
-      default:
-        return pendingWithdrawals;
-    }
-  };
-
   const handleChange = async (event, newValue) => {
     setValue(newValue);
     navigate(`?tab=${newValue}`);
@@ -85,8 +78,8 @@ const Withdrawal = () => {
     setLoading(true);
     try {
       let queryParams = `status=${status}&page=${page}&limit=${limit}`;
-      if (isFilterApplied && startDate && endDate) {
-        queryParams += `&fromDate=${startDate}&toDate=${endDate}`;
+      if (isFilterApplied && filterParams.startDate && filterParams.endDate) {
+        queryParams += `&fromDate=${filterParams.startDate}&toDate=${filterParams.endDate}`;
       }
       const response = await getWithdrawalHistory(queryParams);
       if (response.status === 200) {
@@ -111,8 +104,8 @@ const Withdrawal = () => {
     try {
       const response = await exportWitrhdrawalData(
         value,
-        isFilterApplied ? startDate : "",
-        isFilterApplied ? endDate : ""
+        filterParams.startDate,
+        filterParams.endDate
       );
 
       if (response.status === 200) {
@@ -135,9 +128,12 @@ const Withdrawal = () => {
 
   const handleApplyFilter = () => {
     if (startDate && endDate) {
+      setFilterParams({
+        startDate,
+        endDate,
+      });
       setIsFilterApplied(true);
       setPage(1);
-      fetchWithdrawalHistory();
     } else {
       alert("Please select both start and end dates.");
     }
@@ -146,9 +142,12 @@ const Withdrawal = () => {
   const handleClearFilter = () => {
     setStartDate("");
     setEndDate("");
+    setFilterParams({
+      startDate: "",
+      endDate: "",
+    });
     setIsFilterApplied(false);
     setPage(1);
-    fetchWithdrawalHistory();
   };
 
   const handlePageChange = (event, newPage) => {
@@ -212,7 +211,7 @@ const Withdrawal = () => {
   useEffect(() => {
     setValue(defaultTab);
     fetchWithdrawalHistory(defaultTab);
-  }, [defaultTab, page, limit, isFilterApplied]);
+  }, [defaultTab, page, limit, isFilterApplied, filterParams]);
 
   const isBlocked = useSelector((state) =>
     isModuleBlocked(state, "Withdrawal")
@@ -255,7 +254,7 @@ const Withdrawal = () => {
                 shrink: true,
               }}
               inputProps={{
-                max: endDate || undefined,
+                max: endDate || today,
               }}
             />
             <TextField
@@ -269,6 +268,7 @@ const Withdrawal = () => {
               }}
               inputProps={{
                 min: startDate || undefined,
+                max: today,
               }}
             />
             <Button

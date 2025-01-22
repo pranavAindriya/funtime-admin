@@ -1,5 +1,12 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Button, Tab, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Collapse,
+  Tab,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Userlist from "./UserTabs/Userlist";
@@ -79,20 +86,22 @@ const Users = () => {
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
-      {hasAccess && (
-        <Button
-          variant="contained"
-          sx={{
-            display: "flex",
-            gap: "5px",
-            marginLeft: "auto",
-          }}
-          onClick={() => navigate("/users/add")}
-        >
-          <Plus size={18} />
-          Add New
-        </Button>
-      )}
+      <Collapse in={value === "users"}>
+        {hasAccess && (
+          <Button
+            variant="contained"
+            sx={{
+              display: "flex",
+              gap: "5px",
+              marginLeft: "auto",
+            }}
+            onClick={() => navigate("/users/add")}
+          >
+            <Plus size={18} />
+            Add New
+          </Button>
+        )}
+      </Collapse>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
