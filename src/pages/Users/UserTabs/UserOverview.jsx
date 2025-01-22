@@ -91,7 +91,7 @@ export default function UserOverview() {
     slno: index + 1,
     date: formatDate(call?.createdAt),
     time: formatTime(call?.createdAt),
-    userId: call?.fromUserId?.username,
+    userId: call?.fromUserId?._id,
     userName: call?.fromUserId?.username,
     duration: `${call?.callDurationMinutes} min`,
     diamondsEarned: call?.heartsTransferred,
@@ -168,7 +168,7 @@ export default function UserOverview() {
 
   return (
     <Box>
-      <IconButton sx={{ mb: 2 }} onClick={() => navigate(-1)}>
+      <IconButton sx={{ mb: 2 }} onClick={() => navigate("/users?tab=users")}>
         <ArrowLeft color="black" />
       </IconButton>
       {/* User Profile Section */}
