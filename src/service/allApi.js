@@ -28,13 +28,22 @@ export const updateVersion = (id, data) => {
 
 export const getAllUsers = async (pageOrSearch, limit = 10) => {
   let url;
+
   if (typeof pageOrSearch === "string") {
-    url = `api/users/getUsersTest?username=${pageOrSearch}`;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(pageOrSearch);
+
+    if (isObjectId) {
+      url = `api/users/getUsersTest?userId=${pageOrSearch}`;
+    } else {
+      url = `api/users/getUsersTest?username=${pageOrSearch}`;
+    }
   } else {
     url = `api/users/getUsersTest?page=${pageOrSearch}&limit=${limit}`;
   }
+
   return commonRequest("GET", url);
 };
+
 export const getUserById = async (id) => {
   return commonRequest("GET", `api/users/getUserDataByUserId/${id}`);
 };

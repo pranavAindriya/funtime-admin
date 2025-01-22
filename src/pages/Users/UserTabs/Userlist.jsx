@@ -9,6 +9,10 @@ import {
   Pagination,
   TextField,
   Button,
+  Select,
+  MenuItem,
+  InputAdornment,
+  Divider,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { blockUser, getAllUsers } from "../../../service/allApi";
@@ -22,8 +26,9 @@ import { Slide, toast } from "react-toastify";
 const Userlist = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeSearchTerm, setActiveSearchTerm] = useState(""); // New state for active search
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [searchType, setSearchType] = useState("username");
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -32,7 +37,12 @@ const Userlist = () => {
   // Define query key factory
   const userQueryKeys = {
     all: ["users"],
-    list: (page, searchTerm) => [...userQueryKeys.all, { page, searchTerm }],
+    list: (page) => [...userQueryKeys.all, { page }],
+    search: (searchTerm, searchType) => [
+      ...userQueryKeys.all,
+      "search",
+      { searchTerm, searchType },
+    ],
   };
 
   // Main query for fetching users
@@ -41,9 +51,16 @@ const Userlist = () => {
     isLoading,
     isFetching,
   } = useQuery({
-    queryKey: userQueryKeys.list(page, activeSearchTerm), // Use activeSearchTerm instead of searchTerm
-    queryFn: () =>
-      isSearching ? getAllUsers(activeSearchTerm) : getAllUsers(page, 50),
+    queryKey: isSearching
+      ? userQueryKeys.search(activeSearchTerm, searchType)
+      : userQueryKeys.list(page),
+    queryFn: () => {
+      if (isSearching) {
+        return getAllUsers(activeSearchTerm);
+      }
+      return getAllUsers(page, 50);
+    },
+    keepPreviousData: true,
   });
 
   // Extract data from response
@@ -55,33 +72,27 @@ const Userlist = () => {
     mutationFn: ({ userId, blocked }) =>
       blockUser(adminUserId, userId, blocked),
     onMutate: async ({ userId, blocked }) => {
-      await queryClient.cancelQueries(
-        userQueryKeys.list(page, activeSearchTerm)
-      );
-      const previousUsers = queryClient.getQueryData(
-        userQueryKeys.list(page, activeSearchTerm)
-      );
+      const queryKey = isSearching
+        ? userQueryKeys.search(activeSearchTerm, searchType)
+        : userQueryKeys.list(page);
 
-      queryClient.setQueryData(
-        userQueryKeys.list(page, activeSearchTerm),
-        (old) => ({
-          ...old,
-          data: {
-            ...old.data,
-            users: old.data.users.map((user) =>
-              user._id === userId ? { ...user, blocked } : user
-            ),
-          },
-        })
-      );
+      await queryClient.cancelQueries(queryKey);
+      const previousUsers = queryClient.getQueryData(queryKey);
 
-      return { previousUsers };
+      queryClient.setQueryData(queryKey, (old) => ({
+        ...old,
+        data: {
+          ...old.data,
+          users: old.data.users.map((user) =>
+            user._id === userId ? { ...user, blocked } : user
+          ),
+        },
+      }));
+
+      return { previousUsers, queryKey };
     },
     onError: (err, { userId, blocked }, context) => {
-      queryClient.setQueryData(
-        userQueryKeys.list(page, activeSearchTerm),
-        context.previousUsers
-      );
+      queryClient.setQueryData(context.queryKey, context.previousUsers);
       toast.error("Failed to update user block status", {
         autoClose: 1000,
         transition: Slide,
@@ -114,7 +125,12 @@ const Userlist = () => {
     if (searchTerm.trim()) {
       setIsSearching(true);
       setPage(1);
-      setActiveSearchTerm(searchTerm.trim()); // Update activeSearchTerm only when search is triggered
+      setActiveSearchTerm(searchTerm.trim());
+      // Prefetch the next page
+      queryClient.prefetchQuery({
+        queryKey: userQueryKeys.search(searchTerm.trim(), searchType),
+        queryFn: () => getAllUsers(searchTerm.trim()),
+      });
     }
   };
 
@@ -127,6 +143,10 @@ const Userlist = () => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleSearchTypeChange = (e) => {
+    setSearchType(e.target.value);
   };
 
   const handleKeyDown = (e) => {
@@ -218,24 +238,40 @@ const Userlist = () => {
         }}
       >
         <TextField
-          label="Search by username"
+          label="Search users"
           variant="outlined"
           size="small"
           value={searchTerm}
           onChange={handleSearchChange}
           onKeyDown={handleKeyDown}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <>
-                  {searchTerm && (
-                    <IconButton size="small" onClick={handleClearSearch}>
-                      <X />
-                    </IconButton>
-                  )}
-                </>
-              ),
-            },
+          sx={{ minWidth: 300 }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                {searchTerm && (
+                  <IconButton size="small" onClick={handleClearSearch}>
+                    <X />
+                  </IconButton>
+                )}
+                {/* <Divider sx={{ height: 24, mx: 1 }} orientation="vertical" />
+                <Select
+                  disableUnderline
+                  value={searchType}
+                  onChange={handleSearchTypeChange}
+                  variant="standard"
+                  sx={{
+                    "& .MuiSelect-select": {
+                      py: 0,
+                      border: "none",
+                      backgroundColor: "transparent",
+                    },
+                  }}
+                >
+                  <MenuItem value="username">Username</MenuItem>
+                  <MenuItem value="userId">User ID</MenuItem>
+                </Select> */}
+              </InputAdornment>
+            ),
           }}
         />
         <Button
