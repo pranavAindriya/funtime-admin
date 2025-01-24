@@ -303,6 +303,28 @@ export const getTdsReports = async ({
   );
 };
 
+// Banner
+
+export const getAllBanner = async () => {
+  return commonRequest("GET", "api/users/getAllBannerList");
+};
+
+export const updateBannerStatus = async ({ id, status }) => {
+  return commonRequest("PUT", `api/users/updateBannerList/${id}`, { status });
+};
+
+export const deleteBannerList = async (id) => {
+  return commonRequest("DELETE", `api/users/deleteBannerList/${id}`);
+};
+
+export const getBannerById = async (id) => {
+  return commonRequest("GET", `api/users/getBannerListById/${id}`);
+};
+
+export const createBannerList = (data, header) => {
+  return commonRequest("POST", "api/users/createBannerList", data, header);
+};
+
 // Coin
 
 export const getCoinList = async () => {
