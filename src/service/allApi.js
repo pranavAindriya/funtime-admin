@@ -303,6 +303,20 @@ export const getTdsReports = async ({
   );
 };
 
+// Host Users
+
+export const getAllHostUsers = async (language) => {
+  return commonRequest("GET", `api/users/hostUsersList?language=${language}`);
+};
+
+export const updateHostHeartBalance = async (userId, payload) => {
+  return commonRequest(
+    "PUT",
+    `api/users/updateHostHeartBalance/${userId}`,
+    payload
+  );
+};
+
 // Banner
 
 export const getAllBanner = async () => {

@@ -56,7 +56,6 @@ const LanguageList = () => {
   const fetchAllLanguages = async () => {
     setIsLoading(true);
     const response = await getAllLanguages();
-    console.log(response.data);
     if (response.status === 200) {
       setLanguages(response.data.languages);
     }

@@ -20,6 +20,7 @@ import {
   userPermissions,
 } from "../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
+import HostUsers from "./UserTabs/HostUsers";
 
 const tabs = [
   {
@@ -31,6 +32,11 @@ const tabs = [
     label: "Host Requests",
     value: "hosts",
     component: HostedUsers,
+  },
+  {
+    label: "Host Users",
+    value: "hostusers",
+    component: HostUsers,
   },
   {
     label: "KYC Requests",
