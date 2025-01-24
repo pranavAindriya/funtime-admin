@@ -8,11 +8,6 @@ import Sidebar from "./components/Sidebar";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/login";
 import DashboardMain from "./pages/dashboard";
-import {
-  keepPreviousData,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
 
 // Lazy load all route components
 const AdminProfile = lazy(() => import("./pages/profile/AdminProfile"));
@@ -31,6 +26,9 @@ const Leaderboard = lazy(() => import("./pages/LeaderBoard/Leaderboard"));
 const AddNewLeaderboard = lazy(() =>
   import("./pages/LeaderBoard/AddNewLeaderboard")
 );
+const Banner = lazy(() => import("./pages/Banner/Banner"));
+const AddNewBanner = lazy(() => import("./pages/Banner/AddNewBanner"));
+const TdsReport = lazy(() => import("./pages/TDS Report/TdsReport"));
 const Conversion = lazy(() => import("./pages/Conversion/Conversion"));
 const UserRoles = lazy(() => import("./pages/Admin/UserRoles/UserRoles"));
 const Notifications = lazy(() => import("./pages/notifications/Notifications"));
@@ -55,6 +53,7 @@ const routes = [
   { path: "/language", component: LanguageList },
   { path: "/notifications", component: Notifications },
   { path: "/reportandblock", component: ReportAndBlock },
+  { path: "/banner", component: Banner },
   { path: "/cms", component: CMSPage },
   { path: "/settings", component: Settings },
   { path: "/leaderboard", component: Leaderboard },
@@ -62,6 +61,7 @@ const routes = [
   { path: "/conversion", component: Conversion },
   { path: "/calls", component: CallsList },
   { path: "/reports", component: Reports },
+  { path: "/tdsreport", component: TdsReport },
   { path: "/user-roles", component: UserRoles },
   // Users routes
   { path: "/users/add", component: AddNewUser },
@@ -73,6 +73,9 @@ const routes = [
   { path: "/admin/:type/:id", component: AddNewAdmin },
   { path: "/admin/addnewrole", component: AddNewRole },
   { path: "/admin/role/:type/:id", component: AddNewRole },
+  // Banner routes
+  { path: "/banner/:type/:id", component: AddNewBanner },
+  { path: "/banner/addnewbanner", component: AddNewBanner },
   // Coins routes
   { path: "/coins/add", component: AddNewCoin },
   { path: "/coins/:type/:id", component: AddNewCoin },

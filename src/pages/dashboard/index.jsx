@@ -24,8 +24,8 @@ const DashboardMain = () => {
   } = useQuery({
     queryKey: ["dashboardData"],
     queryFn: getDashboardData,
-    staleTime: 10 * 60 * 1000,
-    cacheTime: 15 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
+    cacheTime: 60 * 60 * 1000,
   });
 
   const columns = [
@@ -58,7 +58,8 @@ const DashboardMain = () => {
     {
       icon: TotalSales,
       label: "Total Users",
-      amount: dashboardData?.data?.totalExpense || 0,
+      amount: dashboardData?.data?.totalUsers || 0,
+      disableRupeeSymbol: true,
     },
     {
       icon: TotalReturn,
@@ -98,6 +99,7 @@ const DashboardMain = () => {
             label={item.label}
             key={index}
             amount={item.amount}
+            disableRupeeSymbol={item.disableRupeeSymbol}
           />
         ))}
       </Box>

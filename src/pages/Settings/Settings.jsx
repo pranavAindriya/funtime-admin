@@ -11,6 +11,8 @@ import { Slide, toast, ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
 
+const versionId = "6788be30a4a8627bf19d6082";
+
 const Settings = () => {
   const [settingDetails, setSettingsDetails] = useState({
     razorPayKey: "",
@@ -44,7 +46,7 @@ const Settings = () => {
   };
 
   const fetchVersion = async () => {
-    const response = await getVersionById("6788be30a4a8627bf19d6082");
+    const response = await getVersionById(versionId);
     if (response.status === 200) {
       setVersionDetails({
         versionNumber: response.data.version.versionNumber,
@@ -77,7 +79,7 @@ const Settings = () => {
   };
 
   const handleVersionSave = async () => {
-    const response = await updateVersion("6788be30a4a8627bf19d6082", {
+    const response = await updateVersion(versionId, {
       versionNumber: versionDetails.versionNumber,
     });
     if (response.status === 200) {

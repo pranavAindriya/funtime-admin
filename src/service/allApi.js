@@ -283,6 +283,26 @@ export const deleteReportReason = async (id) => {
   return commonRequest("DELETE", `api/users/deleteReportReason/${id}`);
 };
 
+// TDS Reports
+
+export const getTdsReports = async ({
+  startDate,
+  endDate,
+  page,
+  limit,
+} = {}) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+  params.append("page", page);
+  params.append("limit", limit);
+
+  return commonRequest(
+    "GET",
+    `api/users/getTdsWithdrawData?${params.toString()}`
+  );
+};
+
 // Coin
 
 export const getCoinList = async () => {

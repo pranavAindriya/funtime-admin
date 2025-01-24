@@ -1,14 +1,33 @@
-<svg width="65" height="65" viewBox="0 0 65 65" fill="none" xmlns="http://www.w3.org/2000/svg">
-<ellipse cx="32.6789" cy="32.1038" rx="31.7549" ry="32.0144" fill="#EAF7FC" style="fill:#EAF7FC;fill:color(display-p3 0.9176 0.9686 0.9882);fill-opacity:1;"/>
-<g clip-path="url(#clip0_1976_1432)">
-<path d="M40.5 40.25H25.5C25.3011 40.25 25.1103 40.171 24.9697 40.0303C24.829 39.8897 24.75 39.6989 24.75 39.5V26.75L26.25 23.75H39.75L41.25 26.75V39.5C41.25 39.6989 41.171 39.8897 41.0303 40.0303C40.8897 40.171 40.6989 40.25 40.5 40.25Z" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M24.75 26.75H41.25" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M33 29.75V37.25" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M30 34.25L33 37.25L36 34.25" stroke="#003451" style="stroke:#003451;stroke:color(display-p3 0.0000 0.2039 0.3176);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="64" height="65" viewBox="0 0 64 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="64" height="65" fill="#4C4C4C"/>
+<g clip-path="url(#clip0_768_1029)">
+<rect width="1440" height="1024" transform="translate(-857 -189)" fill="white"/>
+<g filter="url(#filter0_d_768_1029)">
+<rect x="-21.0264" y="-27.7822" width="254.039" height="129.564" rx="10.5459" fill="white"/>
+</g>
+<ellipse cx="31.7549" cy="32.1038" rx="31.7549" ry="32.0144" fill="#FCEAFA"/>
+<g clip-path="url(#clip1_768_1029)">
+<path d="M22 39H18C17.7348 39 17.4804 38.8946 17.2929 38.7071C17.1054 38.5196 17 38.2652 17 38V33C17 32.7348 17.1054 32.4804 17.2929 32.2929C17.4804 32.1054 17.7348 32 18 32H22" stroke="#E94057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M30 33H34L42.375 31.0738C42.6829 30.9894 43.0061 30.9771 43.3195 31.038C43.6329 31.0989 43.9281 31.2312 44.182 31.4247C44.436 31.6181 44.6419 31.8676 44.7838 32.1536C44.9256 32.4396 44.9996 32.7545 45 33.0738C45.0002 33.4592 44.8929 33.8371 44.6902 34.165C44.4875 34.4929 44.1974 34.7578 43.8525 34.93L39 37L31 39H22V32L25.125 28.875C25.4043 28.5967 25.7358 28.3761 26.1004 28.226C26.465 28.0758 26.8557 27.999 27.25 28H33.5C34.163 28 34.7989 28.2634 35.2678 28.7322C35.7366 29.2011 36 29.837 36 30.5C36 31.1631 35.7366 31.7989 35.2678 32.2678C34.7989 32.7366 34.163 33 33.5 33H30Z" stroke="#E94057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M40 16V26" stroke="#E94057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M44 22L40 26L36 22" stroke="#E94057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
 </g>
 <defs>
-<clipPath id="clip0_1976_1432">
-<rect width="24" height="24" fill="white" style="fill:white;fill-opacity:1;" transform="translate(21 20)"/>
+<filter id="filter0_d_768_1029" x="-24.0395" y="-27.7822" width="260.065" height="135.591" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="3.01312"/>
+<feGaussianBlur stdDeviation="1.50656"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_768_1029"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_768_1029" result="shape"/>
+</filter>
+<clipPath id="clip0_768_1029">
+<rect width="1440" height="1024" fill="white" transform="translate(-857 -189)"/>
+</clipPath>
+<clipPath id="clip1_768_1029">
+<rect width="32" height="32" fill="white" transform="translate(16 13)"/>
 </clipPath>
 </defs>
 </svg>

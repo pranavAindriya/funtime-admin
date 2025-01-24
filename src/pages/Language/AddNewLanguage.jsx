@@ -11,6 +11,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { hasPermission } from "../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
+import { Slide, toast } from "react-toastify";
 
 const AddNewLanguage = () => {
   const [languageData, setLanguageData] = useState({
@@ -58,6 +59,10 @@ const AddNewLanguage = () => {
         });
         if (response.status === 200) {
           navigate("/language");
+          toast.success("Language Updated successfully.", {
+            autoClose: 1000,
+            transition: Slide,
+          });
         }
       } else {
         const response = await createNewLanguage({
@@ -66,10 +71,18 @@ const AddNewLanguage = () => {
         });
         if (response.status === 201) {
           navigate("/language");
+          toast.success("Language Created successfully.", {
+            autoClose: 1000,
+            transition: Slide,
+          });
         }
       }
     } catch (error) {
       console.error("Error creating language:", error);
+      toast.error("Error creating language.", {
+        autoClose: 1000,
+        transition: Slide,
+      });
     }
   };
 

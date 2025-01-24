@@ -11,6 +11,8 @@ import {
   ChartPieSlice,
   Translate,
   FileText,
+  CardsThree,
+  Files,
 } from "@phosphor-icons/react";
 
 export const MODULES = {
@@ -18,6 +20,8 @@ export const MODULES = {
   USERS: "Users",
   CALLS: "Calls",
   COINS: "Coin",
+  BANNER: "Banner",
+  TDS: "TDS Report",
   CONVERSION: "Conversion",
   WITHDRAWAL: "Withdrawal",
   LEADERBOARD: "Leader Board",
@@ -78,6 +82,12 @@ export const sidebarItems = [
     module: MODULES.NOTIFICATIONS,
   },
   {
+    text: "Banner",
+    icon: CardsThree,
+    link: "/banner",
+    module: MODULES.BANNER,
+  },
+  {
     text: "Report / Block",
     icon: Shield,
     link: "/reportandblock",
@@ -88,6 +98,12 @@ export const sidebarItems = [
     icon: ChartPieSlice,
     link: "/reports",
     module: MODULES.REPORTS,
+  },
+  {
+    text: "TDS Report",
+    icon: Files,
+    link: "/tdsreport",
+    module: MODULES.TDS,
   },
   {
     text: "Language",
@@ -109,8 +125,10 @@ export const getModuleFromPath = (path) => {
     "/withdrawals": MODULES.WITHDRAWAL,
     "/leaderboard": MODULES.LEADERBOARD,
     "/notifications": MODULES.NOTIFICATIONS,
+    "/banner": MODULES.BANNER,
     "/reportandblock": MODULES.REPORT_BLOCK,
     "/reports": MODULES.REPORTS,
+    "/tdsreport": MODULES.TDS,
     "/language": MODULES.LANGUAGE,
   };
 

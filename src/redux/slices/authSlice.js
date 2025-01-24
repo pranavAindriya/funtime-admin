@@ -22,25 +22,36 @@ const authSlice = createSlice({
         return acc;
       }, {});
       state.userId = role.id;
+      // const allowedModules = new Set(role.access.map((item) => item.module));
+      // state.blockedModules = {
+      //   [MODULES.USERS]: !allowedModules.has(MODULES.USERS),
+      //   [MODULES.CALLS]: !allowedModules.has(MODULES.CALLS),
+      //   [MODULES.COINS]: !allowedModules.has(MODULES.COINS),
+      //   [MODULES.CONVERSION]: !allowedModules.has(MODULES.CONVERSION),
+      //   [MODULES.WITHDRAWAL]: !allowedModules.has(MODULES.WITHDRAWAL),
+      //   [MODULES.LEADERBOARD]: !allowedModules.has(MODULES.LEADERBOARD),
+      //   [MODULES.BANNER]: !allowedModules.has(MODULES.BANNER),
+      //   [MODULES.NOTIFICATIONS]: !allowedModules.has(MODULES.NOTIFICATIONS),
+      //   [MODULES.REPORT_BLOCK]: !allowedModules.has(MODULES.REPORT_BLOCK),
+      //   [MODULES.REPORTS]: !allowedModules.has(MODULES.REPORTS),
+      //   [MODULES.TDS]: !allowedModules.has(MODULES.TDS),
+      //   [MODULES.LANGUAGE]: !allowedModules.has(MODULES.LANGUAGE),
+      // };
       const allowedModules = new Set(role.access.map((item) => item.module));
-      state.blockedModules = {
-        [MODULES.USERS]: !allowedModules.has(MODULES.USERS),
-        [MODULES.CALLS]: !allowedModules.has(MODULES.CALLS),
-        [MODULES.COINS]: !allowedModules.has(MODULES.COINS),
-        [MODULES.CONVERSION]: !allowedModules.has(MODULES.CONVERSION),
-        [MODULES.WITHDRAWAL]: !allowedModules.has(MODULES.WITHDRAWAL),
-        [MODULES.LEADERBOARD]: !allowedModules.has(MODULES.LEADERBOARD),
-        [MODULES.NOTIFICATIONS]: !allowedModules.has(MODULES.NOTIFICATIONS),
-        [MODULES.REPORT_BLOCK]: !allowedModules.has(MODULES.REPORT_BLOCK),
-        [MODULES.REPORTS]: !allowedModules.has(MODULES.REPORTS),
-        [MODULES.LANGUAGE]: !allowedModules.has(MODULES.LANGUAGE),
-      };
+
+      state.blockedModules = Object.fromEntries(
+        Object.values(MODULES).map((module) => [
+          module,
+          !allowedModules.has(module),
+        ])
+      );
     },
     setLogout: (state) => {
       state.isLoggedIn = false;
       state.role = null;
       state.permissions = {};
       state.userId = null;
+      state.blockedModules = {};
     },
   },
 });

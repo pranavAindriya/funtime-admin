@@ -1,7 +1,13 @@
 import React from "react";
 import { Box, ButtonBase } from "@mui/material";
 
-const DashboardCards = ({ label, icon, amount, renderIcon }) => {
+const DashboardCards = ({
+  label,
+  icon,
+  amount,
+  renderIcon,
+  disableRupeeSymbol,
+}) => {
   return (
     <Box>
       <ButtonBase
@@ -35,7 +41,8 @@ const DashboardCards = ({ label, icon, amount, renderIcon }) => {
                 padding: 0,
               }}
             >
-              ₹{amount}
+              {!disableRupeeSymbol && "₹"}
+              {amount}
             </p>
           ) : (
             <p
@@ -46,7 +53,7 @@ const DashboardCards = ({ label, icon, amount, renderIcon }) => {
                 padding: 0,
               }}
             >
-              ₹0
+              {!disableRupeeSymbol && "₹"}0
             </p>
           )}
           <p

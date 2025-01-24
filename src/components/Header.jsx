@@ -1,6 +1,6 @@
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import React, { useState } from "react";
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDown, UserCircle } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { setLogout } from "../redux/slices/authSlice";
 import { useDispatch } from "react-redux";
@@ -58,11 +58,12 @@ const Header = () => {
             src={PlaceholderImage}
             style={{ width: "40px", height: "40px", borderRadius: "12px" }}
           /> */}
+          <UserCircle size={34} />
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              paddingRight: "10px",
+              paddingInline: "5px",
             }}
           >
             <span style={{ fontSize: "12px", fontWeight: 600 }}>Admin</span>

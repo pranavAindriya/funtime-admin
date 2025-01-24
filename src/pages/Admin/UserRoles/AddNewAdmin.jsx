@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import TopAddNewBar from "../../../components/TopAddNewBar";
-import { Box, MenuItem, Select, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 import {
   getAllRoles,
   createNewAdmin,
@@ -11,6 +18,7 @@ import { Slide, toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import { hasPermission } from "../../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
+import { ArrowLeft } from "@phosphor-icons/react";
 
 const AddNewAdmin = () => {
   const [adminData, setAdminData] = useState({
@@ -47,28 +55,46 @@ const AddNewAdmin = () => {
   const validateInput = () => {
     const { name, email, password, role } = adminData;
     if (!name) {
-      toast.error("Name is required.");
+      toast.error("Name is required.", {
+        autoClose: 1000,
+        transition: Slide,
+      });
       return false;
     }
     if (!email) {
-      toast.error("Email is required.");
+      toast.error("Email is required.", {
+        autoClose: 1000,
+        transition: Slide,
+      });
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
+      toast.error("Please enter a valid email address.", {
+        autoClose: 1000,
+        transition: Slide,
+      });
       return false;
     }
     if (!password) {
-      toast.error("Password is required.");
+      toast.error("Password is required.", {
+        autoClose: 1000,
+        transition: Slide,
+      });
       return false;
     }
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
+      toast.error("Password must be at least 6 characters long.", {
+        autoClose: 1000,
+        transition: Slide,
+      });
       return false;
     }
     if (!role) {
-      toast.error("Role is required.");
+      toast.error("Role is required.", {
+        autoClose: 1000,
+        transition: Slide,
+      });
       return false;
     }
     return true;
@@ -156,10 +182,22 @@ const AddNewAdmin = () => {
   return (
     <div>
       <TopAddNewBar
-        label={"Add New Admin"}
+        label={
+          <>
+            <IconButton
+              onClick={() => navigate(-1)}
+              sx={{
+                mr: 1,
+              }}
+            >
+              <ArrowLeft />
+            </IconButton>
+            <span>Add New Admin</span>
+          </>
+        }
         onAddButtonClick={handleAddNewAdmin}
         hasAccess={hasAccess}
-        buttonLabel={type === "edit" && "Update Admin "}
+        buttonLabel={(type === "edit" && "Update Admin") || "Save"}
       />
 
       <Box display={"flex"} flexDirection={"column"} gap={3}>

@@ -12,7 +12,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Plus, Trash, PencilSimple } from "@phosphor-icons/react";
+import { Plus, Trash, PencilSimple, ArrowLeft } from "@phosphor-icons/react";
 import { useNavigate, useParams } from "react-router-dom";
 import LabeldInputField from "../../../components/LabeldInputField";
 import TopAddNewBar from "../../../components/TopAddNewBar";
@@ -44,67 +44,13 @@ import {
 } from "@phosphor-icons/react";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../../redux/slices/authSlice";
-
-const mainItems = [
-  {
-    text: "Dashboard",
-    icon: <SquaresFour size={26} color="white" />,
-    link: "/dashboard",
-  },
-  { text: "Users", icon: <Users size={26} color="white" />, link: "/users" },
-  { text: "Calls", icon: <Phone size={26} color="white" />, link: "/calls" },
-  {
-    text: "Coin",
-    icon: <HandCoins size={26} color="white" />,
-    link: "/coins",
-  },
-  {
-    text: "Conversion",
-    icon: <Scales size={26} color="white" />,
-    link: "/conversion",
-  },
-  {
-    text: "Withdrawal",
-    icon: <HandArrowDown size={26} color="white" />,
-    link: "/withdrawals",
-  },
-  {
-    text: "Leader Board",
-    icon: <Trophy size={26} color="white" />,
-    link: "/leaderboard",
-  },
-  {
-    text: "Notifications",
-    icon: <Notification size={26} color="white" />,
-    link: "/notifications",
-  },
-  {
-    text: "Report / Block",
-    icon: <Shield size={26} color="white" />,
-    link: "/reportandblock",
-  },
-  {
-    text: "Reports",
-    icon: <ChartPieSlice size={26} color="white" />,
-    link: "/reports",
-  },
-  {
-    text: "Language",
-    icon: <Translate size={26} color="white" />,
-    link: "/language",
-  },
-  // {
-  //   text: "CMS Page",
-  //   icon: <FileText size={26} color="white" />,
-  //   link: "/cms",
-  // },
-];
+import sidebarItems from "../../../utils/sidebarItems";
 
 const AddNewRole = () => {
   const [roleName, setRoleName] = useState("");
   const [status, setStatus] = useState(true);
   const [accessItems, setAccessItems] = useState(
-    mainItems
+    sidebarItems
       .filter((item) => item.text !== "Dashboard")
       .map((item) => ({
         module: item.text,
@@ -318,11 +264,21 @@ const AddNewRole = () => {
 
       <TopAddNewBar
         label={
-          mode === "create"
-            ? "Add New User Role"
-            : mode === "edit"
-            ? "Edit User Role"
-            : "View User Role"
+          <>
+            <IconButton
+              onClick={() => navigate(-1)}
+              sx={{
+                mr: 1,
+              }}
+            >
+              <ArrowLeft />
+            </IconButton>
+            {mode === "create"
+              ? "Add New User Role"
+              : mode === "edit"
+              ? "Edit User Role"
+              : "View User Role"}
+          </>
         }
         buttonLabel={
           mode === "create"
@@ -434,7 +390,11 @@ const AddNewRole = () => {
               <RadioGroup
                 row
                 value={
-                  item.permissions.readOnly ? "Read Only" : "Read and Write"
+                  item.permissions.readOnly
+                    ? "Read Only"
+                    : item.permissions.readAndWrite
+                    ? "Read and Write"
+                    : null
                 }
                 onChange={(e) =>
                   handleAccessChange(item.module, e.target.value)

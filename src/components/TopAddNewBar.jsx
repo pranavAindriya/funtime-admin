@@ -8,6 +8,7 @@ const TopAddNewBar = ({
   buttonLabel,
   buttonStyles,
   hasAccess,
+  disableAddNewButton,
 }) => {
   return (
     <Box
@@ -34,6 +35,7 @@ const TopAddNewBar = ({
               justifyContent: "center",
               gap: "5px",
             }}
+            disabled={disableAddNewButton}
             onClick={onAddButtonClick}
           >
             {buttonLabel ? (
