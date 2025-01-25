@@ -16,13 +16,22 @@ import {
   InputLabel,
   Box,
 } from "@mui/material";
-import { Pencil, Check, X } from "@phosphor-icons/react";
+import {
+  Pencil,
+  Check,
+  X,
+  PlusCircle,
+  MinusCircle,
+  Plus,
+  Minus,
+} from "@phosphor-icons/react";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 const HostUsers = () => {
   const queryClient = useQueryClient();
   const [editingUserId, setEditingUserId] = useState(null);
-  const [editedHeartBalance, setEditedHeartBalance] = useState(null);
+  const [editedHeartBalance, setEditedHeartBalance] = useState("");
+  const [balanceOperation, setBalanceOperation] = useState("add");
   const [selectedLanguage, setSelectedLanguage] = useState("Malayalam");
 
   const { data: languagesData } = useQuery({
@@ -41,15 +50,21 @@ const HostUsers = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["hostUsers"]);
       setEditingUserId(null);
-      setEditedHeartBalance(null);
+      setEditedHeartBalance("");
+      setBalanceOperation("add");
     },
   });
 
   const handleHeartBalanceChange = (userId) => {
-    if (editedHeartBalance !== null) {
+    if (editedHeartBalance !== "") {
+      const finalValue =
+        balanceOperation === "add"
+          ? parseFloat(editedHeartBalance)
+          : -parseFloat(editedHeartBalance);
+
       updateHeartBalanceMutation.mutate({
         userId,
-        heart: parseFloat(editedHeartBalance),
+        heart: finalValue,
       });
     }
   };
@@ -80,20 +95,43 @@ const HostUsers = () => {
       renderCell: (params) => {
         const isEditing = params.id === editingUserId;
         return isEditing ? (
-          <>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <TextField
-              value={editedHeartBalance ?? params.value}
+              value={editedHeartBalance}
               onChange={(e) => setEditedHeartBalance(e.target.value)}
               variant="standard"
+              placeholder="Enter amount"
+              type="number"
               size="small"
               slotProps={{
-                input: {
+                htmlInput: {
                   style: {
                     width: "auto",
                     minWidth: "40px",
                     maxWidth: "120px",
-                    textAlign: "center",
                   },
+                },
+                input: {
+                  disableUnderline: true,
+                  startAdornment: (
+                    <InputAdornment
+                      position="start"
+                      sx={{
+                        mb: 0.6,
+                      }}
+                    >
+                      <IconButton
+                        onClick={() =>
+                          setBalanceOperation(
+                            balanceOperation === "add" ? "subtract" : "add"
+                          )
+                        }
+                        size="small"
+                      >
+                        {balanceOperation === "add" ? <Plus /> : <Minus />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
@@ -106,7 +144,8 @@ const HostUsers = () => {
                       <IconButton
                         onClick={() => {
                           setEditingUserId(null);
-                          setEditedHeartBalance(null);
+                          setEditedHeartBalance("");
+                          setBalanceOperation("add");
                         }}
                         color="primary"
                         size="small"
@@ -118,7 +157,7 @@ const HostUsers = () => {
                 },
               }}
             />
-          </>
+          </Box>
         ) : (
           params.value
         );
@@ -133,7 +172,8 @@ const HostUsers = () => {
         <IconButton
           onClick={() => {
             setEditingUserId(params);
-            setEditedHeartBalance(null);
+            setEditedHeartBalance("");
+            setBalanceOperation("add");
           }}
         >
           <Pencil />
