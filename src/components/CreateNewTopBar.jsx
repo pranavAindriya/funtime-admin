@@ -21,6 +21,7 @@ const CreateNewTopBar = ({
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
+          gap: 1,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
@@ -29,7 +30,14 @@ const CreateNewTopBar = ({
           </IconButton>
           <span style={{ fontWeight: 700, fontSize: "18px" }}>{label}</span>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "20px",
+            ml: "auto",
+          }}
+        >
           <Button
             variant="outlined"
             color="error"

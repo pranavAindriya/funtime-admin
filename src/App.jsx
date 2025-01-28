@@ -171,7 +171,7 @@ const App = () => {
             handleDrawerToggle={handleDrawerToggle}
           />
 
-          <Box sx={{ padding: theme.spacing(4) }}>
+          <Box sx={{ padding: { xs: theme.spacing(2), lg: theme.spacing(4) } }}>
             <ToastContainer position="top-center" transition="Slide" />
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>

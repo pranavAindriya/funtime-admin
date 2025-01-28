@@ -59,6 +59,8 @@ const UserRoles = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            flexWrap: "wrap",
+            gap: 1,
           }}
         >
           <TabList
@@ -92,7 +94,7 @@ const UserRoles = () => {
               />
             ))}
           </TabList>
-          <Box>
+          <Box ml={"auto"}>
             {value === "1" ? (
               <Button
                 variant="contained"

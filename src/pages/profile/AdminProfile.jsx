@@ -15,27 +15,29 @@ const AdminProfile = () => {
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
       email: Yup.string()
-        .email("Inavlid Email Address")
+        .email("Invalid Email Address")
         .required("Email is required"),
       password: Yup.string().required("Password required"),
       role: Yup.string(),
     }),
     onSubmit: (values) => {
       console.log(values);
-      alert(values);
+      alert(JSON.stringify(values, null, 2));
     },
   });
+
   const [image, setImage] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-
   const inputRef = useRef(null);
+
   return (
-    <Box>
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
+      {/* Profile Image Section */}
       <Box
         sx={{
           position: "relative",
-          width: "160px",
-          height: "160px",
+          width: { xs: 120, md: 160 },
+          height: { xs: 120, md: 160 },
           borderRadius: "50%",
           overflow: "hidden",
           marginInline: "auto",
@@ -48,24 +50,22 @@ const AdminProfile = () => {
               : "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
           }
           style={{
-            position: "absolute",
-            top: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
           }}
-          alt=""
+          alt="Profile"
         />
         <Box
           sx={{
             position: "absolute",
             bottom: 0,
+            bgcolor: "#D9D9D9",
+            width: "100%",
           }}
-          bgcolor={"#D9D9D9"}
-          width={"100%"}
         >
           <IconButton
-            sx={{
-              display: "flex",
-              marginInline: "auto",
-            }}
+            sx={{ display: "flex", marginInline: "auto" }}
             size="small"
             onClick={() => inputRef.current.click()}
           >
@@ -79,38 +79,54 @@ const AdminProfile = () => {
         ref={inputRef}
         onChange={(e) => setImage(e.target.files[0])}
       />
-      <Typography textAlign={"center"} fontWeight={600} fontSize={25} mt={3}>
+
+      {/* Profile Info */}
+      <Typography
+        textAlign="center"
+        fontWeight={600}
+        fontSize={{ xs: 22, md: 25 }}
+        mt={3}
+      >
         Blake Johnson
       </Typography>
-      <Typography textAlign={"center"}>Admin</Typography>
+      <Typography textAlign="center">Admin</Typography>
 
+      {/* Form Section */}
       <Box
         sx={{
-          border: "grey 1px solid",
-          padding: 2,
-          py: 5,
+          border: "1px solid grey",
           borderRadius: "30px",
-          marginInline: "150px",
-          marginBlock: "30px",
+          p: { xs: 3, md: 4 },
+          py: { xs: 3, md: 10 },
+          my: 4,
+          mx: { xs: 0, md: 8, lg: 15 },
           display: "flex",
           flexDirection: "column",
-          gap: 4.5,
+          gap: 4,
         }}
-        component={"form"}
+        component="form"
         onSubmit={formik.handleSubmit}
       >
+        {/* Name Field */}
         <Box
-          display={"flex"}
-          flexGrow={1}
-          flexWrap={"wrap"}
-          alignItems={"center"}
-          gap={2}
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { md: "center" },
+            gap: 2,
+          }}
         >
-          <Typography width={"28%"} pl={15}>
+          <Typography
+            sx={{
+              width: { md: "28%" },
+              pl: { md: 8 },
+              fontSize: { xs: 14, md: 16 },
+            }}
+          >
             Name
           </Typography>
           <TextField
-            sx={{ width: "40%" }}
+            fullWidth
             size="small"
             id="name"
             name="name"
@@ -118,28 +134,31 @@ const AdminProfile = () => {
             onChange={formik.handleChange}
             error={formik.touched.name && Boolean(formik.errors.name)}
             helperText={formik.touched.name && formik.errors.name}
-            slotProps={{
-              formHelperText: {
-                sx: {
-                  position: "absolute",
-                  bottom: -25,
-                },
-              },
-            }}
+            sx={{ maxWidth: { md: "40%" } }}
+            FormHelperTextProps={{ sx: { position: "absolute", bottom: -28 } }}
           />
         </Box>
+
+        {/* Email Field */}
         <Box
-          display={"flex"}
-          flexGrow={1}
-          flexWrap={"wrap"}
-          alignItems={"center"}
-          gap={2}
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { md: "center" },
+            gap: 2,
+          }}
         >
-          <Typography width={"28%"} pl={15}>
+          <Typography
+            sx={{
+              width: { md: "28%" },
+              pl: { md: 8 },
+              fontSize: { xs: 14, md: 16 },
+            }}
+          >
             Email
           </Typography>
           <TextField
-            sx={{ width: "40%" }}
+            fullWidth
             size="small"
             id="email"
             name="email"
@@ -148,74 +167,94 @@ const AdminProfile = () => {
             onChange={formik.handleChange}
             error={formik.touched.email && Boolean(formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
-            slotProps={{
-              formHelperText: {
-                sx: {
-                  position: "absolute",
-                  bottom: -25,
-                },
-              },
-            }}
+            sx={{ maxWidth: { md: "40%" } }}
+            FormHelperTextProps={{ sx: { position: "absolute", bottom: -28 } }}
           />
         </Box>
+
+        {/* Password Field */}
         <Box
-          display={"flex"}
-          flexGrow={1}
-          flexWrap={"wrap"}
-          alignItems={"center"}
-          gap={2}
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { md: "center" },
+            gap: 2,
+          }}
         >
-          <Typography width={"28%"} pl={15}>
+          <Typography
+            sx={{
+              width: { md: "28%" },
+              pl: { md: 8 },
+              fontSize: { xs: 14, md: 16 },
+            }}
+          >
             Password
           </Typography>
-          <TextField
-            sx={{ width: "40%" }}
-            size="small"
-            type={showPassword ? "text" : "password"}
-            id="password"
-            name="password"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            error={formik.touched.password && Boolean(formik.errors.password)}
-            helperText={formik.touched.password && formik.errors.password}
-            slotProps={{
-              formHelperText: {
-                sx: {
-                  position: "absolute",
-                  bottom: -25,
-                },
-              },
-              input: {
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: { md: "40%" },
+              position: "relative",
+            }}
+          >
+            <TextField
+              fullWidth
+              size="small"
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
+              FormHelperTextProps={{
+                sx: { position: "absolute", bottom: -28 },
+              }}
+              InputProps={{
                 endAdornment: (
-                  <IconButton onClick={() => setShowPassword(!showPassword)}>
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    sx={{ p: 0.5 }}
+                  >
                     {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
                   </IconButton>
                 ),
-              },
-            }}
-          />
+              }}
+            />
+          </Box>
           <Button
             color="primary"
             variant="outlined"
             sx={{
-              marginLeft: "10px",
+              width: { xs: "100%", md: "auto" },
+              mt: { xs: 2, md: 0 },
+              ml: { md: 2 },
             }}
           >
             Change Password
           </Button>
         </Box>
+
+        {/* Role Field */}
         <Box
-          display={"flex"}
-          flexGrow={1}
-          flexWrap={"wrap"}
-          alignItems={"center"}
-          gap={2}
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { md: "center" },
+            gap: 2,
+          }}
         >
-          <Typography width={"28%"} pl={15}>
+          <Typography
+            sx={{
+              width: { md: "28%" },
+              pl: { md: 8 },
+              fontSize: { xs: 14, md: 16 },
+            }}
+          >
             Role
           </Typography>
           <TextField
-            sx={{ width: "40%" }}
+            fullWidth
             size="small"
             id="role"
             name="role"
@@ -223,23 +262,19 @@ const AdminProfile = () => {
             onChange={formik.handleChange}
             error={formik.touched.role && Boolean(formik.errors.role)}
             helperText={formik.touched.role && formik.errors.role}
-            slotProps={{
-              formHelperText: {
-                sx: {
-                  position: "absolute",
-                  bottom: -25,
-                },
-              },
-            }}
+            sx={{ maxWidth: { md: "40%" } }}
+            FormHelperTextProps={{ sx: { position: "absolute", bottom: -28 } }}
           />
         </Box>
 
+        {/* Submit Button */}
         <Button
           type="submit"
           variant="contained"
           sx={{
-            width: "max-content",
-            marginInline: "auto",
+            width: { xs: "100%", md: "max-content" },
+            mx: "auto",
+            mt: 2,
           }}
         >
           Update Details

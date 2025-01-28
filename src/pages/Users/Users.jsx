@@ -110,7 +110,11 @@ const Users = () => {
       </Collapse>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
+          <TabList
+            onChange={handleChange}
+            variant="scrollable"
+            scrollButtons="auto"
+          >
             {tabs.map((tab) => (
               <Tab
                 key={tab.value}

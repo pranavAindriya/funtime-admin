@@ -39,7 +39,7 @@ const DashboardLinechart = ({ transactions }) => {
           ? 500
           : window.innerWidth > 600
           ? 350
-          : window.innerWidth - 40;
+          : window.innerWidth - 100;
       setChartWidth(width);
     };
 

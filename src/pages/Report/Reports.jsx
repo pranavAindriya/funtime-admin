@@ -292,53 +292,65 @@ const Report = () => {
 
   return (
     <LoadingBackdrop open={isLoading}>
-      <Typography variant="h4" mb={4}>
+      <Typography mb={4} sx={{ fontWeight: 700, fontSize: "28px" }}>
         Sales Report
       </Typography>
 
-      <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
-        <Chip
-          label="All"
-          onClick={() => handleQuickFilter("all")}
-          color={filter.dateFilter === "all" ? "primary" : "default"}
-        />
-        <Chip
-          label="Today"
-          onClick={() => handleQuickFilter("today")}
-          color={filter.dateFilter === "week" ? "primary" : "default"}
-        />
-        <Chip
-          label="This Week"
-          onClick={() => handleQuickFilter("week")}
-          color={filter.dateFilter === "week" ? "primary" : "default"}
-        />
-        <Chip
-          label="Current Month"
-          onClick={() => handleQuickFilter("currentMonth")}
-          color={
-            filter.dateFilter === "custom" &&
-            filter.startDate === getFirstDayOfMonth()
-              ? "primary"
-              : "default"
-          }
-        />
-        <Chip
-          label="Last Month"
-          onClick={() => handleQuickFilter("lastMonth")}
-          color={
-            filter.dateFilter === "custom" &&
-            filter.startDate === getFirstDayOfLastMonth()
-              ? "primary"
-              : "default"
-          }
-        />
-        <Chip
-          label="Custom Date Range"
-          onClick={() => setOpenDateDialog(true)}
-          color={filter.dateFilter === "custom" ? "primary" : "default"}
-        />
+      <Box
+        display={"flex"}
+        alignItems={"center"}
+        justifyContent={"space-between"}
+        mb={2}
+        flexWrap={"wrap"}
+        gap={1}
+      >
+        <Box display="flex" flexWrap="wrap" gap={1}>
+          <Chip
+            label="All"
+            onClick={() => handleQuickFilter("all")}
+            color={filter.dateFilter === "all" ? "primary" : "default"}
+          />
+          <Chip
+            label="Today"
+            onClick={() => handleQuickFilter("today")}
+            color={filter.dateFilter === "week" ? "primary" : "default"}
+          />
+          <Chip
+            label="This Week"
+            onClick={() => handleQuickFilter("week")}
+            color={filter.dateFilter === "week" ? "primary" : "default"}
+          />
+          <Chip
+            label="Current Month"
+            onClick={() => handleQuickFilter("currentMonth")}
+            color={
+              filter.dateFilter === "custom" &&
+              filter.startDate === getFirstDayOfMonth()
+                ? "primary"
+                : "default"
+            }
+          />
+          <Chip
+            label="Last Month"
+            onClick={() => handleQuickFilter("lastMonth")}
+            color={
+              filter.dateFilter === "custom" &&
+              filter.startDate === getFirstDayOfLastMonth()
+                ? "primary"
+                : "default"
+            }
+          />
+          <Chip
+            label="Custom Date Range"
+            onClick={() => setOpenDateDialog(true)}
+            color={filter.dateFilter === "custom" ? "primary" : "default"}
+          />
+        </Box>
         <Button
-          sx={{ ml: "auto" }}
+          sx={{
+            marginLeft: "auto",
+            marginInline: { xs: "auto", md: 0 },
+          }}
           variant="contained"
           color="primary"
           onClick={() => setOpenExportDialog(true)}

@@ -242,8 +242,16 @@ const Withdrawal = () => {
           alignItems="center"
           justifyContent="space-between"
           mb={2}
+          flexWrap={"wrap"}
+          gap={2}
         >
-          <Box display="flex" gap={2}>
+          <Box
+            display="flex"
+            gap={2}
+            flexWrap={"wrap"}
+            alignItems={"center"}
+            justifyContent={"center"}
+          >
             <TextField
               type="date"
               label="Start Date"
@@ -291,6 +299,7 @@ const Withdrawal = () => {
               variant="contained"
               sx={{
                 marginLeft: "auto",
+                marginInline: { xs: "auto", md: 0 },
               }}
               onClick={handleExport}
             >

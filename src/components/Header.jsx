@@ -52,7 +52,7 @@ const Header = ({ isWideScreen, handleDrawerToggle }) => {
           width: "min-content",
           borderRadius: "12px",
           marginLeft: "auto",
-          marginRight: "50px",
+          marginRight: "20px",
         }}
       >
         <IconButton
@@ -95,7 +95,7 @@ const Header = ({ isWideScreen, handleDrawerToggle }) => {
           keepMounted
           transformOrigin={{
             vertical: "right",
-            horizontal: "left",
+            horizontal: "center",
           }}
           open={Boolean(anchorEl)}
           onClose={handleClose}

@@ -136,7 +136,16 @@ const CallsList = () => {
       <Typography fontSize={22} fontWeight={600} mb={3}>
         Recent Calls List
       </Typography>
-      <Box sx={{ display: "flex", gap: 2, marginBottom: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          marginBottom: 3,
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: { xs: "center", lg: "flex-start" },
+        }}
+      >
         <TextField
           label="Search by Username"
           variant="outlined"

@@ -17,7 +17,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, isWideScreen }) => {
   const location = useLocation();
   const theme = useTheme();
 
-  const drawerWidth = isWideScreen ? "16%" : "50%";
+  const drawerWidth = isWideScreen ? "16%" : "70%";
 
   const getListItemStyle = (link) => ({
     backgroundColor:

@@ -232,7 +232,7 @@ const Userlist = () => {
       <Box
         sx={{
           display: "flex",
-          mb: isSearching && 2,
+          mb: isSearching ? 2 : 3,
           mt: 2,
           gap: 2,
         }}
@@ -244,7 +244,6 @@ const Userlist = () => {
           value={searchTerm}
           onChange={handleSearchChange}
           onKeyDown={handleKeyDown}
-          sx={{ minWidth: 300 }}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">

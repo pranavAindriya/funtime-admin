@@ -25,7 +25,6 @@ const Conversion = () => {
 
   const fetchConversionDetails = async () => {
     const response = await getConversionFactors("67596e13799e9266923583b8");
-    console.log(response);
     const { conversion } = response.data;
     setConversionData({
       coinsDeductedPerMinute: conversion?.coinsDeductedPerMinute || 0,
@@ -119,7 +118,13 @@ const Conversion = () => {
         onAddButtonClick={handleTopBarButtonClick}
         hasAccess={hasAccess}
       />
-      <Box display={"flex"} alignItems={"center"} gap={2} mb={3}>
+      <Box
+        display={"flex"}
+        alignItems={"center"}
+        gap={2}
+        mb={3}
+        flexWrap={"wrap"}
+      >
         <Typography fontWeight={600} fontSize={18}>
           Coins deducted from user per one minute =
         </Typography>
@@ -147,7 +152,13 @@ const Conversion = () => {
           <span>Coins</span>
         </Box>
       </Box>
-      <Box display={"flex"} alignItems={"center"} gap={2} mb={6}>
+      <Box
+        display={"flex"}
+        alignItems={"center"}
+        gap={2}
+        mb={6}
+        flexWrap={"wrap"}
+      >
         <Typography fontWeight={600} fontSize={18}>
           Diamonds received by host per one minute =
         </Typography>
