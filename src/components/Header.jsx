@@ -1,11 +1,11 @@
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import React, { useState } from "react";
-import { CaretDown, UserCircle } from "@phosphor-icons/react";
+import { CaretDown, List, UserCircle } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { setLogout } from "../redux/slices/authSlice";
 import { useDispatch } from "react-redux";
 
-const Header = () => {
+const Header = ({ isWideScreen, handleDrawerToggle }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const navigate = useNavigate();
@@ -30,8 +30,22 @@ const Header = () => {
       sx={{
         borderBottom: "#b5b5b5 1px solid",
         paddingBlock: "18px",
+        display: "flex",
       }}
     >
+      {!isWideScreen && (
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={handleDrawerToggle}
+          sx={{
+            marginLeft: "20px",
+          }}
+        >
+          <List />
+        </IconButton>
+      )}
       <div
         style={{
           backgroundColor: "background.secondary",

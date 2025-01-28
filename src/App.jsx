@@ -117,6 +117,12 @@ const App = () => {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const navigate = useNavigate();
 
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   // const queryClient = new QueryClient({
   //   defaultOptions: {
   //     queries: {
@@ -147,18 +153,23 @@ const App = () => {
   return (
     <>
       <Box sx={{ display: "flex", width: "100%" }}>
-        <Box sx={{ display: !isWideScreen ? "none" : "block" }}>
-          <Sidebar />
-        </Box>
+        <Sidebar
+          mobileOpen={mobileOpen}
+          handleDrawerToggle={handleDrawerToggle}
+          isWideScreen={isWideScreen}
+        />
 
         <Box
           sx={{
             flexGrow: 1,
             width: isWideScreen ? "84%" : "100%",
-            marginLeft: isWideScreen ? "16%" : 0,
+            // marginLeft: isWideScreen ? "16%" : 0,
           }}
         >
-          <Header />
+          <Header
+            isWideScreen={isWideScreen}
+            handleDrawerToggle={handleDrawerToggle}
+          />
 
           <Box sx={{ padding: theme.spacing(4) }}>
             <ToastContainer position="top-center" transition="Slide" />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -8,106 +8,16 @@ import {
   Drawer,
   Toolbar,
   useTheme,
+  Box,
 } from "@mui/material";
-import {
-  CaretDown,
-  CaretUp,
-  ChartPieSlice,
-  Circle,
-  FileText,
-  FlagBanner,
-  HandCoins,
-  Notification,
-  Phone,
-  Ranking,
-  Scales,
-  Shield,
-  SquaresFour,
-  Tag,
-  Translate,
-  Trophy,
-  Users,
-  UsersFour,
-  HandArrowDown,
-} from "@phosphor-icons/react";
 import sidebarItems, { MODULES } from "../utils/sidebarItems";
 import { isModuleBlocked } from "../redux/slices/authSlice";
 
-const drawerWidth = "16%";
-
-// const mainItems = [
-//   {
-//     text: "Dashboard",
-//     icon: <SquaresFour size={26} color="white" />,
-//     link: "/dashboard",
-//     module: "Dashboard", // Dashboard will always be shown
-//   },
-//   {
-//     text: "Users",
-//     icon: <Users size={26} color="white" />,
-//     link: "/users",
-//     module: "Users",
-//   },
-//   {
-//     text: "Calls",
-//     icon: <Phone size={26} color="white" />,
-//     link: "/calls",
-//     module: "Calls",
-//   },
-//   {
-//     text: "Coins",
-//     icon: <HandCoins size={26} color="white" />,
-//     link: "/coins",
-//     module: "Coins",
-//   },
-//   {
-//     text: "Conversion",
-//     icon: <Scales size={26} color="white" />,
-//     link: "/conversion",
-//     module: "Conversion",
-//   },
-//   {
-//     text: "Withdrawal",
-//     icon: <HandArrowDown size={26} color="white" />,
-//     link: "/withdrawals",
-//     module: "Withdrawal",
-//   },
-//   {
-//     text: "Leader Board",
-//     icon: <Trophy size={26} color="white" />,
-//     link: "/leaderboard",
-//     module: "Leaderboard",
-//   },
-//   {
-//     text: "Notifications",
-//     icon: <Notification size={26} color="white" />,
-//     link: "/notifications",
-//     module: "Notifications",
-//   },
-//   {
-//     text: "Report / Block",
-//     icon: <Shield size={26} color="white" />,
-//     link: "/reportandblock",
-//     module: "ReportBlock",
-//   },
-//   {
-//     text: "Reports",
-//     icon: <ChartPieSlice size={26} color="white" />,
-//     link: "/reports",
-//     module: "Reports",
-//   },
-//   {
-//     text: "Language",
-//     icon: <Translate size={26} color="white" />,
-//     link: "/language",
-//     module: "Language",
-//   },
-// ];
-
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen, handleDrawerToggle, isWideScreen }) => {
   const location = useLocation();
   const theme = useTheme();
-  const permissions = useSelector((state) => state.auth.permissions);
+
+  const drawerWidth = isWideScreen ? "16%" : "50%";
 
   const getListItemStyle = (link) => ({
     backgroundColor:
@@ -127,27 +37,13 @@ const Sidebar = () => {
     return !useSelector((state) => isModuleBlocked(state, item.module));
   });
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
-          width: drawerWidth,
-          backgroundColor: theme.palette.primary.main,
-          color: "white",
-          boxSizing: "border-box",
-          "&::-webkit-scrollbar": {
-            display: "none",
-          },
-        },
-      }}
-    >
+  const drawer = (
+    <>
       <Toolbar>
         <img
-          src={"https://i.postimg.cc/Y0Ffvbsx/heart-angle-svgrepo-com-1.png"}
+          src="https://i.postimg.cc/Y0Ffvbsx/heart-angle-svgrepo-com-1.png"
           style={{ marginInline: "auto", marginBlock: "30px", width: "50px" }}
+          alt="Logo"
         />
       </Toolbar>
       <List>
@@ -158,13 +54,65 @@ const Sidebar = () => {
             to={item.link}
             key={item.text}
             sx={getListItemStyle(item.link)}
+            onClick={!isWideScreen ? handleDrawerToggle : undefined}
           >
             <item.icon size={26} color="white" />
             <ListItemText primary={item.text} />
           </ListItem>
         ))}
       </List>
-    </Drawer>
+    </>
+  );
+
+  return (
+    <Box
+      component="nav"
+      sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+    >
+      {/* Mobile drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: drawerWidth,
+            backgroundColor: theme.palette.primary.main,
+            color: "white",
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+          },
+        }}
+      >
+        {drawer}
+      </Drawer>
+
+      {/* Desktop drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: "none", md: "block" },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: drawerWidth,
+            backgroundColor: theme.palette.primary.main,
+            color: "white",
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+          },
+        }}
+        open
+      >
+        {drawer}
+      </Drawer>
+    </Box>
   );
 };
 
