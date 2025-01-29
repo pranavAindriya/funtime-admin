@@ -77,8 +77,8 @@ const fetchSalesData = async ({
 }) => {
   const params = { page, limit };
 
-  if (filter === "week") {
-    params.filter = "week";
+  if (filter === "week" || filter === "today") {
+    params.filter = filter;
   } else if (startDate && endDate) {
     params.fromDate = startDate;
     params.toDate = endDate;
@@ -127,7 +127,7 @@ const Report = () => {
       fetchSalesData({
         page: filter.page,
         limit: filter.limit,
-        filter: filter.dateFilter === "week" ? "week" : undefined,
+        filter: filter.dateFilter,
         startDate: filter.startDate,
         endDate: filter.endDate,
         type: filter.type,
@@ -152,18 +152,19 @@ const Report = () => {
         newFilter.dateFilter = "today";
         newFilter.startDate = null;
         newFilter.endDate = null;
+        break;
       case "week":
         newFilter.dateFilter = "week";
         newFilter.startDate = null;
         newFilter.endDate = null;
         break;
       case "currentMonth":
-        newFilter.dateFilter = "custom";
+        newFilter.dateFilter = "currentMonth";
         newFilter.startDate = getFirstDayOfMonth();
         newFilter.endDate = getLastDayOfMonth();
         break;
       case "lastMonth":
-        newFilter.dateFilter = "custom";
+        newFilter.dateFilter = "lastMonth";
         newFilter.startDate = getFirstDayOfLastMonth();
         newFilter.endDate = getLastDayOfLastMonth();
         break;
@@ -313,7 +314,7 @@ const Report = () => {
           <Chip
             label="Today"
             onClick={() => handleQuickFilter("today")}
-            color={filter.dateFilter === "week" ? "primary" : "default"}
+            color={filter.dateFilter === "today" ? "primary" : "default"}
           />
           <Chip
             label="This Week"
@@ -323,27 +324,23 @@ const Report = () => {
           <Chip
             label="Current Month"
             onClick={() => handleQuickFilter("currentMonth")}
-            color={
-              filter.dateFilter === "custom" &&
-              filter.startDate === getFirstDayOfMonth()
-                ? "primary"
-                : "default"
-            }
+            color={filter.dateFilter === "currentMonth" ? "primary" : "default"}
           />
           <Chip
             label="Last Month"
             onClick={() => handleQuickFilter("lastMonth")}
-            color={
-              filter.dateFilter === "custom" &&
-              filter.startDate === getFirstDayOfLastMonth()
-                ? "primary"
-                : "default"
-            }
+            color={filter.dateFilter === "lastMonth" ? "primary" : "default"}
           />
           <Chip
             label="Custom Date Range"
             onClick={() => setOpenDateDialog(true)}
-            color={filter.dateFilter === "custom" ? "primary" : "default"}
+            color={
+              filter.dateFilter === "custom" &&
+              filter.startDate &&
+              filter.endDate
+                ? "primary"
+                : "default"
+            }
           />
         </Box>
         <Button
