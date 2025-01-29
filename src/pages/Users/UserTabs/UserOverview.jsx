@@ -127,7 +127,7 @@ export default function UserOverview() {
             setProfileData(profileResponse?.data);
           if (callResponse.status === 200) setCallHistory(callResponse?.data);
           if (transactionResponse?.status === 200)
-            setTransactionHistory(transactionResponse?.data);
+            setTransactionHistory(transactionResponse?.data?.transactions);
         } catch (error) {
           console.error("Error fetching data:", error);
         }
