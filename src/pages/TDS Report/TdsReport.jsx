@@ -52,6 +52,10 @@ const TdsReport = () => {
     { field: "state", headerName: "State" },
     { field: "date", headerName: "Date" },
     { field: "hostCommissionEarned", headerName: "Host Commission Earned" },
+    { field: "tds", headerName: "TDS @ 2%" },
+    { field: "platformFeeCollected", headerName: "Platform Fee Collected" },
+    { field: "gstOnPlatformFee", headerName: "GST On Platform Fee" },
+    { field: "netCommissionPaid", headerName: "Net Commission Paid" },
   ];
 
   const rows = data?.data?.map((data) => ({
@@ -64,6 +68,10 @@ const TdsReport = () => {
     state: data.state,
     date: data.date,
     hostCommissionEarned: data.hostCommissionEarned,
+    tds: data.tds,
+    platformFeeCollected: data.platformFeeCollected,
+    gstOnPlatformFee: data.gstOnPlatformFee,
+    netCommissionPaid: data.netCommissionPaid,
   }));
 
   const today = new Date().toISOString().split("T")[0];
