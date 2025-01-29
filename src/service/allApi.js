@@ -288,12 +288,19 @@ export const deleteReportReason = async (id) => {
 export const getTdsReports = async ({
   startDate,
   endDate,
+  filterType,
   page,
   limit,
 } = {}) => {
   const params = new URLSearchParams();
-  if (startDate) params.append("startDate", startDate);
-  if (endDate) params.append("endDate", endDate);
+
+  if (filterType) {
+    params.append("filterType", filterType);
+  } else {
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+  }
+
   params.append("page", page);
   params.append("limit", limit);
 
@@ -303,6 +310,25 @@ export const getTdsReports = async ({
   );
 };
 
+export const exportTdsReport = async ({
+  filterType,
+  fromDate,
+  toDate,
+} = {}) => {
+  const params = new URLSearchParams();
+
+  if (filterType) {
+    params.append("filterType", filterType);
+  } else if (fromDate && toDate) {
+    params.append("fromDate", fromDate);
+    params.append("toDate", toDate);
+  }
+
+  return commonRequest(
+    "GET",
+    `api/users/exportTdsWithdrawData?${params.toString()}`
+  );
+};
 // Host Users
 
 export const getAllHostUsers = async (language) => {
