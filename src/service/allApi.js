@@ -329,6 +329,39 @@ export const exportTdsReport = async ({
     `api/users/exportTdsWithdrawData?${params.toString()}`
   );
 };
+
+// Coin Purchase
+
+export const getCoinPurchaseReports = async ({
+  startDate,
+  endDate,
+  page,
+  limit,
+} = {}) => {
+  const params = new URLSearchParams();
+
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+  params.append("page", page);
+  params.append("limit", limit);
+
+  return commonRequest("GET", `api/users/TransactionGst?${params.toString()}`);
+};
+
+export const exportCoinPurchaseReport = async ({ fromDate, toDate } = {}) => {
+  const params = new URLSearchParams();
+
+  if (fromDate && toDate) {
+    params.append("fromDate", fromDate);
+    params.append("toDate", toDate);
+  }
+
+  return commonRequest(
+    "GET",
+    `api/users/TransactionsExport?${params.toString()}`
+  );
+};
+
 // Host Users
 
 export const getAllHostUsers = async (language) => {

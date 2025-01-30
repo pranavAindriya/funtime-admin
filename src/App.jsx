@@ -29,6 +29,7 @@ const AddNewLeaderboard = lazy(() =>
 const Banner = lazy(() => import("./pages/Banner/Banner"));
 const AddNewBanner = lazy(() => import("./pages/Banner/AddNewBanner"));
 const TdsReport = lazy(() => import("./pages/TDS Report/TdsReport"));
+const CoinPurchase = lazy(() => import("./pages/Coin Purchase/CoinPurchase"));
 const Conversion = lazy(() => import("./pages/Conversion/Conversion"));
 const UserRoles = lazy(() => import("./pages/Admin/UserRoles/UserRoles"));
 const Notifications = lazy(() => import("./pages/notifications/Notifications"));
@@ -62,6 +63,7 @@ const routes = [
   { path: "/calls", component: CallsList },
   { path: "/reports", component: Reports },
   { path: "/tdsreport", component: TdsReport },
+  { path: "/coin-purchase", component: CoinPurchase },
   { path: "/user-roles", component: UserRoles },
   // Users routes
   { path: "/users/add", component: AddNewUser },

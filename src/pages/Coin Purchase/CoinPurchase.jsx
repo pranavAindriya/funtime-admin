@@ -1,45 +1,33 @@
-import { Typography, Button, Pagination, Chip } from "@mui/material";
+import { Typography, Button, Pagination } from "@mui/material";
 import React, { useState } from "react";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 import DataTable from "../../components/DataTable";
 import { useQuery } from "@tanstack/react-query";
-import { getTdsReports, exportTdsReport } from "../../service/allApi";
+import {
+  getCoinPurchaseReports,
+  exportCoinPurchaseReport,
+} from "../../service/allApi";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { useSelector } from "react-redux";
 import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
-const TDS_FILTER_TYPES = [
-  { label: "Week", value: "week" },
-  { label: "Month", value: "month" },
-  { label: "Year", value: "year" },
-];
-
-const TdsReport = () => {
+const CoinPurchase = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(50);
-  const [selectedFilterType, setSelectedFilterType] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: [
-      "tdsReport",
-      isFilterApplied
-        ? { startDate, endDate, page, limit }
-        : selectedFilterType
-        ? { filterType: selectedFilterType, page, limit }
-        : { page, limit },
+      "coinPurchaseReport",
+      isFilterApplied ? { startDate, endDate, page, limit } : { page, limit },
     ],
     queryFn: () =>
-      getTdsReports(
-        isFilterApplied
-          ? { startDate, endDate, page, limit }
-          : selectedFilterType
-          ? { filterType: selectedFilterType, page, limit }
-          : { page, limit }
+      getCoinPurchaseReports(
+        isFilterApplied ? { startDate, endDate, page, limit } : { page, limit }
       ),
     select: (data) => data?.data,
   });
@@ -49,38 +37,31 @@ const TdsReport = () => {
     { field: "customerId", headerName: "Customer ID" },
     { field: "customerName", headerName: "Customer Name" },
     { field: "customerMobileNumber", headerName: "Mobile Number" },
-    { field: "panNumber", headerName: "Pan Number" },
     { field: "country", headerName: "Country" },
     { field: "state", headerName: "State" },
     { field: "date", headerName: "Date" },
-    { field: "hostCommissionEarned", headerName: "Host Commission Earned" },
-    { field: "tds", headerName: "TDS @ 2%" },
-    { field: "platformFeeCollected", headerName: "Platform Fee Collected" },
-    { field: "gstOnPlatformFee", headerName: "GST On Platform Fee" },
-    { field: "netCommissionPaid", headerName: "Net Commission Paid" },
+    { field: "totalAmount", headerName: "Total Amount" },
+    { field: "saleAmount", headerName: "Sale Amount" },
+    { field: "gst", headerName: "GST" },
   ];
 
   const rows = data?.data?.map((data) => ({
     invoiceBillNo: data.invoiceBillNo,
-    customerId: data.hostCustomerId,
-    customerName: data.hostCustomerName,
-    customerMobileNumber: data.mobileNumber,
-    panNumber: data.panNumber,
+    customerId: data.customerId,
+    customerName: data.customerName,
+    customerMobileNumber: data.mobileNo,
     country: data.country,
     state: data.state,
     date: data.date,
-    hostCommissionEarned: data.hostCommissionEarned,
-    tds: data.tds,
-    platformFeeCollected: data.platformFeeCollected,
-    gstOnPlatformFee: data.gstOnPlatformFee,
-    netCommissionPaid: data.netCommissionPaid,
+    totalAmount: data.totalAmount,
+    saleAmount: data.saleAmount,
+    gst: data.GST,
   }));
 
   const today = new Date().toISOString().split("T")[0];
 
   const handleFilterClick = () => {
     setIsFilterApplied(true);
-    setSelectedFilterType(null);
     setPage(1);
     refetch();
   };
@@ -89,20 +70,6 @@ const TdsReport = () => {
     setStartDate("");
     setEndDate("");
     setIsFilterApplied(false);
-    setSelectedFilterType(null);
-    setPage(1);
-    refetch();
-  };
-
-  const handleFilterTypeClick = (filterType) => {
-    if (selectedFilterType === filterType) {
-      setSelectedFilterType(null);
-    } else {
-      setSelectedFilterType(filterType);
-    }
-    setIsFilterApplied(false);
-    setStartDate("");
-    setEndDate("");
     setPage(1);
     refetch();
   };
@@ -118,16 +85,12 @@ const TdsReport = () => {
       let response;
 
       if (isFilterApplied) {
-        response = await exportTdsReport({
+        response = await exportCoinPurchaseReport({
           fromDate: startDate,
           toDate: endDate,
         });
-      } else if (selectedFilterType) {
-        response = await exportTdsReport({
-          filterType: selectedFilterType,
-        });
       } else {
-        response = await exportTdsReport();
+        response = await exportCoinPurchaseReport();
       }
 
       if (response?.data?.fileUrl) {
@@ -141,11 +104,11 @@ const TdsReport = () => {
   };
 
   const hasAccess = useSelector((state) =>
-    hasPermission(state, "TDS Report", "readAndWrite")
+    hasPermission(state, "Coin Purchase", "readAndWrite")
   );
 
   const isBlocked = useSelector((state) =>
-    isModuleBlocked(state, "TDS Report")
+    isModuleBlocked(state, "Coin Purchase")
   );
 
   if (isBlocked) {
@@ -174,7 +137,7 @@ const TdsReport = () => {
         mb={3}
       >
         <Typography fontSize={23} fontWeight={600}>
-          TDS Reports
+          Coin Purchase Reports
         </Typography>
         {hasAccess && (
           <Button variant="contained" onClick={handleExport}>
@@ -200,7 +163,6 @@ const TdsReport = () => {
               onChange={(e) => setStartDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               inputProps={{ max: today }}
-              disabled={!!selectedFilterType}
             />
             <TextField
               label="End Date"
@@ -210,54 +172,29 @@ const TdsReport = () => {
               size="small"
               InputLabelProps={{ shrink: true }}
               inputProps={{ min: startDate, max: today }}
-              disabled={!!selectedFilterType}
             />
           </Box>
           <Box display={"flex"} alignItems={"center"} gap={2}>
             <Button
               variant="contained"
               onClick={handleFilterClick}
-              disabled={!startDate || !endDate || !!selectedFilterType}
+              disabled={!startDate || !endDate}
             >
               Filter by Date
             </Button>
             <Button
               variant="outlined"
               onClick={handleClearFilter}
-              disabled={!isFilterApplied && !selectedFilterType}
+              disabled={!isFilterApplied}
             >
               Clear Filter
             </Button>
           </Box>
         </Box>
-
-        <Box
-          display="flex"
-          gap={2}
-          mt={4}
-          alignItems={"center"}
-          flexWrap={"wrap"}
-        >
-          <Typography>Quick Filters</Typography>
-          {TDS_FILTER_TYPES.map((filter) => (
-            <Chip
-              key={filter.value}
-              label={filter.label}
-              clickable
-              color={
-                selectedFilterType === filter.value ? "primary" : "default"
-              }
-              onClick={() => handleFilterTypeClick(filter.value)}
-              variant={
-                selectedFilterType === filter.value ? "filled" : "outlined"
-              }
-            />
-          ))}
-        </Box>
       </Box>
 
       <Pagination
-        count={data?.pagination?.totalPages || 1}
+        count={data?.totalPages || 1}
         page={page}
         color="primary"
         variant="outlined"
@@ -272,7 +209,7 @@ const TdsReport = () => {
       />
       <DataTable columns={columns} rows={rows} />
       <Pagination
-        count={data?.pagination?.totalPages || 1}
+        count={data?.totalPages || 1}
         page={page}
         color="primary"
         variant="outlined"
@@ -289,4 +226,4 @@ const TdsReport = () => {
   );
 };
 
-export default TdsReport;
+export default CoinPurchase;

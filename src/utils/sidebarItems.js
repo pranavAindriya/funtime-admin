@@ -13,6 +13,7 @@ import {
   FileText,
   CardsThree,
   Files,
+  Coins,
 } from "@phosphor-icons/react";
 
 export const MODULES = {
@@ -22,6 +23,7 @@ export const MODULES = {
   COINS: "Coin",
   BANNER: "Banner",
   TDS: "TDS Report",
+  COIN_PURCHASE: "Coin Purchase",
   CONVERSION: "Conversion",
   WITHDRAWAL: "Withdrawal",
   LEADERBOARD: "Leader Board",
@@ -106,6 +108,12 @@ export const sidebarItems = [
     module: MODULES.TDS,
   },
   {
+    text: "Coin Purchase",
+    icon: Coins,
+    link: "/coin-purchase",
+    module: MODULES.COIN_PURCHASE,
+  },
+  {
     text: "Language",
     icon: Translate,
     link: "/language",
@@ -129,6 +137,7 @@ export const getModuleFromPath = (path) => {
     "/reportandblock": MODULES.REPORT_BLOCK,
     "/reports": MODULES.REPORTS,
     "/tdsreport": MODULES.TDS,
+    "/coin-purchase": MODULES.COIN_PURCHASE,
     "/language": MODULES.LANGUAGE,
   };
 
