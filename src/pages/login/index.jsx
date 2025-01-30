@@ -38,26 +38,23 @@ const Login = () => {
 
   const handleLogin = async (loginData) => {
     setIsLoading(true);
-    try {
-      const response = await login(loginData);
-      if (response.status === 200) {
-        dispatch(setLogin(response?.data));
-        toast.success("Login successful! Welcome back.", {
-          autoClose: 1000,
-          transition: Slide,
-        });
-      } else {
-        throw new Error(response.message || "Login failed");
-      }
-    } catch (error) {
-      toast.error(error.message || "Login failed. Please try again.", {
+    const response = await login(loginData);
+    if (response.status === 200) {
+      dispatch(setLogin(response?.data));
+      toast.success("Login successful! Welcome back.", {
         autoClose: 1000,
         transition: Slide,
       });
-      console.error("Login error:", error);
-    } finally {
-      setIsLoading(false);
+    } else {
+      toast.error(
+        response?.response?.data?.message || "Login failed. Please try again.",
+        {
+          autoClose: 1000,
+          transition: Slide,
+        }
+      );
     }
+    setIsLoading(false);
   };
 
   return (
