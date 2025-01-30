@@ -1,4 +1,4 @@
-import { Typography, Button, Pagination } from "@mui/material";
+import { Typography, Button, Pagination, IconButton } from "@mui/material";
 import React, { useState } from "react";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 import DataTable from "../../components/DataTable";
@@ -12,6 +12,7 @@ import TextField from "@mui/material/TextField";
 import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
 import formatDate from "../../utils/formatdate";
+import { MagnifyingGlass, X } from "@phosphor-icons/react";
 
 const CoinPurchase = () => {
   const [startDate, setStartDate] = useState("");
@@ -20,15 +21,21 @@ const CoinPurchase = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(50);
   const [isExporting, setIsExporting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: [
       "coinPurchaseReport",
-      isFilterApplied ? { startDate, endDate, page, limit } : { page, limit },
+      isFilterApplied || isSearching
+        ? { startDate, endDate, page, limit, userName: searchTerm }
+        : { page, limit },
     ],
     queryFn: () =>
       getCoinPurchaseReports(
-        isFilterApplied ? { startDate, endDate, page, limit } : { page, limit }
+        isFilterApplied || isSearching
+          ? { startDate, endDate, page, limit, userName: searchTerm }
+          : { page, limit }
       ),
     select: (data) => data?.data,
   });
@@ -63,6 +70,8 @@ const CoinPurchase = () => {
 
   const handleFilterClick = () => {
     setIsFilterApplied(true);
+    setIsSearching(false);
+    setSearchTerm("");
     setPage(1);
     refetch();
   };
@@ -71,6 +80,28 @@ const CoinPurchase = () => {
     setStartDate("");
     setEndDate("");
     setIsFilterApplied(false);
+    setPage(1);
+    refetch();
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      setIsSearching(true);
+      setIsFilterApplied(false);
+      setStartDate("");
+      setEndDate("");
+      setPage(1);
+      refetch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setIsSearching(false);
     setPage(1);
     refetch();
   };
@@ -89,6 +120,10 @@ const CoinPurchase = () => {
         response = await exportCoinPurchaseReport({
           fromDate: startDate,
           toDate: endDate,
+        });
+      } else if (isSearching) {
+        response = await exportCoinPurchaseReport({
+          userName: searchTerm,
         });
       } else {
         response = await exportCoinPurchaseReport();
@@ -147,6 +182,44 @@ const CoinPurchase = () => {
         )}
       </Box>
 
+      <Box
+        sx={{
+          display: "flex",
+          mb: 3,
+          mt: 2,
+          gap: 2,
+          justifyContent: { xs: "center", md: "flex-start" },
+        }}
+      >
+        <TextField
+          label="Search by username"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+          InputProps={{
+            endAdornment: searchTerm && (
+              <IconButton size="small" onClick={handleClearSearch}>
+                <X size={16} />
+              </IconButton>
+            ),
+          }}
+        />
+        <Button
+          onClick={handleSearch}
+          variant="contained"
+          color="primary"
+          disabled={!searchTerm.trim()}
+        >
+          <MagnifyingGlass size={20} />
+        </Button>
+      </Box>
+
       <Box mb={3}>
         <Box
           display="flex"
@@ -164,6 +237,7 @@ const CoinPurchase = () => {
               onChange={(e) => setStartDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               inputProps={{ max: today }}
+              disabled={isSearching}
             />
             <TextField
               label="End Date"
@@ -173,13 +247,14 @@ const CoinPurchase = () => {
               size="small"
               InputLabelProps={{ shrink: true }}
               inputProps={{ min: startDate, max: today }}
+              disabled={isSearching}
             />
           </Box>
           <Box display={"flex"} alignItems={"center"} gap={2}>
             <Button
               variant="contained"
               onClick={handleFilterClick}
-              disabled={!startDate || !endDate}
+              disabled={!startDate || !endDate || isSearching}
             >
               Filter by Date
             </Button>

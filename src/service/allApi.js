@@ -337,11 +337,13 @@ export const getCoinPurchaseReports = async ({
   endDate,
   page,
   limit,
+  userName,
 } = {}) => {
   const params = new URLSearchParams();
 
   if (startDate) params.append("startDate", startDate);
   if (endDate) params.append("endDate", endDate);
+  if (userName) params.append("userName", userName);
   params.append("page", page);
   params.append("limit", limit);
 
