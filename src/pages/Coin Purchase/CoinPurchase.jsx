@@ -11,6 +11,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
+import formatDate from "../../utils/formatdate";
 
 const CoinPurchase = () => {
   const [startDate, setStartDate] = useState("");
@@ -52,7 +53,7 @@ const CoinPurchase = () => {
     customerMobileNumber: data.mobileNo,
     country: data.country,
     state: data.state,
-    date: data.date,
+    date: formatDate(data.date),
     totalAmount: data.totalAmount,
     saleAmount: data.saleAmount,
     gst: data.GST,

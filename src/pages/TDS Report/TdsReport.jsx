@@ -8,6 +8,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { useSelector } from "react-redux";
 import { hasPermission, isModuleBlocked } from "../../redux/slices/authSlice";
+import formatDate from "../../utils/formatdate";
 
 const TDS_FILTER_TYPES = [
   { label: "Week", value: "week" },
@@ -68,7 +69,7 @@ const TdsReport = () => {
     panNumber: data.panNumber,
     country: data.country,
     state: data.state,
-    date: data.date,
+    date: formatDate(data.date),
     hostCommissionEarned: data.hostCommissionEarned,
     tds: data.tds,
     platformFeeCollected: data.platformFeeCollected,
