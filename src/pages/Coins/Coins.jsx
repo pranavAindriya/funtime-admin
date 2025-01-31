@@ -278,6 +278,11 @@ const Coins = () => {
       />
       <ToastContainer position="top-center" transition={"Slide"} />
       <DataTable columns={columns} rows={formattedCoinRows} />
+      {formattedCoinRows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
       <Dialog
         open={deleteConfirmationOpen}
         onClose={handleCloseDeleteConfirmation}

@@ -13,6 +13,7 @@ import {
   MenuItem,
   InputAdornment,
   Divider,
+  Typography,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { blockUser, getAllUsers } from "../../../service/allApi";
@@ -299,6 +300,11 @@ const Userlist = () => {
         />
       )}
       <DataTable columns={columns} rows={formattedUsers} />
+      {formattedUsers?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
       {!isSearching && (
         <Pagination
           count={paginationDetails?.totalPages}

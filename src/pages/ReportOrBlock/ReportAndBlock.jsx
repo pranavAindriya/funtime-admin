@@ -170,6 +170,11 @@ const ReportAndBlock = () => {
       />
 
       <DataTable columns={columns} rows={formatReportingREasons()} />
+      {formatReportingREasons()?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
 
       <Dialog
         open={openAddModal}

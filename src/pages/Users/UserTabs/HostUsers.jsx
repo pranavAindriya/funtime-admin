@@ -15,6 +15,7 @@ import {
   FormControl,
   InputLabel,
   Box,
+  Typography,
 } from "@mui/material";
 import {
   Pencil,
@@ -204,6 +205,11 @@ const HostUsers = () => {
         </Select>
       </FormControl>
       <DataTable columns={columns} rows={rows} />
+      {rows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
     </LoadingBackdrop>
   );
 };

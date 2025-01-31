@@ -272,6 +272,11 @@ const TdsReport = () => {
         onChange={handlePageChange}
       />
       <DataTable columns={columns} rows={rows} />
+      {rows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
       <Pagination
         count={data?.pagination?.totalPages || 1}
         page={page}

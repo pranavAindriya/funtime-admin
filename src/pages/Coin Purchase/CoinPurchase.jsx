@@ -284,6 +284,11 @@ const CoinPurchase = () => {
         onChange={handlePageChange}
       />
       <DataTable columns={columns} rows={rows} />
+      {rows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
       <Pagination
         count={data?.totalPages || 1}
         page={page}

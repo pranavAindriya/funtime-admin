@@ -13,6 +13,7 @@ import {
   Pagination,
   TextField,
   IconButton,
+  Typography,
 } from "@mui/material";
 import { hasPermission } from "../../../redux/slices/authSlice";
 import { useSelector } from "react-redux";
@@ -269,6 +270,11 @@ const HostedUsers = () => {
       )}
 
       <DataTable columns={columns} rows={formatUsersForDataTable()} />
+      {formatUsersForDataTable()?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
 
       {!isSearching && (
         <Pagination

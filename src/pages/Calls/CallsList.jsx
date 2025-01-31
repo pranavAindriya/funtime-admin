@@ -210,6 +210,11 @@ const CallsList = () => {
         onChange={handlePageChange}
       />
       <DataTable columns={columns} rows={filteredRows} />
+      {filteredRows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
       <Pagination
         count={callData?.data?.pagination?.totalPages || 1}
         page={page}

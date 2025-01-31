@@ -196,7 +196,13 @@ const Banner = () => {
         onAddButtonClick={() => navigate("addnewbanner")}
         disableAddNewButton={!hasAccess}
       />
+
       <DataTable columns={columns} rows={rows} />
+      {rows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
 
       <Dialog
         open={deleteConfirmationOpen}

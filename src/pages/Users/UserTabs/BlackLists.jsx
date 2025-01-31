@@ -1,6 +1,6 @@
 import React from "react";
 import { getAllBlockedUsers } from "../../../service/allApi";
-import { Avatar, Box, Button } from "@mui/material";
+import { Avatar, Box, Button, Typography } from "@mui/material";
 import DataTable from "../../../components/DataTable";
 import { useQuery } from "@tanstack/react-query";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
@@ -57,9 +57,12 @@ const BlackLists = () => {
 
   return (
     <LoadingBackdrop open={isLoading}>
-      <div>
-        <DataTable columns={columns} rows={formattedRows} />
-      </div>
+      <DataTable columns={columns} rows={formattedRows} />
+      {formattedRows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
     </LoadingBackdrop>
   );
 };

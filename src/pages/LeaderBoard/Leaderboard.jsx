@@ -70,6 +70,11 @@ const Leaderboard = () => {
         Leaderboard
       </Typography>
       <DataTable columns={columns} rows={formattedRows} />
+      {formattedRows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
     </LoadingBackdrop>
   );
 };

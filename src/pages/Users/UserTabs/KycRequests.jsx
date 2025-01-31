@@ -8,6 +8,7 @@ import {
   Pagination,
   TextField,
   IconButton,
+  Typography,
 } from "@mui/material";
 import { getAllKyc, changeKycStatus } from "../../../service/allApi";
 import DataTable from "../../../components/DataTable";
@@ -291,6 +292,11 @@ const KycRequests = () => {
       )}
 
       <DataTable columns={columns} rows={kycData} />
+      {kycData?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
 
       {!isSearching && (
         <Pagination

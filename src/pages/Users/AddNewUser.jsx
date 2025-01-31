@@ -8,6 +8,9 @@ import {
   Snackbar,
   Alert,
   Avatar,
+  Select,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -19,6 +22,7 @@ import {
   getUserById,
   requestOtp,
   verifyOtp,
+  getAllLanguages,
 } from "../../service/allApi";
 import { useSelector } from "react-redux";
 import { hasPermission } from "../../redux/slices/authSlice";
@@ -31,6 +35,7 @@ const AddNewUser = () => {
   const [message, setMessage] = useState({ text: "", severity: "success" });
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [languagesData, setLanguagesData] = useState([]);
 
   const { type, id } = useParams();
   const navigate = useNavigate();
@@ -60,7 +65,22 @@ const AddNewUser = () => {
       .required("Email address is required")
       .email("Invalid email address"),
     coins: Yup.number().optional().integer("Coins must be an integer").min(0),
+    language: Yup.string().required("Language is required"),
   });
+
+  const fetchAllLanguages = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAllLanguages();
+      if (response.status === 200) {
+        setLanguagesData(response.data.languages);
+      }
+    } catch (error) {
+      handleError("Failed to fetch languages");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchUserDetails = async () => {
     try {
@@ -80,6 +100,7 @@ const AddNewUser = () => {
           gender: userDetails.profile?.gender || "",
           coins: userDetails.profile?.coin?.toString() || "",
           email: userDetails.profile?.email || "",
+          language: userDetails.profile?.language || "",
         });
 
         if (userDetails.profile?.image) {
@@ -92,6 +113,8 @@ const AddNewUser = () => {
   };
 
   useEffect(() => {
+    fetchAllLanguages();
+
     if (type === "edit" || type === "view") {
       fetchUserDetails();
     }
@@ -148,9 +171,7 @@ const AddNewUser = () => {
 
       formData.append("username", values.username);
       formData.append("dateOfBirth", values.dob);
-      if (type !== "edit") {
-        formData.append("language", "English");
-      }
+      formData.append("language", values.language);
       formData.append("userDescription", "");
       formData.append("gender", values.gender);
       formData.append("email", values.email);
@@ -188,7 +209,6 @@ const AddNewUser = () => {
     setOpenSnackbar(true);
   };
 
-  // Formik Setup
   const formik = useFormik({
     initialValues: {
       username: "",
@@ -198,6 +218,7 @@ const AddNewUser = () => {
       email: "",
       coins: "",
       icon: null,
+      language: "",
     },
     validationSchema: validationSchema,
     onSubmit: handleCreateUser,
@@ -391,6 +412,37 @@ const AddNewUser = () => {
             helperText={formik.touched.email && formik.errors.email}
             disabled={type === "view" || type === "edit"}
           />
+        </Box>
+
+        <Box
+          display={"flex"}
+          gap={4}
+          alignItems={"center"}
+          justifyContent={"space-evenly"}
+          flexWrap={{ xs: "wrap", md: "nowrap" }}
+        >
+          <FormControl sx={{ flexGrow: 1 }}>
+            <InputLabel>Language</InputLabel>
+            <Select
+              name="language"
+              label="Language"
+              value={formik.values.language}
+              onChange={formik.handleChange}
+              error={formik.touched.language && Boolean(formik.errors.language)}
+              disabled={type === "view"}
+            >
+              {languagesData?.map((language) => (
+                <MenuItem key={language.language} value={language.language}>
+                  {language.language}
+                </MenuItem>
+              ))}
+            </Select>
+            {formik.touched.language && formik.errors.language && (
+              <Typography color="error" variant="caption">
+                {formik.errors.language}
+              </Typography>
+            )}
+          </FormControl>
         </Box>
 
         <Box

@@ -172,6 +172,11 @@ const Notifications = () => {
         hasAccess={hasAccess}
       />
       <DataTable columns={columns} rows={formattedRows} />
+      {formattedRows?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

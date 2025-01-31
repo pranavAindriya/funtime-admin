@@ -156,6 +156,11 @@ const LanguageList = () => {
         hasAccess={hasAccess}
       />
       <DataTable columns={columns} rows={formattedLanguageData} />
+      {formattedLanguageData?.length <= 0 && (
+        <Typography textAlign={"center"} my={5}>
+          No data found
+        </Typography>
+      )}
       <ConfirmationPopover
         anchorEl={anchorEl}
         handleClose={handleClose}
