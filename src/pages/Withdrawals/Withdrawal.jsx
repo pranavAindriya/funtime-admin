@@ -8,6 +8,7 @@ import {
   useTheme,
   Pagination,
   Typography,
+  Chip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -52,9 +53,9 @@ const Withdrawal = () => {
   const [filterParams, setFilterParams] = useState({
     startDate: "",
     endDate: "",
+    thisWeek: false,
   });
 
-  // Helper function to get the appropriate setState function based on status
   const getSetStateFunction = (status) => {
     switch (status) {
       case "pending":
@@ -78,8 +79,13 @@ const Withdrawal = () => {
     setLoading(true);
     try {
       let queryParams = `status=${status}&page=${page}&limit=${limit}`;
-      if (isFilterApplied && filterParams.startDate && filterParams.endDate) {
-        queryParams += `&fromDate=${filterParams.startDate}&toDate=${filterParams.endDate}`;
+      if (isFilterApplied) {
+        if (filterParams.thisWeek) {
+          queryParams += `&thisWeek=true`;
+        }
+        if (filterParams.startDate && filterParams.endDate) {
+          queryParams += `&fromDate=${filterParams.startDate}&toDate=${filterParams.endDate}`;
+        }
       }
       const response = await getWithdrawalHistory(queryParams);
       if (response.status === 200) {
@@ -131,11 +137,28 @@ const Withdrawal = () => {
       setFilterParams({
         startDate,
         endDate,
+        thisWeek: false,
       });
       setIsFilterApplied(true);
       setPage(1);
     } else {
       alert("Please select both start and end dates.");
+    }
+  };
+
+  const handleThisWeekFilter = () => {
+    if (filterParams.thisWeek === true) {
+      setFilterParams({
+        startDate: "",
+        endDate: "",
+        thisWeek: false,
+      });
+    } else {
+      setFilterParams({
+        startDate: "",
+        endDate: "",
+        thisWeek: true,
+      });
     }
   };
 
@@ -145,6 +168,7 @@ const Withdrawal = () => {
     setFilterParams({
       startDate: "",
       endDate: "",
+      thisWeek: false,
     });
     setIsFilterApplied(false);
     setPage(1);
@@ -306,6 +330,15 @@ const Withdrawal = () => {
               Export
             </Button>
           )}
+        </Box>
+        <Box display={"flex"} alignItems={"center"} gap={2} mt={3} mb={2}>
+          <Typography>Quick Filter</Typography>
+          <Chip
+            label="This Week"
+            color={filterParams.thisWeek ? "primary" : "default"}
+            onClick={handleThisWeekFilter}
+            sx={{ cursor: "pointer" }}
+          />
         </Box>
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
