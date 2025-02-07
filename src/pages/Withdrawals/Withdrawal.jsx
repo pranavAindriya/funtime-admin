@@ -72,6 +72,7 @@ const Withdrawal = () => {
   const handleChange = async (event, newValue) => {
     setValue(newValue);
     navigate(`?tab=${newValue}`);
+    setPage(1);
     await fetchWithdrawalHistory(newValue);
   };
 
@@ -182,7 +183,7 @@ const Withdrawal = () => {
 
   const formatrows = (data) => {
     return data?.map((item, ind) => ({
-      slno: ind + 1,
+      slno: (page - 1) * limit + ind + 1,
       userId: item?.userId?._id,
       username: item?.userName,
       time: formatDate(item?.time),

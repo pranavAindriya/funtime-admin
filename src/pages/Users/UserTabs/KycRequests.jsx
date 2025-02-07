@@ -60,7 +60,7 @@ const KycRequests = () => {
   // Transform response data
   const kycData =
     response?.data?.data?.map((item, ind) => ({
-      slno: ind + 1,
+      slno: (page - 1) * 50 + ind + 1,
       id: item._id,
       username: {
         username: item.userDetails.username,

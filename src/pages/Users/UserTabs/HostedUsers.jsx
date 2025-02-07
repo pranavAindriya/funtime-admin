@@ -144,7 +144,8 @@ const HostedUsers = () => {
   };
 
   const formatUsersForDataTable = () => {
-    return hostedUsers?.map((user) => ({
+    return hostedUsers?.map((user, ind) => ({
+      slno: (page - 1) * 50 + ind + 1,
       userId: user?._id,
       username: user?.username,
       phone: user?.mobileNumber,
@@ -154,6 +155,7 @@ const HostedUsers = () => {
   };
 
   const columns = [
+    { field: "slno", headerName: "SlNo" },
     { field: "userId", headerName: "User Id" },
     { field: "username", headerName: "Username" },
     { field: "phone", headerName: "Phone" },

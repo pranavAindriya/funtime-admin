@@ -157,6 +157,7 @@ const Userlist = () => {
   };
 
   const columns = [
+    { field: "slno", headerName: "SlNo" },
     { field: "userId", headerName: "User ID" },
     {
       field: "username",
@@ -209,7 +210,8 @@ const Userlist = () => {
   ];
 
   const formatUsersForDataTable = () => {
-    return users?.map((user) => ({
+    return users?.map((user, ind) => ({
+      slno: (page - 1) * 50 + ind + 1,
       userId: user?._id,
       username: { image: user?.profile?.image, username: user?.username },
       phone: user?.mobileNumber,

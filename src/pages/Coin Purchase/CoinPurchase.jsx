@@ -41,6 +41,7 @@ const CoinPurchase = () => {
   });
 
   const columns = [
+    { field: "slno", headerName: "SlNo" },
     { field: "invoiceBillNo", headerName: "Invoice Bill number" },
     { field: "customerId", headerName: "Customer ID" },
     { field: "customerName", headerName: "Customer Name" },
@@ -53,7 +54,8 @@ const CoinPurchase = () => {
     { field: "gst", headerName: "GST" },
   ];
 
-  const rows = data?.data?.map((data) => ({
+  const rows = data?.data?.map((data, ind) => ({
+    slno: (page - 1) * limit + ind + 1,
     invoiceBillNo: data.invoiceBillNo,
     customerId: data.customerId,
     customerName: data.customerName,

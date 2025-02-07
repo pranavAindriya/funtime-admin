@@ -8,10 +8,11 @@ import {
   IconButton,
   Modal,
   styled,
+  Skeleton,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { changeKycStatus, getKycById } from "../../../service/allApi";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, ImageBroken } from "@phosphor-icons/react";
 import { usePDF } from "react-to-pdf";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -47,18 +48,131 @@ const Value = styled(Typography)(({ theme }) => ({
   fontWeight: 550,
 }));
 
-const DocumentImage = styled("img")(({ theme }) => ({
+const ImageContainer = styled(Box)(({ theme }) => ({
+  position: "relative",
   width: "100%",
   maxWidth: "300px",
-  border: "1px solid #ddd",
-  borderRadius: "4px",
+  height: "200px",
+  display: "inline-block",
 }));
 
-const ModalImage = styled("img")(({ theme }) => ({
-  maxWidth: "90vw",
-  maxHeight: "90vh",
-  objectFit: "contain",
+const ErrorContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: theme.spacing(2),
+  border: `1px solid ${theme.palette.grey[300]}`,
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: theme.palette.grey[50],
+  width: "100%",
+  maxWidth: "300px",
+  height: "200px",
 }));
+
+const DocumentImage = ({ src, alt, onClick }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setHasError(true);
+  };
+
+  if (hasError) {
+    return (
+      <ErrorContainer>
+        <ImageBroken style={{ fontSize: 40, color: "grey.500", mb: 1 }} />
+        <Typography variant="body2" color="text.secondary">
+          Image not available
+        </Typography>
+      </ErrorContainer>
+    );
+  }
+
+  return (
+    <ImageContainer>
+      {isLoading && (
+        <Skeleton
+          variant="rectangular"
+          width="100%"
+          height="200px"
+          sx={{ position: "absolute", top: 0, left: 0 }}
+        />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          visibility: isLoading ? "hidden" : "visible",
+          border: "1px solid #ddd",
+          borderRadius: "4px",
+          cursor: onClick ? "pointer" : "default",
+        }}
+        onLoad={handleLoad}
+        onError={handleError}
+        onClick={onClick}
+      />
+    </ImageContainer>
+  );
+};
+
+const ModalImage = ({ src, alt }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setHasError(true);
+  };
+
+  if (hasError) {
+    return (
+      <ErrorContainer sx={{ maxWidth: "90vw", maxHeight: "90vh" }}>
+        <ImageBroken style={{ fontSize: 40, color: "grey.500", mb: 1 }} />
+        <Typography variant="body2" color="text.secondary">
+          Image not available
+        </Typography>
+      </ErrorContainer>
+    );
+  }
+
+  return (
+    <Box sx={{ position: "relative" }}>
+      {isLoading && (
+        <Skeleton
+          variant="rectangular"
+          width="90vw"
+          height="90vh"
+          sx={{ position: "absolute", top: 0, left: 0 }}
+        />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        style={{
+          maxWidth: "90vw",
+          maxHeight: "90vh",
+          objectFit: "contain",
+          visibility: isLoading ? "hidden" : "visible",
+        }}
+        onLoad={handleLoad}
+        onError={handleError}
+      />
+    </Box>
+  );
+};
 
 export default function KycDetails() {
   const [userDetails, setUserDetails] = useState({});
@@ -331,7 +445,12 @@ export default function KycDetails() {
             <Value>{panDetails.dob}</Value>
           </DetailRow>
           <Box sx={{ mt: 2 }}>
-            <DocumentImage src={panDetails.panImage} alt="PAN Card" />
+            <DocumentImage
+              src={panDetails.panImage}
+              alt="PAN Card"
+              onClick={() => !isPdfGeneration && handleView("PAN")}
+            />
+            <br />
             {!isPdfGeneration && (
               <ViewButton onClick={() => handleView("PAN")} sx={{ mt: 1 }}>
                 View
@@ -347,10 +466,13 @@ export default function KycDetails() {
           <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
               <Typography sx={{ mb: 1 }}>Front Side</Typography>
+
               <DocumentImage
                 src={aadhaarDetails.frontImage}
                 alt="Aadhar Front"
+                onClick={() => !isPdfGeneration && handleView("AadharFront")}
               />
+              <br />
               {!isPdfGeneration && (
                 <ViewButton
                   onClick={() => handleView("AadharFront")}
@@ -362,7 +484,12 @@ export default function KycDetails() {
             </Grid>
             <Grid item xs={12} md={6}>
               <Typography sx={{ mb: 1 }}>Back Side</Typography>
-              <DocumentImage src={aadhaarDetails.backImage} alt="Aadhar Back" />
+              <DocumentImage
+                src={aadhaarDetails.backImage}
+                alt="Aadhar Back"
+                onClick={() => !isPdfGeneration && handleView("AadharBack")}
+              />
+              <br />
               {!isPdfGeneration && (
                 <ViewButton
                   onClick={() => handleView("AadharBack")}
