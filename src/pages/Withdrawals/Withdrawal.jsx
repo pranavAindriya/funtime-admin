@@ -148,12 +148,14 @@ const Withdrawal = () => {
 
   const handleThisWeekFilter = () => {
     if (filterParams.thisWeek === true) {
+      setIsFilterApplied(false);
       setFilterParams({
         startDate: "",
         endDate: "",
         thisWeek: false,
       });
     } else {
+      setIsFilterApplied(true);
       setFilterParams({
         startDate: "",
         endDate: "",
