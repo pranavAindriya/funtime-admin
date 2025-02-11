@@ -43,6 +43,7 @@ const HostUsers = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["hostUsers", selectedLanguage],
     queryFn: () => getAllHostUsers(selectedLanguage),
+    refetchInterval: 120000,
   });
 
   const updateHeartBalanceMutation = useMutation({

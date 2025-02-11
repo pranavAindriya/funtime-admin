@@ -6,6 +6,10 @@ import {
   Snackbar,
   Typography,
   useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import InputField from "../../components/InputField";
@@ -15,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import {
   getAllNotifications,
   sendPushNotification,
+  deleteNotification,
 } from "../../service/allApi";
 import { Pencil, Trash } from "@phosphor-icons/react";
 import { useSelector } from "react-redux";
@@ -27,6 +32,8 @@ const Notifications = () => {
   const [message, setMessage] = useState({ text: "", severity: "success" });
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [loading, isloading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedNotificationId, setSelectedNotificationId] = useState(null);
 
   const theme = useTheme();
   const navigte = useNavigate();
@@ -50,6 +57,30 @@ const Notifications = () => {
     setOpenSnackbar(true);
   };
 
+  const handleDeleteClick = (id) => {
+    setSelectedNotificationId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    isloading(true);
+    try {
+      const response = await deleteNotification(selectedNotificationId);
+      if (response.status === 200) {
+        handleSuccess("Notification deleted successfully");
+        await fetchAllNotifications();
+      } else {
+        handleError("Error deleting notification");
+      }
+    } catch (error) {
+      handleError("Error deleting notification");
+      console.error("Delete notification error:", error);
+    }
+    setDeleteDialogOpen(false);
+    setSelectedNotificationId(null);
+    isloading(false);
+  };
+
   const handleSendPushNotification = async (id) => {
     const response = await sendPushNotification(id);
     if (response.status === 200) {
@@ -57,7 +88,6 @@ const Notifications = () => {
     } else {
       handleError("Error while Sending Notification");
     }
-    console.log(response);
   };
 
   const hasAccess = useSelector((state) =>
@@ -83,7 +113,10 @@ const Notifications = () => {
           <IconButton onClick={() => navigte(`/notifications/edit/${value}`)}>
             <Pencil size={20} color={theme.palette.info.main} />
           </IconButton>
-          <IconButton aria-describedby="delete-pop">
+          <IconButton
+            aria-describedby="delete-pop"
+            onClick={() => handleDeleteClick(value)}
+          >
             <Trash size={20} color={theme.palette.error.main} />
           </IconButton>
           <Button
@@ -139,33 +172,6 @@ const Notifications = () => {
 
   return (
     <LoadingBackdrop open={loading}>
-      {/* <Box
-        sx={{
-          padding: "25px",
-          backgroundColor: theme.palette.secondary.light,
-          borderRadius: "10px",
-          marginBottom: "25px",
-          display: "flex",
-          justifyContent: { xs: "center", md: "flex-start" },
-          alignItems: "center",
-          gap: "25px",
-          flexWrap: "wrap",
-        }}
-      >
-        <span style={{ fontWeight: 700, fontSize: "16px" }}>
-          Notification API
-        </span>
-        <InputField
-          styles={{
-            flexGrow: { xs: 1, sm: 0.3 },
-          }}
-          value={""}
-          error={validationErrors}
-          setError={setValidationErrors}
-          name={""}
-        />
-        <Button variant="contained">Update</Button>
-      </Box> */}
       <TopAddNewBar
         label={"Push Notification List"}
         onAddButtonClick={() => navigte("/notifications/addnew")}
@@ -177,6 +183,37 @@ const Notifications = () => {
           No data found
         </Typography>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="delete-dialog-title"
+        PaperProps={{
+          sx: {
+            p: 1,
+            borderRadius: 5,
+          },
+        }}
+      >
+        <DialogTitle id="delete-dialog-title">Delete Notification</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this notification?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

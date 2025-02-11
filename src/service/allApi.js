@@ -244,6 +244,10 @@ export const updateNotification = async (id, body) => {
   return commonRequest("PUT", `api/users/updateNotification/${id}`, body);
 };
 
+export const deleteNotification = async (id) => {
+  return commonRequest("DELETE", `api/users/deleteNotification/${id}`);
+};
+
 export const addNewNotification = async (body) => {
   return commonRequest(
     "POST",
