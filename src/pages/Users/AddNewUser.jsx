@@ -61,9 +61,7 @@ const AddNewUser = () => {
     gender: Yup.string()
       .required("Gender is required")
       .oneOf(["Man", "Woman", "Other"], "Invalid gender"),
-    email: Yup.string()
-      .required("Email address is required")
-      .email("Invalid email address"),
+    email: Yup.string(),
     coins: Yup.number().optional().integer("Coins must be an integer").min(0),
     language: Yup.string().required("Language is required"),
   });

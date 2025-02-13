@@ -16,16 +16,10 @@ import {
   InputLabel,
   Box,
   Typography,
+  useTheme,
+  Pagination,
 } from "@mui/material";
-import {
-  Pencil,
-  Check,
-  X,
-  PlusCircle,
-  MinusCircle,
-  Plus,
-  Minus,
-} from "@phosphor-icons/react";
+import { Pencil, Check, X, Plus, Minus, Circle } from "@phosphor-icons/react";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 const HostUsers = () => {
@@ -34,6 +28,10 @@ const HostUsers = () => {
   const [editedHeartBalance, setEditedHeartBalance] = useState("");
   const [balanceOperation, setBalanceOperation] = useState("add");
   const [selectedLanguage, setSelectedLanguage] = useState("Malayalam");
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
+
+  const theme = useTheme();
 
   const { data: languagesData } = useQuery({
     queryKey: ["languages"],
@@ -41,9 +39,12 @@ const HostUsers = () => {
   });
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["hostUsers", selectedLanguage],
-    queryFn: () => getAllHostUsers(selectedLanguage),
-    refetchInterval: 120000,
+    queryKey: ["hostUsers", selectedLanguage, page],
+    queryFn: () =>
+      getAllHostUsers(
+        `${selectedLanguage}&page=${page}&limit=${ITEMS_PER_PAGE}`
+      ),
+    refetchInterval: 60000,
   });
 
   const updateHeartBalanceMutation = useMutation({
@@ -73,10 +74,16 @@ const HostUsers = () => {
 
   const handleLanguageChange = (event) => {
     setSelectedLanguage(event.target.value);
+    setPage(1); // Reset to first page when language changes
   };
 
-  const rows = data?.data?.data.map((data) => ({
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const rows = data?.data?.data?.map((data, index) => ({
     id: data._id,
+    slno: (page - 1) * ITEMS_PER_PAGE + index + 1,
     username: data?.username,
     phone: data?.mobileNumber,
     language: data?.profile?.language,
@@ -87,6 +94,7 @@ const HostUsers = () => {
   }));
 
   const columns = [
+    { field: "slno", headerName: "SlNo" },
     { field: "id", headerName: "User Id" },
     { field: "username", headerName: "Username" },
     { field: "phone", headerName: "Phone" },
@@ -166,7 +174,31 @@ const HostUsers = () => {
       },
     },
     { field: "status", headerName: "Status" },
-    { field: "connectStatus", headerName: "Connect Status" },
+    {
+      field: "connectStatus",
+      headerName: "Connect Status",
+      renderCell: (params) => {
+        const getStatusColor = (status) => {
+          switch (status?.toLowerCase()) {
+            case "online":
+              return theme.palette.success.main;
+            case "incall":
+              return theme.palette.error.main;
+            case "offline":
+              return "#111827";
+            default:
+              return "#9ca3af";
+          }
+        };
+
+        return (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Circle size={12} weight="fill" color={getStatusColor(params)} />
+            <Typography>{params}</Typography>
+          </Box>
+        );
+      },
+    },
     {
       field: "action",
       headerName: "Action",
@@ -197,6 +229,7 @@ const HostUsers = () => {
           value={selectedLanguage}
           onChange={handleLanguageChange}
           label="Language"
+          size={"small"}
         >
           {languagesData?.data?.languages?.map((language) => (
             <MenuItem key={language.language} value={language.language}>
@@ -205,12 +238,42 @@ const HostUsers = () => {
           ))}
         </Select>
       </FormControl>
-      <DataTable columns={columns} rows={rows} />
-      {rows?.length <= 0 && (
+
+      <Pagination
+        count={data?.data?.pagination?.totalPages || 1}
+        page={page}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 4,
+        }}
+        onChange={handlePageChange}
+      />
+
+      <DataTable columns={columns} rows={rows || []} />
+      {(!rows || rows.length <= 0) && (
         <Typography textAlign={"center"} my={5}>
           No data found
         </Typography>
       )}
+
+      <Pagination
+        count={data?.data?.pagination?.totalPages || 1}
+        page={page}
+        color="primary"
+        variant="outlined"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 2,
+          mt: 4,
+        }}
+        onChange={handlePageChange}
+      />
     </LoadingBackdrop>
   );
 };
