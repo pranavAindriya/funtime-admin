@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import DataTable from "../../../components/DataTable";
 import {
@@ -9,10 +9,7 @@ import {
   Pagination,
   TextField,
   Button,
-  Select,
-  MenuItem,
   InputAdornment,
-  Divider,
   Typography,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
@@ -173,6 +170,7 @@ const Userlist = () => {
     { field: "email", headerName: "Email" },
     { field: "dob", headerName: "Date of Birth" },
     { field: "about", headerName: "About" },
+    { field: "joined", headerName: "Member Since" },
     { field: "gender", headerName: "Gender" },
     { field: "coin", headerName: "Coin" },
     {
@@ -222,6 +220,7 @@ const Userlist = () => {
       gender: user?.profile?.gender,
       coin: user?.profile?.coin,
       about: user?.profile?.userDescription,
+      joined: formatDate(user?.createdAt),
       blacklist: { value: user?.blocked, userId: user?._id },
       actions: user?._id,
       overview: user?._id,

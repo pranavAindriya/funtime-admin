@@ -22,6 +22,7 @@ import {
 } from "../../../service/allApi";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../../../components/DataTable";
+import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -63,6 +64,7 @@ export default function UserOverview() {
   const [page, setPage] = useState(1);
   const [callHistory, setCallHistory] = useState([]);
   const [transactionHistory, setTransactionHistory] = useState([]);
+  const [loading, setIsLoading] = useState(false)
 
   const [profileData, setProfileData] = useState({});
 
@@ -115,6 +117,7 @@ export default function UserOverview() {
   useEffect(() => {
     const fetchData = async () => {
       if (id) {
+        setIsLoading(true)
         try {
           const [profileResponse, callResponse, transactionResponse] =
             await Promise.all([
@@ -130,6 +133,8 @@ export default function UserOverview() {
             setTransactionHistory(transactionResponse?.data?.transactions);
         } catch (error) {
           console.error("Error fetching data:", error);
+        } finally {
+        setIsLoading(false)
         }
       }
     };
@@ -144,7 +149,7 @@ export default function UserOverview() {
     { field: "userId", headerName: "User ID" },
     { field: "userName", headerName: "User Name" },
     { field: "duration", headerName: "Duration" },
-    { field: "diamondsEarned", headerName: "Diamonds Earned" },
+    { field: "diamondsEarned", headerName: "Coins Deducted" },
   ];
 
   const rechargeHistoryColumns = [
@@ -167,7 +172,7 @@ export default function UserOverview() {
   ];
 
   return (
-    <Box>
+    <LoadingBackdrop open={loading}>
       <IconButton sx={{ mb: 2 }} onClick={() => navigate("/users?tab=users")}>
         <ArrowLeft color="black" />
       </IconButton>
@@ -314,10 +319,10 @@ export default function UserOverview() {
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>
-            <DataTable columns={withdrawalHistoryColumns} />
+            <DataTable columns={withdrawalHistoryColumns}  />
           </TabPanel>
         </Box>
       </Box>
-    </Box>
+    </LoadingBackdrop>
   );
 }
