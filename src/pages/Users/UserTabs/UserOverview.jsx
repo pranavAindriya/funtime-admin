@@ -213,7 +213,7 @@ export default function UserOverview() {
                 color="text.secondary"
                 sx={{ mb: 0.5 }}
               >
-                Host : {profileData?.hosting ? "Yes" : "No"}
+                Host : {(profileData?.hosting && profileData?.status === "approved")  ? "Yes" : "No"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Member since ...
