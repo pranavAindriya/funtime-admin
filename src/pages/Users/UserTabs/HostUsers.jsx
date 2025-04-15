@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getAllHostUsers,
@@ -18,8 +18,17 @@ import {
   Typography,
   useTheme,
   Pagination,
+  Button,
 } from "@mui/material";
-import { Pencil, Check, X, Plus, Minus, Circle } from "@phosphor-icons/react";
+import {
+  Pencil,
+  Check,
+  X,
+  Plus,
+  Minus,
+  Circle,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import LoadingBackdrop from "../../../components/LoadingBackdrop";
 
 const HostUsers = () => {
@@ -29,29 +38,51 @@ const HostUsers = () => {
   const [balanceOperation, setBalanceOperation] = useState("add");
   const [selectedLanguage, setSelectedLanguage] = useState("Malayalam");
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const ITEMS_PER_PAGE = 20;
 
   const theme = useTheme();
+
+  // Define query key factory for better organization
+  const hostUserQueryKeys = {
+    all: ["hostUsers"],
+    list: (language, page) => [...hostUserQueryKeys.all, { language, page }],
+    search: (language, searchTerm) => [
+      ...hostUserQueryKeys.all,
+      "search",
+      { language, searchTerm },
+    ],
+  };
 
   const { data: languagesData } = useQuery({
     queryKey: ["languages"],
     queryFn: getAllLanguages,
   });
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["hostUsers", selectedLanguage, page],
-    queryFn: () =>
-      getAllHostUsers(
-        `${selectedLanguage}&page=${page}&limit=${ITEMS_PER_PAGE}`
-      ),
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: isSearching
+      ? hostUserQueryKeys.search(selectedLanguage, activeSearchTerm)
+      : hostUserQueryKeys.list(selectedLanguage, page),
+    queryFn: () => {
+      let queryParams = `${selectedLanguage}&page=${page}&limit=${ITEMS_PER_PAGE}`;
+
+      if (isSearching && activeSearchTerm) {
+        queryParams += `&username=${activeSearchTerm}`;
+      }
+
+      return getAllHostUsers(queryParams);
+    },
     refetchInterval: 60000,
+    keepPreviousData: true,
   });
 
   const updateHeartBalanceMutation = useMutation({
     mutationFn: ({ userId, heart }) =>
       updateHostHeartBalance(userId, { heart }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["hostUsers"]);
+      queryClient.invalidateQueries(hostUserQueryKeys.all);
       setEditingUserId(null);
       setEditedHeartBalance("");
       setBalanceOperation("add");
@@ -74,11 +105,48 @@ const HostUsers = () => {
 
   const handleLanguageChange = (event) => {
     setSelectedLanguage(event.target.value);
-    setPage(1); // Reset to first page when language changes
+    setPage(1);
+    setSearchTerm("");
+    setActiveSearchTerm("");
+    setIsSearching(false);
   };
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
+  };
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      setIsSearching(true);
+      setPage(1);
+      setActiveSearchTerm(searchTerm.trim());
+
+      // Prefetch the search results
+      queryClient.prefetchQuery({
+        queryKey: hostUserQueryKeys.search(selectedLanguage, searchTerm.trim()),
+        queryFn: () =>
+          getAllHostUsers(
+            `${selectedLanguage}&username=${searchTerm.trim()}&page=1&limit=${ITEMS_PER_PAGE}`
+          ),
+      });
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setActiveSearchTerm("");
+    setIsSearching(false);
+    setPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && searchTerm.trim()) {
+      handleSearch();
+    }
   };
 
   const rows = data?.data?.data?.map((data, index) => ({
@@ -217,30 +285,73 @@ const HostUsers = () => {
   ];
 
   return (
-    <LoadingBackdrop open={isLoading}>
-      <FormControl
-        variant="outlined"
-        sx={{
-          marginBottom: 3,
-        }}
-      >
-        <InputLabel>Language</InputLabel>
-        <Select
-          value={selectedLanguage}
-          onChange={handleLanguageChange}
-          label="Language"
-          size={"small"}
+    <LoadingBackdrop open={isLoading || isFetching}>
+      <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
+        <FormControl
+          variant="outlined"
+          sx={{
+            minWidth: { xs: "100%", sm: 150 },
+          }}
         >
-          {languagesData?.data?.languages?.map((language) => (
-            <MenuItem key={language.language} value={language.language}>
-              {language.language}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          <InputLabel>Language</InputLabel>
+          <Select
+            value={selectedLanguage}
+            onChange={handleLanguageChange}
+            label="Language"
+            size="small"
+          >
+            {languagesData?.data?.languages?.map((language) => (
+              <MenuItem key={language.language} value={language.language}>
+                {language.language}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Box sx={{ display: "flex", gap: 1, flexGrow: 1 }}>
+          <TextField
+            label="Search username"
+            variant="outlined"
+            size="small"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  {searchTerm && (
+                    <IconButton size="small" onClick={handleClearSearch}>
+                      <X />
+                    </IconButton>
+                  )}
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            onClick={handleSearch}
+            variant="contained"
+            color="primary"
+            disabled={!searchTerm.trim()}
+          >
+            <MagnifyingGlass />
+          </Button>
+        </Box>
+      </Box>
+
+      {isSearching && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Showing search results for: <strong>{activeSearchTerm}</strong>
+            <Button size="small" onClick={handleClearSearch} sx={{ ml: 1 }}>
+              Clear Search
+            </Button>
+          </Typography>
+        </Box>
+      )}
 
       <Pagination
-        count={data?.data?.pagination?.totalPages || 1}
+        count={data?.data?.totalPages || 1}
         page={page}
         color="primary"
         variant="outlined"
@@ -255,13 +366,13 @@ const HostUsers = () => {
 
       <DataTable columns={columns} rows={rows || []} />
       {(!rows || rows.length <= 0) && (
-        <Typography textAlign={"center"} my={5}>
+        <Typography textAlign="center" my={5}>
           No data found
         </Typography>
       )}
 
       <Pagination
-        count={data?.data?.pagination?.totalPages || 1}
+        count={data?.data?.totalPages || 1}
         page={page}
         color="primary"
         variant="outlined"

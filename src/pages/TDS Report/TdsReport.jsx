@@ -1,5 +1,5 @@
 import { Typography, Button, Pagination, Chip } from "@mui/material";
-import React, { useState } from "react";
+import { useState } from "react";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 import DataTable from "../../components/DataTable";
 import { useQuery } from "@tanstack/react-query";
@@ -21,9 +21,10 @@ const TdsReport = () => {
   const [endDate, setEndDate] = useState("");
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(50);
   const [selectedFilterType, setSelectedFilterType] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
+
+  const limit = 50;
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: [
@@ -46,7 +47,7 @@ const TdsReport = () => {
   });
 
   const columns = [
-    { field: "slno", headerName: "SlNo" },
+    // { field: "slno", headerName: "SlNo" },
     { field: "invoiceBillNo", headerName: "Invoice Bill number" },
     { field: "customerId", headerName: "Customer ID" },
     { field: "customerName", headerName: "Customer Name" },

@@ -41,7 +41,7 @@ const CoinPurchase = () => {
   });
 
   const columns = [
-    { field: "slno", headerName: "SlNo" },
+    // { field: "slno", headerName: "SlNo" },
     { field: "invoiceBillNo", headerName: "Invoice Bill number" },
     { field: "customerId", headerName: "Customer ID" },
     { field: "customerName", headerName: "Customer Name" },

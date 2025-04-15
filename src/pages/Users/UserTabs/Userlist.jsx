@@ -61,9 +61,11 @@ const Userlist = () => {
     keepPreviousData: true,
   });
 
-  // Extract data from response
-  const users = response?.data?.users || response?.data || [];
-  const paginationDetails = response?.data?.pagination || {};
+  // Extract data from response - handle both search and pagination formats
+  const users = isSearching
+    ? response?.data || []
+    : response?.data?.users || [];
+  const paginationDetails = isSearching ? {} : response?.data?.pagination || {};
 
   // Block user mutation
   const blockUserMutation = useMutation({
@@ -77,15 +79,29 @@ const Userlist = () => {
       await queryClient.cancelQueries(queryKey);
       const previousUsers = queryClient.getQueryData(queryKey);
 
-      queryClient.setQueryData(queryKey, (old) => ({
-        ...old,
-        data: {
-          ...old.data,
-          users: old.data.users.map((user) =>
-            user._id === userId ? { ...user, blocked } : user
-          ),
-        },
-      }));
+      queryClient.setQueryData(queryKey, (old) => {
+        // Check if we're dealing with search results or paginated results
+        if (isSearching) {
+          // Handle search results
+          return {
+            ...old,
+            data: old.data.map((user) =>
+              user._id === userId ? { ...user, blocked } : user
+            ),
+          };
+        } else {
+          // Handle paginated results
+          return {
+            ...old,
+            data: {
+              ...old.data,
+              users: old.data.users.map((user) =>
+                user._id === userId ? { ...user, blocked } : user
+              ),
+            },
+          };
+        }
+      });
 
       return { previousUsers, queryKey };
     },
@@ -209,7 +225,7 @@ const Userlist = () => {
 
   const formatUsersForDataTable = () => {
     return users?.map((user, ind) => ({
-      slno: (page - 1) * 50 + ind + 1,
+      slno: isSearching ? ind + 1 : (page - 1) * 50 + ind + 1,
       userId: user?._id,
       username: { image: user?.profile?.image, username: user?.username },
       phone: user?.mobileNumber,
@@ -221,7 +237,7 @@ const Userlist = () => {
       coin: user?.profile?.coin,
       about: user?.profile?.userDescription,
       joined: formatDate(user?.createdAt),
-      blacklist: { value: user?.blocked, userId: user?._id },
+      blacklist: { value: user?.blocked || false, userId: user?._id },
       actions: user?._id,
       overview: user?._id,
     }));
