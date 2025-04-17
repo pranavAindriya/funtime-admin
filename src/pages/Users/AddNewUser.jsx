@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -50,10 +50,10 @@ const AddNewUser = () => {
       .min(3, "Username must be at least 3 characters"),
     phoneNumber:
       type === "edit"
-        ? Yup.string().matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
+        ? Yup.string().max(10, "Phone can only be maximum of 10 digits")
         : Yup.string()
             .required("Phone number is required")
-            .matches(/^[0-9]{10}$/, "Phone number must be 10 digits"),
+            .max(10, "Phone can only be maximum of 10 digits"),
     dob: Yup.date()
       .required("Date of birth is required")
       .nullable()
