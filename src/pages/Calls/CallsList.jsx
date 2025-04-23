@@ -1,41 +1,94 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { TextField, Box, Button, Typography, Pagination } from "@mui/material";
+import {
+  TextField,
+  Box,
+  Button,
+  Typography,
+  Pagination,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import { getRecentCalls } from "../../service/allApi";
 import formatDate from "../../utils/formatdate";
 import DataTable from "../../components/DataTable";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 import { useSelector } from "react-redux";
 import { isModuleBlocked } from "../../redux/slices/authSlice";
+import { X } from "@phosphor-icons/react"; // Import X icon or use appropriate icon
 
 const CallsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [activeFromDate, setActiveFromDate] = useState("");
+  const [activeToDate, setActiveToDate] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(100);
   const [isDateFilterApplied, setIsDateFilterApplied] = useState(false);
-  const [filteredRows, setFilteredRows] = useState([]); // New state for filtered results
+
+  // Define query keys
+  const callsQueryKeys = {
+    all: ["recentCalls"],
+    list: (page, limit) => [...callsQueryKeys.all, { page, limit }],
+    search: (username, page, limit) => [
+      ...callsQueryKeys.all,
+      "search",
+      { username, page, limit },
+    ],
+    dateFilter: (fromDate, toDate, page, limit) => [
+      ...callsQueryKeys.all,
+      "dateFilter",
+      { fromDate, toDate, page, limit },
+    ],
+    searchWithDate: (username, fromDate, toDate, page, limit) => [
+      ...callsQueryKeys.all,
+      "searchWithDate",
+      { username, fromDate, toDate, page, limit },
+    ],
+  };
+
+  // Determine the appropriate query key based on active filters
+  const getQueryKey = () => {
+    if (isSearching && isDateFilterApplied) {
+      return callsQueryKeys.searchWithDate(
+        activeSearchTerm,
+        activeFromDate,
+        activeToDate,
+        page,
+        limit
+      );
+    } else if (isSearching) {
+      return callsQueryKeys.search(activeSearchTerm, page, limit);
+    } else if (isDateFilterApplied) {
+      return callsQueryKeys.dateFilter(
+        activeFromDate,
+        activeToDate,
+        page,
+        limit
+      );
+    } else {
+      return callsQueryKeys.list(page, limit);
+    }
+  };
 
   const {
     data: callData,
     isLoading,
-    refetch,
+    isFetching,
   } = useQuery({
-    queryKey: [
-      "recentCalls",
-      page,
-      limit,
-      isDateFilterApplied ? fromDate : "",
-      isDateFilterApplied ? toDate : "",
-    ],
+    queryKey: getQueryKey(),
     queryFn: () =>
       getRecentCalls(
         page,
         limit,
-        isDateFilterApplied ? fromDate : "",
-        isDateFilterApplied ? toDate : ""
+        isDateFilterApplied ? activeFromDate : "",
+        isDateFilterApplied ? activeToDate : "",
+        isSearching ? activeSearchTerm : ""
       ),
+    keepPreviousData: true,
   });
 
   // Format data for the table
@@ -55,44 +108,55 @@ const CallsList = () => {
     );
   };
 
-  // Update filtered rows whenever the data changes
-  useEffect(() => {
-    setFilteredRows(formattedRecentCalls());
-  }, [callData]);
-
-  // Handle search (frontend filtering)
+  // Handle search
   const handleSearch = () => {
-    if (!searchTerm.trim()) {
-      setFilteredRows(formattedRecentCalls());
-      return;
+    if (searchTerm.trim()) {
+      setIsSearching(true);
+      setActiveSearchTerm(searchTerm.trim());
+      setPage(1);
     }
+  };
 
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    const filtered = formattedRecentCalls().filter((row) => {
-      return (
-        (row.caller?.toLowerCase() || "").includes(lowerCaseSearchTerm) ||
-        (row.host?.toLowerCase() || "").includes(lowerCaseSearchTerm)
-      );
-    });
-    setFilteredRows(filtered);
+  // Handle clear search
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setActiveSearchTerm("");
+    setIsSearching(false);
+    setPage(1);
+  };
+
+  // Handle search on Enter key
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && searchTerm.trim()) {
+      handleSearch();
+    }
   };
 
   // Handle date filter
   const handleDateFilter = () => {
-    setIsDateFilterApplied(true);
-    setPage(1);
-    refetch();
+    if (fromDate && toDate) {
+      setActiveFromDate(fromDate);
+      setActiveToDate(toDate);
+      setIsDateFilterApplied(true);
+      setPage(1);
+    }
   };
 
   // Handle reset filter
   const handleResetFilter = () => {
-    setIsDateFilterApplied(false);
-    setFromDate("");
-    setToDate("");
+    if (isDateFilterApplied) {
+      setIsDateFilterApplied(false);
+      setFromDate("");
+      setToDate("");
+      setActiveFromDate("");
+      setActiveToDate("");
+    }
+
+    if (isSearching) {
+      handleClearSearch();
+    }
+
     setPage(1);
-    setSearchTerm("");
-    setFilteredRows(formattedRecentCalls());
-    refetch();
   };
 
   // Handle pagination change
@@ -132,7 +196,7 @@ const CallsList = () => {
   }
 
   return (
-    <LoadingBackdrop open={isLoading}>
+    <LoadingBackdrop open={isLoading || isFetching}>
       <Typography fontSize={22} fontWeight={600} mb={3}>
         Recent Calls List
       </Typography>
@@ -150,15 +214,26 @@ const CallsList = () => {
           label="Search by Username"
           variant="outlined"
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            if (!e.target.value.trim()) {
-              setFilteredRows(formattedRecentCalls());
-            }
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
           size="small"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                {searchTerm && (
+                  <IconButton size="small" onClick={handleClearSearch}>
+                    <X />
+                  </IconButton>
+                )}
+              </InputAdornment>
+            ),
+          }}
         />
-        <Button variant="contained" onClick={handleSearch} size="small">
+        <Button
+          variant="contained"
+          onClick={handleSearch}
+          disabled={!searchTerm.trim()}
+        >
           Search
         </Button>
         <TextField
@@ -190,7 +265,7 @@ const CallsList = () => {
           onClick={handleResetFilter}
           size="small"
           color="primary"
-          disabled={!isDateFilterApplied}
+          disabled={!isDateFilterApplied && !isSearching}
         >
           Reset Filter
         </Button>
@@ -209,8 +284,8 @@ const CallsList = () => {
         }}
         onChange={handlePageChange}
       />
-      <DataTable columns={columns} rows={filteredRows} />
-      {filteredRows?.length <= 0 && (
+      <DataTable columns={columns} rows={formattedRecentCalls()} />
+      {formattedRecentCalls()?.length <= 0 && (
         <Typography textAlign={"center"} my={5}>
           No data found
         </Typography>

@@ -146,15 +146,23 @@ export const getRecentCalls = async (
   page,
   limit = 10,
   fromDate = "",
-  toDate = ""
+  toDate = "",
+  username = ""
 ) => {
   let url = `api/users/CallTransactionHistory?page=${page}&limit=${limit}`;
+
+  if (username) {
+    url += `&username=${encodeURIComponent(username)}`;
+  }
+
   if (fromDate) {
-    url += `&fromDate=${fromDate}`;
+    url += `&startdate=${fromDate}`;
   }
+
   if (toDate) {
-    url += `&toDate=${toDate}`;
+    url += `&enddate=${toDate}`;
   }
+
   return commonRequest("GET", url);
 };
 
