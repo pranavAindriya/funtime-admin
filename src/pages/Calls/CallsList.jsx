@@ -104,6 +104,8 @@ const CallsList = () => {
         duration: call?.duration,
         coinDeducted: call?.coinDeducted,
         diamond: call?.heartsTransferred,
+        hostWalletBalance: call?.hostWalletBalance || 0,
+        userWalletBalance: call?.userWalletBalance || 0,
       })) || []
     );
   };
@@ -174,6 +176,8 @@ const CallsList = () => {
     { field: "duration", headerName: "Duration", flex: 1 },
     { field: "coinDeducted", headerName: "Coin Reduced", flex: 1 },
     { field: "diamond", headerName: "Diamond", flex: 1 },
+    { field: "hostWalletBalance", headerName: "Host Wallet Balance", flex: 1 },
+    { field: "userWalletBalance", headerName: "User Wallet Balance", flex: 1 },
   ];
 
   const isBlocked = useSelector((state) => isModuleBlocked(state, "Calls"));
