@@ -134,7 +134,7 @@ const Coins = () => {
 
   const columns = [
     { field: "slno", headerName: "Sl No" },
-    { field: "coin", headerName: "Coin" },
+    { field: "coin", headerName: "Credits" },
     { field: "rateInInr", headerName: "Rate in INR" },
     {
       field: "image",
@@ -213,7 +213,7 @@ const Coins = () => {
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "15px" }}>
           <span style={{ fontWeight: 700, fontSize: "16px" }}>
-            Free Coins for new users
+            Free Credits for new users
           </span>
           <InputField
             value={freeCoinDetails.freeCoinForNewUsers}
@@ -272,7 +272,7 @@ const Coins = () => {
         )}
       </Box>
       <TopAddNewBar
-        label={"Coin Purchase Packages"}
+        label={"Credit Purchase Packages"}
         onAddButtonClick={() => navigate("/coins/add")}
         hasAccess={hasAccess}
       />
@@ -304,7 +304,7 @@ const Coins = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="delete-confirmation-description">
-            Are you sure you want to delete this coin package?
+            Are you sure you want to delete this credit package?
           </DialogContentText>
         </DialogContent>
         <DialogActions>

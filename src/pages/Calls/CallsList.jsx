@@ -204,7 +204,7 @@ const CallsList = () => {
   return (
     <LoadingBackdrop open={isLoading || isFetching}>
       <Typography fontSize={22} fontWeight={600} mb={3}>
-        Recent Calls List
+        Recent Consultation List
       </Typography>
       <Box
         sx={{

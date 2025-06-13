@@ -48,15 +48,15 @@ export const sidebarItems = [
     module: MODULES.USERS,
   },
   {
-    text: "Calls",
+    text: "Consulting",
     icon: Phone,
-    link: "/calls",
+    link: "/consulting",
     module: MODULES.CALLS,
   },
   {
-    text: "Coins",
+    text: "Credits",
     icon: HandCoins,
-    link: "/coins",
+    link: "/credits",
     module: MODULES.COINS,
   },
   {
@@ -65,18 +65,18 @@ export const sidebarItems = [
     link: "/conversion",
     module: MODULES.CONVERSION,
   },
-  {
-    text: "Withdrawal",
-    icon: HandArrowDown,
-    link: "/withdrawals",
-    module: MODULES.WITHDRAWAL,
-  },
-  {
-    text: "Leader Board",
-    icon: Trophy,
-    link: "/leaderboard",
-    module: MODULES.LEADERBOARD,
-  },
+  // {
+  //   text: "Withdrawal",
+  //   icon: HandArrowDown,
+  //   link: "/withdrawals",
+  //   module: MODULES.WITHDRAWAL,
+  // },
+  // {
+  //   text: "Leader Board",
+  //   icon: Trophy,
+  //   link: "/leaderboard",
+  //   module: MODULES.LEADERBOARD,
+  // },
   {
     text: "Notifications",
     icon: Notification,
@@ -108,9 +108,9 @@ export const sidebarItems = [
     module: MODULES.TDS,
   },
   {
-    text: "Coin Purchase",
+    text: "Credit Purchase",
     icon: Coins,
-    link: "/coin-purchase",
+    link: "/credit-purchase",
     module: MODULES.COIN_PURCHASE,
   },
   {

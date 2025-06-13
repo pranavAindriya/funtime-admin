@@ -175,7 +175,7 @@ const CoinPurchase = () => {
         mb={3}
       >
         <Typography fontSize={23} fontWeight={600}>
-          Coin Purchase Reports
+          Credit Purchase Reports
         </Typography>
         {hasAccess && (
           <Button variant="contained" onClick={handleExport}>
